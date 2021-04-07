@@ -1,0 +1,27 @@
+databaseChangeLog:
+
+  - changeSet:
+      id: 000000-create-table-users
+      author: Gasymov Ruslan
+      changes:
+        - createTable:
+            tableName: users
+            columns:
+              - column: { name: id, type: varchar(255) }
+              - column: { name: name, type: varchar(255) }
+              - column: { name: picture, type: text }
+              - column: { name: email, type: varchar(255) }
+              - column: { name: locale, type: varchar(255) }
+              - column: { name: last_visit, type: timestamp }
+
+  - changeSet:
+      id: 000000-create-constraint-users
+      author: Gasymov Ruslan
+      changes:
+        - addNotNullConstraint:
+            tableName: users
+            columnName: id
+            columnDataType: varchar(255)
+        - addPrimaryKey:
+            columnNames: id
+            tableName: users
