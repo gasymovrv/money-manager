@@ -1,0 +1,22 @@
+server:
+  api-base-url: /api
+  servlet:
+    context-path: /money-manager
+spring:
+  application:
+    name: money-manager
+  main:
+    banner-mode: "off"
+    allow-bean-definition-overriding: true
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+    default-property-inclusion: non_null
+    time-zone: UTC
+  datasource:
+    url: jdbc:h2:file:./data/money-manager-db;AUTO_SERVER=TRUE
+    driverClassName: org.h2.Driver
+    username: sa
+    password: password
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect

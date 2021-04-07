@@ -1,0 +1,6 @@
+databaseChangeLog:
+  - include: { relativeToChangelogFile: true, file: accumulation.yaml }
+  - include: { relativeToChangelogFile: true, file: income_type.yaml }
+  - include: { relativeToChangelogFile: true, file: expense_type.yaml }
+  - include: { relativeToChangelogFile: true, file: income.yaml }
+  - include: { relativeToChangelogFile: true, file: expense.yaml }

@@ -1,0 +1,6 @@
+rootProject.name = 'money-manager'
+
+//include ':frontend'
+include ':backend-app'
+
+project(':backend-app').projectDir = "$rootDir/backend/backend-app" as File
