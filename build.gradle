@@ -1,7 +1,7 @@
 plugins {
     id 'org.springframework.boot' version '2.4.4' apply false
     //List of versions for dependencies:
-    //https://docs.spring.io/spring-boot/docs/2.4.1/reference/html/appendix-dependency-versions.html
+    //https://docs.spring.io/spring-boot/docs/2.4.4/reference/html/appendix-dependency-versions.html
     id 'io.spring.dependency-management' version '1.0.11.RELEASE' apply false
     id 'java'
     id 'com.github.node-gradle.node' version '2.2.4' apply false
@@ -10,7 +10,7 @@ plugins {
 ext {
     //variables for versions of some custom dependencies
     springfoxVersion = '3.0.0'
-    mapstructVersion = '1.4.1.Final'
+    mapstructVersion = '1.4.2.Final'
     commonsIoVersion = '2.8.0'
     powermockitoVersion = '2.0.9'
     commonsCollectionsVersion = '3.2.1'
@@ -24,7 +24,7 @@ allprojects {
 
 subprojects {
     //Changing version in spring.dependency-management
-    ext['hibernate.version'] = '5.4.26.Final'
+    ext['lombok.version'] = '1.18.20'
 
     group = 'ru.rgasymov'
     sourceCompatibility = '15'

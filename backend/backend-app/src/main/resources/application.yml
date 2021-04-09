@@ -3,6 +3,10 @@ server:
   servlet:
     session:
       timeout: ${SESSION_TIMEOUT:1h}
+  error:
+    whitelabel:
+      enabled: false
+
 spring:
   application:
     name: money-manager
@@ -35,3 +39,8 @@ spring:
             clientId: ${GOOGLE_CLIENT_ID:client-id}
             clientSecret: ${GOOGLE_CLIENT_SECRET:client-secret}
             redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+
+springfox:
+  documentation:
+    swagger-ui:
+      enabled: ${ENABLE_SWAGGER:true}

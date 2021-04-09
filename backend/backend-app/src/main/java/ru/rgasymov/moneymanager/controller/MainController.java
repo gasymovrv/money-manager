@@ -9,11 +9,15 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import ru.rgasymov.moneymanager.domain.entity.User;
 import ru.rgasymov.moneymanager.service.UserService;
+import springfox.documentation.annotations.ApiIgnore;
 
+@ApiIgnore
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/")
 public class MainController {
+
+    private static final String GOOGLE_AUTHORIZATION_URI = "oauth2/authorization/google";
 
     private final UserService userService;
 
@@ -22,5 +26,11 @@ public class MainController {
         User user = userService.findByOidcToken(token);
         model.addAttribute("user", user);
         return "index";
+    }
+
+    @GetMapping("/login")
+    public String getLoginPage(Model model) {
+        model.addAttribute("googleAuthUri", GOOGLE_AUTHORIZATION_URI);
+        return "login";
     }
 }
