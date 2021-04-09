@@ -34,3 +34,4 @@ spring:
           google:
             clientId: ${GOOGLE_CLIENT_ID:client-id}
             clientSecret: ${GOOGLE_CLIENT_SECRET:client-secret}
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
