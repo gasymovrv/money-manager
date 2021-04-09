@@ -8,6 +8,7 @@ databaseChangeLog:
             tableName: expense
             columns:
               - column: { name: id, type: bigint }
+              - column: { name: user_id, type: varchar(255) }
               - column: { name: expense_type_id, type: bigint }
               - column: { name: accumulation_id, type: bigint }
               - column: { name: date, type: date }
@@ -41,3 +42,9 @@ databaseChangeLog:
             constraintName: fk_expense_accumulation
             referencedColumnNames: id
             referencedTableName: accumulation
+        - addForeignKeyConstraint:
+            baseColumnNames: user_id
+            baseTableName: expense
+            constraintName: fk_expense_user
+            referencedColumnNames: id
+            referencedTableName: users

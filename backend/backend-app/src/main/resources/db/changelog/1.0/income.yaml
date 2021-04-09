@@ -8,6 +8,7 @@ databaseChangeLog:
             tableName: income
             columns:
               - column: { name: id, type: bigint }
+              - column: { name: user_id, type: varchar(255) }
               - column: { name: income_type_id, type: bigint }
               - column: { name: accumulation_id, type: bigint }
               - column: { name: date, type: date }
@@ -41,3 +42,9 @@ databaseChangeLog:
             constraintName: fk_income_accumulation
             referencedColumnNames: id
             referencedTableName: accumulation
+        - addForeignKeyConstraint:
+            baseColumnNames: user_id
+            baseTableName: income
+            constraintName: fk_income_user
+            referencedColumnNames: id
+            referencedTableName: users

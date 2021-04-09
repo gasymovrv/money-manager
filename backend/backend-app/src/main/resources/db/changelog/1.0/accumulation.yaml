@@ -8,6 +8,7 @@ databaseChangeLog:
             tableName: accumulation
             columns:
               - column: { name: id, type: bigint }
+              - column: { name: user_id, type: varchar(255) }
               - column: { name: date, type: date }
               - column: { name: value, type: numeric }
 

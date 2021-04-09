@@ -8,6 +8,7 @@ databaseChangeLog:
             tableName: income_type
             columns:
               - column: { name: id, type: bigint }
+              - column: { name: user_id, type: varchar(255) }
               - column: { name: name, type: varchar(255) }
 
   - changeSet:
@@ -26,6 +27,12 @@ databaseChangeLog:
             columnName: id
             columnDataType: bigint
             tableName: income_type
+        - addForeignKeyConstraint:
+            baseColumnNames: user_id
+            baseTableName: income_type
+            constraintName: fk_income_type_user
+            referencedColumnNames: id
+            referencedTableName: users
 
   - changeSet:
       id: 000000-add-records-income_type
