@@ -5,6 +5,7 @@ import java.util.Set;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,12 +18,16 @@ import ru.rgasymov.moneymanager.domain.dto.request.IncomeTypeRequestDto;
 import ru.rgasymov.moneymanager.domain.dto.response.IncomeResponseDto;
 import ru.rgasymov.moneymanager.domain.dto.response.IncomeTypeResponseDto;
 import ru.rgasymov.moneymanager.service.IncomeService;
+import ru.rgasymov.moneymanager.service.UserService;
 import ru.rgasymov.moneymanager.service.impl.IncomeTypeService;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("${server.api-base-url}/incomes")
+@Slf4j
 public class IncomeController {
+
+    private final UserService userService;
 
     private final IncomeService incomeService;
 
@@ -30,26 +35,37 @@ public class IncomeController {
 
     @GetMapping
     public List<IncomeResponseDto> findAll() {
+        log.info("# Find all incomes, current user: {}", userService.getCurrentUser());
         return incomeService.findAll();
     }
 
     @PostMapping
     public IncomeResponseDto create(@RequestBody @Valid IncomeRequestDto dto) {
+        log.info("# Create a new income by dto: {}, current user: {}", dto, userService.getCurrentUser());
         return incomeService.create(dto);
+    }
+
+    @DeleteMapping("/{id}")
+    public void delete(@PathVariable Long id) {
+        log.info("# Delete an income by id: {}, current user: {}", id, userService.getCurrentUser());
+        incomeService.delete(id);
     }
 
     @GetMapping("/types")
     public Set<IncomeTypeResponseDto> findAllTypes() {
+        log.info("# Find all income types, current user: {}", userService.getCurrentUser());
         return incomeTypeService.findAll();
     }
 
     @PostMapping("/types")
     public IncomeTypeResponseDto createType(@RequestBody @Valid IncomeTypeRequestDto dto) {
+        log.info("# Create a new income type by dto: {}, current user: {}", dto, userService.getCurrentUser());
         return incomeTypeService.create(dto);
     }
 
     @DeleteMapping("/types/{id}")
     public void deleteType(@PathVariable @NotNull Long id) {
+        log.info("# Delete an income type by id: {}, current user: {}", id, userService.getCurrentUser());
         incomeTypeService.delete(id);
     }
 }

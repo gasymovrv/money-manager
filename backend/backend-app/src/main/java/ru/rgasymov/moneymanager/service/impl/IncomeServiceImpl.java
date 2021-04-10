@@ -59,4 +59,11 @@ public class IncomeServiceImpl implements IncomeService {
         Income saved = incomeRepository.save(newIncome);
         return incomeMapper.toDto(saved);
     }
+
+    @Transactional
+    @Override
+    public void delete(Long id) {
+        User currentUser = userService.getCurrentUser();
+        incomeRepository.deleteByIdAndUserId(id, currentUser.getId());
+    }
 }

@@ -9,4 +9,6 @@ public interface ExpenseService {
     List<ExpenseResponseDto> findAll();
 
     ExpenseResponseDto create(ExpenseRequestDto dto);
+
+    void delete(Long id);
 }

@@ -59,4 +59,11 @@ public class ExpenseServiceImpl implements ExpenseService {
         Expense saved = expenseRepository.save(newExpense);
         return expenseMapper.toDto(saved);
     }
+
+    @Transactional
+    @Override
+    public void delete(Long id) {
+        User currentUser = userService.getCurrentUser();
+        expenseRepository.deleteByIdAndUserId(id, currentUser.getId());
+    }
 }

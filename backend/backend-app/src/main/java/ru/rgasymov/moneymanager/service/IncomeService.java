@@ -9,4 +9,6 @@ public interface IncomeService {
     List<IncomeResponseDto> findAll();
 
     IncomeResponseDto create(IncomeRequestDto dto);
+
+    void delete(Long id);
 }
