@@ -13,6 +13,7 @@ import org.springframework.security.oauth2.core.oidc.OidcIdToken;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.rgasymov.moneymanager.domain.dto.OidcUserProxy;
 import ru.rgasymov.moneymanager.domain.entity.User;
 import ru.rgasymov.moneymanager.repository.UserRepository;
 import ru.rgasymov.moneymanager.service.UserService;
@@ -24,12 +25,11 @@ public class CustomOidcUserService extends OidcUserService implements UserServic
 
     private final UserRepository userRepository;
 
-    @Transactional(readOnly = true)
     @Override
     public User getCurrentUser() {
         var authentication = SecurityContextHolder.getContext().getAuthentication();
-        String id = authentication.getName();
-        return userRepository.findById(id).orElseThrow();
+        var principal = (OidcUserProxy) authentication.getPrincipal();
+        return principal.getCurrentUser();
     }
 
     @Transactional
@@ -69,6 +69,6 @@ public class CustomOidcUserService extends OidcUserService implements UserServic
         userRepository.save(user);
 
         log.info("# User was successfully logged in: {}", user);
-        return oidcUser;
+        return new OidcUserProxy(oidcUser, user);
     }
 }

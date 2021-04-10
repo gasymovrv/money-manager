@@ -7,6 +7,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
 @Entity
@@ -20,13 +21,17 @@ public class User {
 
     private String name;
 
+    @ToString.Exclude
     @Column(columnDefinition = "clob")
     private String picture;
 
+    @ToString.Exclude
     private String email;
 
+    @ToString.Exclude
     private String locale;
 
+    @ToString.Exclude
     @Column(name = "last_visit")
     private LocalDateTime lastVisit;
 }
