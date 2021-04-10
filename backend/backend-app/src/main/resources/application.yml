@@ -44,3 +44,18 @@ springfox:
   documentation:
     swagger-ui:
       enabled: ${ENABLE_SWAGGER:true}
+
+logging:
+  level:
+    com.safran.apprecl: ${LOG_LEVEL_APP:INFO}
+    org.hibernate.SQL: ${LOG_LEVEL_HIBERNATE:INFO}
+    org.springframework.web: ${LOG_LEVEL_SPRING_WEB:INFO}
+    org.springframework.security: ${LOG_LEVEL_SPRING_SECURITY:INFO}
+    root: ${LOG_LEVEL_ROOT:INFO}
+  file:
+    name: ${LOGFILE_NAME:money-manager.log}
+  logback:
+    rollingpolicy:
+      max-file-size: ${LOGFILE_MAX_SIZE:100MB}
+      max-history: ${LOG_ARCHIVE_MAX_DAYS:60}
+      total-size-cap: ${LOG_ARCHIVE_MAX_SIZE:500MB}
