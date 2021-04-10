@@ -23,7 +23,7 @@ public class ExpenseResponseDto {
 
     private ExpenseTypeResponseDto expenseType;
 
-    private Long accumulationId;
+    private AccumulationResponseDto accumulation;
 
     private LocalDate date;
 

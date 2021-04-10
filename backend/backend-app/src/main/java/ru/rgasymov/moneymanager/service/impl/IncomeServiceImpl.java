@@ -1,5 +1,6 @@
 package ru.rgasymov.moneymanager.service.impl;
 
+import java.time.LocalDate;
 import java.util.List;
 import javax.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -8,12 +9,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.rgasymov.moneymanager.domain.dto.request.IncomeRequestDto;
 import ru.rgasymov.moneymanager.domain.dto.response.IncomeResponseDto;
+import ru.rgasymov.moneymanager.domain.entity.Accumulation;
 import ru.rgasymov.moneymanager.domain.entity.Income;
 import ru.rgasymov.moneymanager.domain.entity.IncomeType;
 import ru.rgasymov.moneymanager.domain.entity.User;
 import ru.rgasymov.moneymanager.mapper.IncomeMapper;
 import ru.rgasymov.moneymanager.repository.IncomeRepository;
 import ru.rgasymov.moneymanager.repository.IncomeTypeRepository;
+import ru.rgasymov.moneymanager.service.AccumulationService;
 import ru.rgasymov.moneymanager.service.IncomeService;
 import ru.rgasymov.moneymanager.service.UserService;
 
@@ -25,6 +28,8 @@ public class IncomeServiceImpl implements IncomeService {
     private final IncomeRepository incomeRepository;
 
     private final IncomeTypeRepository incomeTypeRepository;
+
+    private final AccumulationService accumulationService;
 
     private final UserService userService;
 
@@ -41,6 +46,7 @@ public class IncomeServiceImpl implements IncomeService {
         User currentUser = userService.getCurrentUser();
         String currentUserId = currentUser.getId();
         Long incomeTypeId = dto.getIncomeTypeId();
+        LocalDate date = dto.getDate();
 
         IncomeType incomeType = incomeTypeRepository.findByIdAndUserId(incomeTypeId, currentUserId)
                 .orElseThrow(() ->
@@ -49,12 +55,16 @@ public class IncomeServiceImpl implements IncomeService {
                                         incomeTypeId)));
 
         Income newIncome = Income.builder()
-                .date(dto.getDate())
+                .date(date)
                 .value(dto.getValue())
                 .description(dto.getDescription())
                 .incomeType(incomeType)
                 .user(currentUser)
                 .build();
+
+        accumulationService.recalculate(newIncome);
+        Accumulation accumulation = accumulationService.findByDate(date);
+        newIncome.setAccumulation(accumulation);
 
         Income saved = incomeRepository.save(newIncome);
         return incomeMapper.toDto(saved);

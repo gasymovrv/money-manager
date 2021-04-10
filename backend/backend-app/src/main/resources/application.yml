@@ -25,6 +25,9 @@ spring:
     driverClassName: org.h2.Driver
     username: ${DATASOURCE_USERNAME:sa}
     password: ${DATASOURCE_PASSWORD:password}
+  h2:
+    console:
+      enabled: false
   jpa:
     database-platform: org.hibernate.dialect.H2Dialect
     hibernate:

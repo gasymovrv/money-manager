@@ -15,19 +15,13 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class IncomeResponseDto {
+public class AccumulationResponseDto {
 
     private Long id;
 
     private String userId;
 
-    private IncomeTypeResponseDto incomeType;
-
-    private AccumulationResponseDto accumulation;
-
     private LocalDate date;
-
-    private String description;
 
     private BigDecimal value;
 }

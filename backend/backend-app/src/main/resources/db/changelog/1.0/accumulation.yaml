@@ -27,3 +27,7 @@ databaseChangeLog:
             columnName: id
             columnDataType: bigint
             tableName: accumulation
+        - addUniqueConstraint:
+            tableName: accumulation
+            columnNames: date
+            constraintName: date_unique

@@ -6,18 +6,17 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 import org.mapstruct.ReportingPolicy;
-import ru.rgasymov.moneymanager.domain.dto.response.ExpenseResponseDto;
-import ru.rgasymov.moneymanager.domain.entity.Expense;
+import ru.rgasymov.moneymanager.domain.dto.response.AccumulationResponseDto;
+import ru.rgasymov.moneymanager.domain.entity.Accumulation;
 
 @Mapper(componentModel = "spring",
-        uses = {ExpenseTypeMapper.class, AccumulationMapper.class},
         unmappedTargetPolicy = ReportingPolicy.IGNORE)
-public interface ExpenseMapper {
+public interface AccumulationMapper {
 
     @Mapping(target = "userId", source = "user.id")
     @Named(value = "toDto")
-    ExpenseResponseDto toDto(Expense entity);
+    AccumulationResponseDto toDto(Accumulation entity);
 
     @IterableMapping(qualifiedByName = "toDto")
-    List<ExpenseResponseDto> toDtos(List<Expense> entities);
+    List<AccumulationResponseDto> toDtos(List<Accumulation> entities);
 }
