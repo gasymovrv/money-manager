@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -43,6 +44,13 @@ public class IncomeController {
     public IncomeResponseDto create(@RequestBody @Valid IncomeRequestDto dto) {
         log.info("# Create a new income by dto: {}, current user: {}", dto, userService.getCurrentUser());
         return incomeService.create(dto);
+    }
+
+    @PutMapping("/{id}")
+    public IncomeResponseDto update(@PathVariable Long id,
+                                    @RequestBody @Valid IncomeRequestDto dto) {
+        log.info("# Update the income by id: {}, dto: {}, current user: {}", id, dto, userService.getCurrentUser());
+        return incomeService.update(id, dto);
     }
 
     @DeleteMapping("/{id}")

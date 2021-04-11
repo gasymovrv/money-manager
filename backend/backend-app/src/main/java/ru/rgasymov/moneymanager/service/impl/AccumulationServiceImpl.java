@@ -11,8 +11,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.rgasymov.moneymanager.domain.dto.response.AccumulationResponseDto;
 import ru.rgasymov.moneymanager.domain.entity.Accumulation;
-import ru.rgasymov.moneymanager.domain.entity.Expense;
-import ru.rgasymov.moneymanager.domain.entity.Income;
 import ru.rgasymov.moneymanager.domain.entity.User;
 import ru.rgasymov.moneymanager.mapper.AccumulationMapper;
 import ru.rgasymov.moneymanager.repository.AccumulationRepository;
@@ -50,37 +48,25 @@ public class AccumulationServiceImpl implements AccumulationService {
 
     @Transactional
     @Override
-    public void recalculate(Income income) {
-        User currentUser = userService.getCurrentUser();
-        String currentUserId = currentUser.getId();
-        BigDecimal value = income.getValue();
-        LocalDate date = income.getDate();
-
-        recalculate(date, value, BigDecimal::add,
-                () -> accumulationRepository.incrementValueByDateGreaterThan(value, date, currentUserId));
+    public void increase(BigDecimal value, LocalDate date) {
+        recalculate(date, value, BigDecimal::add, accumulationRepository::increaseValueByDateGreaterThan);
     }
 
     @Transactional
     @Override
-    public void recalculate(Expense expense) {
-        User currentUser = userService.getCurrentUser();
-        String currentUserId = currentUser.getId();
-        BigDecimal value = expense.getValue();
-        LocalDate date = expense.getDate();
-
-        recalculate(date, value, BigDecimal::subtract,
-                () -> accumulationRepository.decrementValueByDateGreaterThan(value, date, currentUserId));
+    public void decrease(BigDecimal value, LocalDate date) {
+        recalculate(date, value, BigDecimal::subtract, accumulationRepository::decreaseValueByDateGreaterThan);
     }
 
     private void recalculate(LocalDate date,
                              BigDecimal value,
                              BiFunction<BigDecimal, BigDecimal, BigDecimal> setValueFunc,
-                             Runnable recalculateOthersFunc) {
+                             RecalculateFunc recalculateOthersFunc) {
         User currentUser = userService.getCurrentUser();
         String currentUserId = currentUser.getId();
 
+        //Find the accumulation by date and recalculate its value by the specified value
         Optional<Accumulation> accOpt = accumulationRepository.findByDateAndUserId(date, currentUserId);
-
         if (accOpt.isPresent()) {
             Accumulation acc = accOpt.get();
             acc.setValue(setValueFunc.apply(acc.getValue(), value));
@@ -101,6 +87,7 @@ public class AccumulationServiceImpl implements AccumulationService {
             accumulationRepository.save(newAccumulation);
         }
 
-        recalculateOthersFunc.run();
+        //Recalculate the value of other accumulations by the specified value
+        recalculateOthersFunc.recalculate(value, date, currentUserId);
     }
 }

@@ -10,5 +10,7 @@ public interface IncomeService {
 
     IncomeResponseDto create(IncomeRequestDto dto);
 
+    IncomeResponseDto update(Long id, IncomeRequestDto dto);
+
     void delete(Long id);
 }

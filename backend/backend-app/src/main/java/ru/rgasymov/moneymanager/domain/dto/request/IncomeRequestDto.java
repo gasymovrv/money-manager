@@ -6,6 +6,7 @@ import io.swagger.annotations.ApiModel;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Positive;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -24,6 +25,7 @@ public class IncomeRequestDto {
 
     private String description;
 
+    @Positive
     @NotNull
     private BigDecimal value;
 }

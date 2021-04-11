@@ -10,5 +10,7 @@ public interface ExpenseService {
 
     ExpenseResponseDto create(ExpenseRequestDto dto);
 
+    ExpenseResponseDto update(Long id, ExpenseRequestDto dto);
+
     void delete(Long id);
 }

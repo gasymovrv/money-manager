@@ -25,9 +25,9 @@ public interface AccumulationRepository extends JpaRepository<Accumulation, Long
             set a.value = a.value + :increment
             where a.date > :date and a.user.id = :userId
             """)
-    void incrementValueByDateGreaterThan(@Param("increment") BigDecimal increment,
-                                         @Param("date") LocalDate date,
-                                         @Param("userId") String userId);
+    void increaseValueByDateGreaterThan(@Param("increment") BigDecimal increment,
+                                        @Param("date") LocalDate date,
+                                        @Param("userId") String userId);
 
     @Modifying
     @Query("""
@@ -35,7 +35,7 @@ public interface AccumulationRepository extends JpaRepository<Accumulation, Long
             set a.value = a.value - :decrement
             where a.date > :date and a.user.id = :userId
             """)
-    void decrementValueByDateGreaterThan(@Param("decrement") BigDecimal decrement,
-                                         @Param("date") LocalDate date,
-                                         @Param("userId") String userId);
+    void decreaseValueByDateGreaterThan(@Param("decrement") BigDecimal decrement,
+                                        @Param("date") LocalDate date,
+                                        @Param("userId") String userId);
 }
