@@ -42,7 +42,10 @@ public class ExpenseServiceImpl implements ExpenseService {
 
     @Override
     public List<ExpenseResponseDto> findAll() {
-        return expenseMapper.toDtos(expenseRepository.findAll());
+        User currentUser = userService.getCurrentUser();
+        String currentUserId = currentUser.getId();
+
+        return expenseMapper.toDtos(expenseRepository.findAllByUserId(currentUserId));
     }
 
     @Transactional

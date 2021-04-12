@@ -42,7 +42,10 @@ public class IncomeServiceImpl implements IncomeService {
 
     @Override
     public List<IncomeResponseDto> findAll() {
-        return incomeMapper.toDtos(incomeRepository.findAll());
+        User currentUser = userService.getCurrentUser();
+        String currentUserId = currentUser.getId();
+
+        return incomeMapper.toDtos(incomeRepository.findAllByUserId(currentUserId));
     }
 
     @Transactional

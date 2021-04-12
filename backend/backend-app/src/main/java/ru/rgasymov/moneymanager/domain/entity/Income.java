@@ -24,15 +24,15 @@ public class Income {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "user_id")
     private User user;
 
     @ManyToOne
-    @JoinColumn(name = "income_type_id", nullable = false)
+    @JoinColumn(name = "income_type_id")
     private IncomeType incomeType;
 
     @ManyToOne
-    @JoinColumn(name = "accumulation_id", nullable = false)
+    @JoinColumn(name = "accumulation_id")
     private Accumulation accumulation;
 
     private LocalDate date;
