@@ -18,7 +18,7 @@ databaseChangeLog:
         - addNotNullConstraint:
             tableName: expense_type
             columnName: id
-            columnDataType: uuid
+            columnDataType: bigint
         - addPrimaryKey:
             columnNames: id
             columnDataType: bigint
@@ -33,44 +33,3 @@ databaseChangeLog:
             constraintName: fk_expense_type_user
             referencedColumnNames: id
             referencedTableName: users
-
-  - changeSet:
-      id: 000000-add-records-expense_type
-      author: Gasymov Ruslan
-      changes:
-        - insert:
-            tableName: expense_type
-            columns:
-              - column:
-                  name: id
-                  value: 1
-              - column:
-                  name: name
-                  value: 'General expenses'
-        - insert:
-            tableName: expense_type
-            columns:
-              - column:
-                  name: id
-                  value: 2
-              - column:
-                  name: name
-                  value: 'Credits'
-        - insert:
-            tableName: expense_type
-            columns:
-              - column:
-                  name: id
-                  value: 3
-              - column:
-                  name: name
-                  value: 'Mortgage'
-        - insert:
-            tableName: expense_type
-            columns:
-              - column:
-                  name: id
-                  value: 4
-              - column:
-                  name: name
-                  value: 'Other'

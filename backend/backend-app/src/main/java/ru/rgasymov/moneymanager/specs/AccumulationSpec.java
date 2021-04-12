@@ -19,20 +19,20 @@ public class AccumulationSpec {
     }
 
     public static Specification<Accumulation> dateBetween(LocalDate from, LocalDate to) {
-        return (claim, cq, cb) -> cb.between(
-                claim.get(Accumulation_.date).as(LocalDate.class), from, to);
+        return (accumulation, cq, cb) -> cb.between(
+                accumulation.get(Accumulation_.date).as(LocalDate.class), from, to);
     }
 
     public static Specification<Accumulation> dateAfter(LocalDate from) {
-        return (claim, cq, cb) -> cb.greaterThanOrEqualTo(claim.get(Accumulation_.date), from);
+        return (accumulation, cq, cb) -> cb.greaterThanOrEqualTo(accumulation.get(Accumulation_.date), from);
     }
 
     public static Specification<Accumulation> dateBefore(LocalDate to) {
-        return (claim, cq, cb) -> cb.lessThanOrEqualTo(claim.get(Accumulation_.date), to);
+        return (accumulation, cq, cb) -> cb.lessThanOrEqualTo(accumulation.get(Accumulation_.date), to);
     }
 
     public static Specification<Accumulation> userIdEq(String id) {
-        return (claim, cq, cb) ->
-                cb.equal(claim.get(Accumulation_.user).get(User_.id), id);
+        return (accumulation, cq, cb) ->
+                cb.equal(accumulation.get(Accumulation_.user).get(User_.id), id);
     }
 }
