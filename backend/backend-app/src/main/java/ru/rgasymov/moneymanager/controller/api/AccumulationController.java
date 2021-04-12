@@ -1,12 +1,14 @@
 package ru.rgasymov.moneymanager.controller.api;
 
-import java.util.List;
+import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import ru.rgasymov.moneymanager.domain.dto.request.AccumulationCriteriaDto;
 import ru.rgasymov.moneymanager.domain.dto.response.AccumulationResponseDto;
+import ru.rgasymov.moneymanager.domain.dto.response.SearchResultDto;
 import ru.rgasymov.moneymanager.service.AccumulationService;
 import ru.rgasymov.moneymanager.service.UserService;
 
@@ -21,8 +23,8 @@ public class AccumulationController {
     private final AccumulationService accumulationService;
 
     @GetMapping
-    public List<AccumulationResponseDto> findAll() {
-        log.info("# Find all accumulations, current user: {}", userService.getCurrentUser());
-        return accumulationService.findAll();
+    public SearchResultDto<AccumulationResponseDto> search(@Valid AccumulationCriteriaDto criteria) {
+        log.info("# Search for accumulations, criteria: {}, current user: {}", criteria, userService.getCurrentUser());
+        return accumulationService.search(criteria);
     }
 }

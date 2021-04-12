@@ -14,6 +14,8 @@ import ru.rgasymov.moneymanager.domain.entity.Income;
         unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface IncomeMapper {
 
+    @Mapping(target = "accumulation.incomes", ignore = true)
+    @Mapping(target = "accumulation.expenses", ignore = true)
     @Mapping(target = "userId", source = "user.id")
     @Named(value = "toDto")
     IncomeResponseDto toDto(Income entity);

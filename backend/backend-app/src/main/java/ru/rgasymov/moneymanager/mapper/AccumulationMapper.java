@@ -10,6 +10,7 @@ import ru.rgasymov.moneymanager.domain.dto.response.AccumulationResponseDto;
 import ru.rgasymov.moneymanager.domain.entity.Accumulation;
 
 @Mapper(componentModel = "spring",
+        uses = {IncomeMapper.class, ExpenseMapper.class},
         unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface AccumulationMapper {
 

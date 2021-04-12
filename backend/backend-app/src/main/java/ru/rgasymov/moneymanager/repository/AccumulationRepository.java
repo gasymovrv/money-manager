@@ -2,17 +2,15 @@ package ru.rgasymov.moneymanager.repository;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import ru.rgasymov.moneymanager.domain.entity.Accumulation;
 
-public interface AccumulationRepository extends JpaRepository<Accumulation, Long> {
-
-    List<Accumulation> findAllByUserId(String userId);
+public interface AccumulationRepository extends JpaRepository<Accumulation, Long>, JpaSpecificationExecutor<Accumulation> {
 
     Optional<Accumulation> findByDateAndUserId(LocalDate date, String userId);
 

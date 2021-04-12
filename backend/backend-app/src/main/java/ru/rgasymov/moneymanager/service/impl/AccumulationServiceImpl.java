@@ -7,15 +7,22 @@ import java.util.Optional;
 import java.util.function.BiFunction;
 import javax.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.rgasymov.moneymanager.domain.dto.request.AccumulationCriteriaDto;
 import ru.rgasymov.moneymanager.domain.dto.response.AccumulationResponseDto;
+import ru.rgasymov.moneymanager.domain.dto.response.SearchResultDto;
 import ru.rgasymov.moneymanager.domain.entity.Accumulation;
 import ru.rgasymov.moneymanager.domain.entity.User;
 import ru.rgasymov.moneymanager.mapper.AccumulationMapper;
 import ru.rgasymov.moneymanager.repository.AccumulationRepository;
 import ru.rgasymov.moneymanager.service.AccumulationService;
 import ru.rgasymov.moneymanager.service.UserService;
+import ru.rgasymov.moneymanager.specs.AccumulationSpec;
 
 @Service
 @RequiredArgsConstructor
@@ -29,10 +36,22 @@ public class AccumulationServiceImpl implements AccumulationService {
 
     @Transactional(readOnly = true)
     @Override
-    public List<AccumulationResponseDto> findAll() {
-        User currentUser = userService.getCurrentUser();
-        String currentUserId = currentUser.getId();
-        return accumulationMapper.toDtos(accumulationRepository.findAllByUserId(currentUserId));
+    public SearchResultDto<AccumulationResponseDto> search(AccumulationCriteriaDto criteria) {
+        Specification<Accumulation> criteriaAsSpec = applyCriteria(criteria);
+
+        Page<Accumulation> page = accumulationRepository.findAll(criteriaAsSpec,
+                PageRequest.of(
+                        criteria.getPageNum(),
+                        criteria.getPageSize(),
+                        Sort.by(criteria.getSortDirection(),
+                                criteria.getSortBy().getFieldName())));
+
+        List<AccumulationResponseDto> result = accumulationMapper.toDtos(page.getContent());
+        return SearchResultDto
+                .<AccumulationResponseDto>builder()
+                .result(result)
+                .totalElements(page.getTotalElements())
+                .build();
     }
 
     @Transactional(readOnly = true)
@@ -89,5 +108,20 @@ public class AccumulationServiceImpl implements AccumulationService {
 
         //Recalculate the value of other accumulations by the specified value
         recalculateOthersFunc.recalculate(value, date, currentUserId);
+    }
+
+    private Specification<Accumulation> applyCriteria(AccumulationCriteriaDto criteria) {
+        User currentUser = userService.getCurrentUser();
+        String currentUserId = currentUser.getId();
+        
+        Specification<Accumulation> criteriaAsSpec = AccumulationSpec.userIdEq(currentUserId);
+
+        LocalDate from = criteria.getFrom();
+        LocalDate to = criteria.getTo();
+        if (from != null || to != null) {
+            criteriaAsSpec = criteriaAsSpec.and(AccumulationSpec.filterByDate(from, to));
+        }
+
+        return criteriaAsSpec;
     }
 }
