@@ -27,52 +27,56 @@ import ru.rgasymov.moneymanager.service.impl.ExpenseTypeService;
 @Slf4j
 public class ExpenseController {
 
-    private final UserService userService;
+  private final UserService userService;
 
-    private final ExpenseService expenseService;
+  private final ExpenseService expenseService;
 
-    private final ExpenseTypeService expenseTypeService;
+  private final ExpenseTypeService expenseTypeService;
 
-    @GetMapping
-    public List<ExpenseResponseDto> findAll() {
-        log.info("# Find all expenses, current user: {}", userService.getCurrentUser());
-        return expenseService.findAll();
-    }
+  @GetMapping
+  public List<ExpenseResponseDto> findAll() {
+    log.info("# Find all expenses, current user: {}", userService.getCurrentUser());
+    return expenseService.findAll();
+  }
 
-    @PostMapping
-    public ExpenseResponseDto create(@RequestBody @Valid ExpenseRequestDto dto) {
-        log.info("# Create a new expense by dto: {}, current user: {}", dto, userService.getCurrentUser());
-        return expenseService.create(dto);
-    }
+  @PostMapping
+  public ExpenseResponseDto create(@RequestBody @Valid ExpenseRequestDto dto) {
+    log.info("# Create a new expense by dto: {}, current user: {}", dto,
+        userService.getCurrentUser());
+    return expenseService.create(dto);
+  }
 
-    @PutMapping("/{id}")
-    public ExpenseResponseDto update(@PathVariable Long id,
-                                    @RequestBody @Valid ExpenseRequestDto dto) {
-        log.info("# Update the expense by id: {}, dto: {}, current user: {}", id, dto, userService.getCurrentUser());
-        return expenseService.update(id, dto);
-    }
+  @PutMapping("/{id}")
+  public ExpenseResponseDto update(@PathVariable Long id,
+                                   @RequestBody @Valid ExpenseRequestDto dto) {
+    log.info("# Update the expense by id: {}, dto: {}, current user: {}", id, dto,
+        userService.getCurrentUser());
+    return expenseService.update(id, dto);
+  }
 
-    @DeleteMapping("/{id}")
-    public void delete(@PathVariable Long id) {
-        log.info("# Delete an expense by id: {}, current user: {}", id, userService.getCurrentUser());
-        expenseService.delete(id);
-    }
+  @DeleteMapping("/{id}")
+  public void delete(@PathVariable Long id) {
+    log.info("# Delete an expense by id: {}, current user: {}", id, userService.getCurrentUser());
+    expenseService.delete(id);
+  }
 
-    @GetMapping("/types")
-    public Set<ExpenseTypeResponseDto> findAllTypes() {
-        log.info("# Find all expense types, current user: {}", userService.getCurrentUser());
-        return expenseTypeService.findAll();
-    }
+  @GetMapping("/types")
+  public Set<ExpenseTypeResponseDto> findAllTypes() {
+    log.info("# Find all expense types, current user: {}", userService.getCurrentUser());
+    return expenseTypeService.findAll();
+  }
 
-    @PostMapping("/types")
-    public ExpenseTypeResponseDto createType(@RequestBody @Valid ExpenseTypeRequestDto dto) {
-        log.info("# Create a new expense type by dto: {}, current user: {}", dto, userService.getCurrentUser());
-        return expenseTypeService.create(dto);
-    }
+  @PostMapping("/types")
+  public ExpenseTypeResponseDto createType(@RequestBody @Valid ExpenseTypeRequestDto dto) {
+    log.info("# Create a new expense type by dto: {}, current user: {}", dto,
+        userService.getCurrentUser());
+    return expenseTypeService.create(dto);
+  }
 
-    @DeleteMapping(value = "/types/{id}")
-    public void deleteType(@PathVariable Long id) {
-        log.info("# Delete an expense type by id: {}, current user: {}", id, userService.getCurrentUser());
-        expenseTypeService.delete(id);
-    }
+  @DeleteMapping(value = "/types/{id}")
+  public void deleteType(@PathVariable Long id) {
+    log.info("# Delete an expense type by id: {}, current user: {}", id,
+        userService.getCurrentUser());
+    expenseTypeService.delete(id);
+  }
 }

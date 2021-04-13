@@ -8,17 +8,17 @@ import ru.rgasymov.moneymanager.domain.dto.response.SearchResultDto;
 import ru.rgasymov.moneymanager.domain.entity.Accumulation;
 
 public interface AccumulationService {
-    interface RecalculateFunc {
-        void recalculate(BigDecimal decrement,
-                         LocalDate date,
-                         String userId);
-    }
+  SearchResultDto<AccumulationResponseDto> search(AccumulationCriteriaDto criteria);
 
-    SearchResultDto<AccumulationResponseDto> search(AccumulationCriteriaDto criteria);
+  Accumulation findByDate(LocalDate date);
 
-    Accumulation findByDate(LocalDate date);
+  void increase(BigDecimal value, LocalDate date);
 
-    void increase(BigDecimal value, LocalDate date);
+  void decrease(BigDecimal value, LocalDate date);
 
-    void decrease(BigDecimal value, LocalDate date);
+  interface RecalculateFunc {
+    void recalculate(BigDecimal decrement,
+                     LocalDate date,
+                     String userId);
+  }
 }

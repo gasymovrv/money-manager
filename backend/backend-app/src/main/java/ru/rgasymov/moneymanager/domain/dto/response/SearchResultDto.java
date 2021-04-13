@@ -14,7 +14,7 @@ import lombok.experimental.SuperBuilder;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class SearchResultDto<T> {
 
-    private List<T>  result;
+  private List<T> result;
 
-    private long totalElements;
+  private long totalElements;
 }

@@ -13,7 +13,7 @@ import lombok.Data;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ErrorDto {
 
-    private String shortName;
+  private String shortName;
 
-    private String message;
+  private String message;
 }

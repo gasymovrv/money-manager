@@ -27,29 +27,29 @@ import org.hibernate.annotations.FetchMode;
 @NoArgsConstructor
 @SuperBuilder
 public class Accumulation {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User user;
+  @ManyToOne
+  @JoinColumn(name = "user_id")
+  private User user;
 
-    private LocalDate date;
+  private LocalDate date;
 
-    private BigDecimal value;
+  private BigDecimal value;
 
-    @Builder.Default
-    @EqualsAndHashCode.Exclude
-    @ToString.Exclude
-    @Fetch(FetchMode.SUBSELECT)
-    @OneToMany(mappedBy = "accumulation")
-    private List<Income> incomes = new ArrayList<>();
+  @Builder.Default
+  @EqualsAndHashCode.Exclude
+  @ToString.Exclude
+  @Fetch(FetchMode.SUBSELECT)
+  @OneToMany(mappedBy = "accumulation")
+  private List<Income> incomes = new ArrayList<>();
 
-    @Builder.Default
-    @EqualsAndHashCode.Exclude
-    @ToString.Exclude
-    @Fetch(FetchMode.SUBSELECT)
-    @OneToMany(mappedBy = "accumulation")
-    private List<Expense> expenses = new ArrayList<>();
+  @Builder.Default
+  @EqualsAndHashCode.Exclude
+  @ToString.Exclude
+  @Fetch(FetchMode.SUBSELECT)
+  @OneToMany(mappedBy = "accumulation")
+  private List<Expense> expenses = new ArrayList<>();
 }

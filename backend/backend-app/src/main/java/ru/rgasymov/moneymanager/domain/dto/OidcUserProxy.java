@@ -14,37 +14,37 @@ import ru.rgasymov.moneymanager.domain.entity.User;
 @Getter
 public class OidcUserProxy implements OidcUser {
 
-    private final OidcUser oidcUser;
+  private final OidcUser oidcUser;
 
-    private final User currentUser;
+  private final User currentUser;
 
-    @Override
-    public Map<String, Object> getClaims() {
-        return oidcUser.getClaims();
-    }
+  @Override
+  public Map<String, Object> getClaims() {
+    return oidcUser.getClaims();
+  }
 
-    @Override
-    public OidcUserInfo getUserInfo() {
-        return oidcUser.getUserInfo();
-    }
+  @Override
+  public OidcUserInfo getUserInfo() {
+    return oidcUser.getUserInfo();
+  }
 
-    @Override
-    public OidcIdToken getIdToken() {
-        return oidcUser.getIdToken();
-    }
+  @Override
+  public OidcIdToken getIdToken() {
+    return oidcUser.getIdToken();
+  }
 
-    @Override
-    public Map<String, Object> getAttributes() {
-        return oidcUser.getAttributes();
-    }
+  @Override
+  public Map<String, Object> getAttributes() {
+    return oidcUser.getAttributes();
+  }
 
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return oidcUser.getAuthorities();
-    }
+  @Override
+  public Collection<? extends GrantedAuthority> getAuthorities() {
+    return oidcUser.getAuthorities();
+  }
 
-    @Override
-    public String getName() {
-        return oidcUser.getName();
-    }
+  @Override
+  public String getName() {
+    return oidcUser.getName();
+  }
 }

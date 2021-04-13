@@ -16,35 +16,35 @@ import ru.rgasymov.moneymanager.domain.enums.AccumulationFieldToSort;
 @NoArgsConstructor
 public class AccumulationCriteriaDto {
 
-    @DateTimeFormat(pattern = DateTimeFormats.COMMON_DATE_FORMAT)
-    private LocalDate from;
+  @DateTimeFormat(pattern = DateTimeFormats.COMMON_DATE_FORMAT)
+  private LocalDate from;
 
-    @DateTimeFormat(pattern = DateTimeFormats.COMMON_DATE_FORMAT)
-    private LocalDate to;
+  @DateTimeFormat(pattern = DateTimeFormats.COMMON_DATE_FORMAT)
+  private LocalDate to;
 
-    private AccumulationFieldToSort sortBy = AccumulationFieldToSort.DATE;
+  private AccumulationFieldToSort sortBy = AccumulationFieldToSort.DATE;
 
-    private Sort.Direction sortDirection = Sort.Direction.ASC;
+  private Sort.Direction sortDirection = Sort.Direction.ASC;
 
-    @ApiParam(value = "Page number starting at 0", example = "0")
-    @PositiveOrZero
-    private Integer pageNum = 0;
+  @ApiParam(value = "Page number starting at 0", example = "0")
+  @PositiveOrZero
+  private Integer pageNum = 0;
 
-    @ApiParam(example = "1000")
-    @Positive
-    private Integer pageSize = 1000;
+  @ApiParam(example = "1000")
+  @Positive
+  private Integer pageSize = 1000;
 
-    public void setFrom(LocalDate from) {
-        if (to != null && to.isBefore(from)) {
-            throw new ValidationException("Date 'from' cannot be after 'to'");
-        }
-        this.from = from;
+  public void setFrom(LocalDate from) {
+    if (to != null && to.isBefore(from)) {
+      throw new ValidationException("Date 'from' cannot be after 'to'");
     }
+    this.from = from;
+  }
 
-    public void setTo(LocalDate to) {
-        if (from != null && from.isAfter(to)) {
-            throw new ValidationException("Date 'to' cannot be before 'from'");
-        }
-        this.to = to;
+  public void setTo(LocalDate to) {
+    if (from != null && from.isAfter(to)) {
+      throw new ValidationException("Date 'to' cannot be before 'from'");
     }
+    this.to = to;
+  }
 }

@@ -23,52 +23,52 @@ import ru.rgasymov.moneymanager.service.UserService;
 @Slf4j
 public class CustomOidcUserService extends OidcUserService implements UserService {
 
-    private final UserRepository userRepository;
+  private final UserRepository userRepository;
 
-    @Override
-    public User getCurrentUser() {
-        var authentication = SecurityContextHolder.getContext().getAuthentication();
-        var principal = (OidcUserProxy) authentication.getPrincipal();
-        return principal.getCurrentUser();
+  @Override
+  public User getCurrentUser() {
+    var authentication = SecurityContextHolder.getContext().getAuthentication();
+    var principal = (OidcUserProxy) authentication.getPrincipal();
+    return principal.getCurrentUser();
+  }
+
+  @Transactional
+  @Override
+  public OidcUser loadUser(OidcUserRequest userRequest) throws OAuth2AuthenticationException {
+    OidcUser oidcUser = super.loadUser(userRequest);
+
+    try {
+      return processOidcUser(oidcUser);
+    } catch (Exception ex) {
+      log.error("# Authorization error occurred", ex);
+      throw new InternalAuthenticationServiceException(ex.getMessage(), ex.getCause());
     }
+  }
 
-    @Transactional
-    @Override
-    public OidcUser loadUser(OidcUserRequest userRequest) throws OAuth2AuthenticationException {
-        OidcUser oidcUser = super.loadUser(userRequest);
+  @Transactional(readOnly = true)
+  @Override
+  public User findByOidcToken(OidcIdToken token) {
+    String id = token.getClaim("sub");
+    return userRepository.findById(id).orElseThrow(() ->
+        new EntityNotFoundException(
+            String.format("Could not find user with id = '%s' in the database", id)));
+  }
 
-        try {
-            return processOidcUser(oidcUser);
-        } catch (Exception ex) {
-            log.error("# Authorization error occurred", ex);
-            throw new InternalAuthenticationServiceException(ex.getMessage(), ex.getCause());
-        }
-    }
+  private OidcUser processOidcUser(OidcUser oidcUser) {
+    String id = oidcUser.getClaim("sub");
+    User user = userRepository.findById(id).orElseGet(() -> {
+      User newUser = new User();
+      newUser.setId(id);
+      newUser.setName(oidcUser.getClaim("name"));
+      newUser.setEmail(oidcUser.getClaim("email"));
+      newUser.setLocale(oidcUser.getClaim("locale"));
+      newUser.setPicture(oidcUser.getClaim("picture"));
+      return newUser;
+    });
+    user.setLastVisit(LocalDateTime.now());
+    userRepository.save(user);
 
-    @Transactional(readOnly = true)
-    @Override
-    public User findByOidcToken(OidcIdToken token) {
-        String id = token.getClaim("sub");
-        return userRepository.findById(id).orElseThrow(() ->
-                new EntityNotFoundException(
-                        String.format("Could not find user with id = '%s' in the database", id)));
-    }
-
-    private OidcUser processOidcUser(OidcUser oidcUser) {
-        String id = oidcUser.getClaim("sub");
-        User user = userRepository.findById(id).orElseGet(() -> {
-            User newUser = new User();
-            newUser.setId(id);
-            newUser.setName(oidcUser.getClaim("name"));
-            newUser.setEmail(oidcUser.getClaim("email"));
-            newUser.setLocale(oidcUser.getClaim("locale"));
-            newUser.setPicture(oidcUser.getClaim("picture"));
-            return newUser;
-        });
-        user.setLastVisit(LocalDateTime.now());
-        userRepository.save(user);
-
-        log.info("# User was successfully logged in: {}", user);
-        return new OidcUserProxy(oidcUser, user);
-    }
+    log.info("# User was successfully logged in: {}", user);
+    return new OidcUserProxy(oidcUser, user);
+  }
 }

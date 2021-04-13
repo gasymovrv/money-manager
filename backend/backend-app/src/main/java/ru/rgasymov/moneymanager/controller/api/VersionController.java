@@ -12,11 +12,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("${server.api-base-url}/version")
 public class VersionController {
 
-    private final BuildProperties buildProperties;
+  private final BuildProperties buildProperties;
 
-    @ApiOperation("Get current version")
-    @GetMapping
-    public String version() {
-        return buildProperties.getVersion();
-    }
+  @ApiOperation("Get current version")
+  @GetMapping
+  public String version() {
+    return buildProperties.getVersion();
+  }
 }

@@ -28,52 +28,56 @@ import ru.rgasymov.moneymanager.service.impl.IncomeTypeService;
 @Slf4j
 public class IncomeController {
 
-    private final UserService userService;
+  private final UserService userService;
 
-    private final IncomeService incomeService;
+  private final IncomeService incomeService;
 
-    private final IncomeTypeService incomeTypeService;
+  private final IncomeTypeService incomeTypeService;
 
-    @GetMapping
-    public List<IncomeResponseDto> findAll() {
-        log.info("# Find all incomes, current user: {}", userService.getCurrentUser());
-        return incomeService.findAll();
-    }
+  @GetMapping
+  public List<IncomeResponseDto> findAll() {
+    log.info("# Find all incomes, current user: {}", userService.getCurrentUser());
+    return incomeService.findAll();
+  }
 
-    @PostMapping
-    public IncomeResponseDto create(@RequestBody @Valid IncomeRequestDto dto) {
-        log.info("# Create a new income by dto: {}, current user: {}", dto, userService.getCurrentUser());
-        return incomeService.create(dto);
-    }
+  @PostMapping
+  public IncomeResponseDto create(@RequestBody @Valid IncomeRequestDto dto) {
+    log.info("# Create a new income by dto: {}, current user: {}", dto,
+        userService.getCurrentUser());
+    return incomeService.create(dto);
+  }
 
-    @PutMapping("/{id}")
-    public IncomeResponseDto update(@PathVariable Long id,
-                                    @RequestBody @Valid IncomeRequestDto dto) {
-        log.info("# Update the income by id: {}, dto: {}, current user: {}", id, dto, userService.getCurrentUser());
-        return incomeService.update(id, dto);
-    }
+  @PutMapping("/{id}")
+  public IncomeResponseDto update(@PathVariable Long id,
+                                  @RequestBody @Valid IncomeRequestDto dto) {
+    log.info("# Update the income by id: {}, dto: {}, current user: {}", id, dto,
+        userService.getCurrentUser());
+    return incomeService.update(id, dto);
+  }
 
-    @DeleteMapping("/{id}")
-    public void delete(@PathVariable Long id) {
-        log.info("# Delete an income by id: {}, current user: {}", id, userService.getCurrentUser());
-        incomeService.delete(id);
-    }
+  @DeleteMapping("/{id}")
+  public void delete(@PathVariable Long id) {
+    log.info("# Delete an income by id: {}, current user: {}", id, userService.getCurrentUser());
+    incomeService.delete(id);
+  }
 
-    @GetMapping("/types")
-    public Set<IncomeTypeResponseDto> findAllTypes() {
-        log.info("# Find all income types, current user: {}", userService.getCurrentUser());
-        return incomeTypeService.findAll();
-    }
+  @GetMapping("/types")
+  public Set<IncomeTypeResponseDto> findAllTypes() {
+    log.info("# Find all income types, current user: {}", userService.getCurrentUser());
+    return incomeTypeService.findAll();
+  }
 
-    @PostMapping("/types")
-    public IncomeTypeResponseDto createType(@RequestBody @Valid IncomeTypeRequestDto dto) {
-        log.info("# Create a new income type by dto: {}, current user: {}", dto, userService.getCurrentUser());
-        return incomeTypeService.create(dto);
-    }
+  @PostMapping("/types")
+  public IncomeTypeResponseDto createType(@RequestBody @Valid IncomeTypeRequestDto dto) {
+    log.info("# Create a new income type by dto: {}, current user: {}", dto,
+        userService.getCurrentUser());
+    return incomeTypeService.create(dto);
+  }
 
-    @DeleteMapping("/types/{id}")
-    public void deleteType(@PathVariable @NotNull Long id) {
-        log.info("# Delete an income type by id: {}, current user: {}", id, userService.getCurrentUser());
-        incomeTypeService.delete(id);
-    }
+  @DeleteMapping("/types/{id}")
+  public void deleteType(@PathVariable @NotNull Long id) {
+    log.info("# Delete an income type by id: {}, current user: {}", id,
+        userService.getCurrentUser());
+    incomeTypeService.delete(id);
+  }
 }

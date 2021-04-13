@@ -19,19 +19,19 @@ import ru.rgasymov.moneymanager.constant.DateTimeFormats;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ExpenseResponseDto {
 
-    private Long id;
+  private Long id;
 
-    private String userId;
+  private String userId;
 
-    private ExpenseTypeResponseDto expenseType;
+  private ExpenseTypeResponseDto expenseType;
 
-    private AccumulationResponseDto accumulation;
+  private AccumulationResponseDto accumulation;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING,
-            pattern = DateTimeFormats.COMMON_DATE_FORMAT)
-    private LocalDate date;
+  @JsonFormat(shape = JsonFormat.Shape.STRING,
+      pattern = DateTimeFormats.COMMON_DATE_FORMAT)
+  private LocalDate date;
 
-    private String description;
+  private String description;
 
-    private BigDecimal value;
+  private BigDecimal value;
 }

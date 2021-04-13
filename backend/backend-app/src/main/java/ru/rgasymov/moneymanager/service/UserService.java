@@ -5,7 +5,7 @@ import ru.rgasymov.moneymanager.domain.entity.User;
 
 public interface UserService {
 
-    User getCurrentUser();
+  User getCurrentUser();
 
-    User findByOidcToken(OidcIdToken token);
+  User findByOidcToken(OidcIdToken token);
 }

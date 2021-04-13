@@ -19,25 +19,25 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @SuperBuilder
 public class Income {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User user;
+  @ManyToOne
+  @JoinColumn(name = "user_id")
+  private User user;
 
-    @ManyToOne
-    @JoinColumn(name = "income_type_id")
-    private IncomeType incomeType;
+  @ManyToOne
+  @JoinColumn(name = "income_type_id")
+  private IncomeType incomeType;
 
-    @ManyToOne
-    @JoinColumn(name = "accumulation_id")
-    private Accumulation accumulation;
+  @ManyToOne
+  @JoinColumn(name = "accumulation_id")
+  private Accumulation accumulation;
 
-    private LocalDate date;
+  private LocalDate date;
 
-    private String description;
+  private String description;
 
-    private BigDecimal value;
+  private BigDecimal value;
 }

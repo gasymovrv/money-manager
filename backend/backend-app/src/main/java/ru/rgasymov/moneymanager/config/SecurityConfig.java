@@ -11,27 +11,27 @@ import ru.rgasymov.moneymanager.service.impl.CustomOidcUserService;
 @Configuration
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
-    private final static String BASE_URL = "/";
+  private static final String BASE_URL = "/";
 
-    @Value("${server.api-base-url}")
-    private String apiBaseUrl;
+  @Value("${server.api-base-url}")
+  private String apiBaseUrl;
 
-    @Autowired
-    private CustomOidcUserService customOidcUserService;
+  @Autowired
+  private CustomOidcUserService customOidcUserService;
 
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
-        http.authorizeRequests()
-                .antMatchers("/login").permitAll()
-                .anyRequest().authenticated()
-                .and()
-                .addFilterBefore(new ErrorFilter(apiBaseUrl, BASE_URL), FilterSecurityInterceptor.class)
-                .exceptionHandling().accessDeniedPage(BASE_URL)
-                .and()
-                .csrf().disable()
-                .oauth2Login()
-                    .loginPage("/login")
-                    .userInfoEndpoint()
-                    .oidcUserService(customOidcUserService);
-    }
+  @Override
+  protected void configure(HttpSecurity http) throws Exception {
+    http.authorizeRequests()
+        .antMatchers("/login").permitAll()
+        .anyRequest().authenticated()
+        .and()
+        .addFilterBefore(new ErrorFilter(apiBaseUrl, BASE_URL), FilterSecurityInterceptor.class)
+        .exceptionHandling().accessDeniedPage(BASE_URL)
+        .and()
+        .csrf().disable()
+        .oauth2Login()
+        .loginPage("/login")
+        .userInfoEndpoint()
+        .oidcUserService(customOidcUserService);
+  }
 }

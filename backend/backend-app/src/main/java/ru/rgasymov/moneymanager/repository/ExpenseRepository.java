@@ -7,11 +7,11 @@ import ru.rgasymov.moneymanager.domain.entity.Expense;
 
 public interface ExpenseRepository extends JpaRepository<Expense, Long> {
 
-    List<Expense> findAllByUserId(String userId);
+  List<Expense> findAllByUserId(String userId);
 
-    Optional<Expense> findByIdAndUserId(Long id, String userId);
+  Optional<Expense> findByIdAndUserId(Long id, String userId);
 
-    void deleteByIdAndUserId(Long id, String userId);
+  void deleteByIdAndUserId(Long id, String userId);
 
-    boolean existsByExpenseTypeId(Long typeId);
+  boolean existsByExpenseTypeId(Long typeId);
 }

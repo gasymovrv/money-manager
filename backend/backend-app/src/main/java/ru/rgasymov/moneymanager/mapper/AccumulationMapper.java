@@ -10,14 +10,14 @@ import ru.rgasymov.moneymanager.domain.dto.response.AccumulationResponseDto;
 import ru.rgasymov.moneymanager.domain.entity.Accumulation;
 
 @Mapper(componentModel = "spring",
-        uses = {IncomeMapper.class, ExpenseMapper.class},
-        unmappedTargetPolicy = ReportingPolicy.IGNORE)
+    uses = {IncomeMapper.class, ExpenseMapper.class},
+    unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface AccumulationMapper {
 
-    @Mapping(target = "userId", source = "user.id")
-    @Named(value = "toDto")
-    AccumulationResponseDto toDto(Accumulation entity);
+  @Mapping(target = "userId", source = "user.id")
+  @Named(value = "toDto")
+  AccumulationResponseDto toDto(Accumulation entity);
 
-    @IterableMapping(qualifiedByName = "toDto")
-    List<AccumulationResponseDto> toDtos(List<Accumulation> entities);
+  @IterableMapping(qualifiedByName = "toDto")
+  List<AccumulationResponseDto> toDtos(List<Accumulation> entities);
 }

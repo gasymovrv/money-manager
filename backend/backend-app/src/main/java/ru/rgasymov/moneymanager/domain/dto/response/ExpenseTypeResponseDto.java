@@ -15,7 +15,7 @@ import lombok.experimental.SuperBuilder;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ExpenseTypeResponseDto {
 
-    private String id;
+  private String id;
 
-    private String name;
+  private String name;
 }

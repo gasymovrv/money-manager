@@ -17,26 +17,26 @@ import springfox.documentation.spring.web.plugins.Docket;
 @RequiredArgsConstructor
 public class SwaggerConfig {
 
-    private final BuildProperties buildProperties;
+  private final BuildProperties buildProperties;
 
-    @Bean
-    public Docket api(TypeResolver typeResolver) {
-        ApiInfo apiInfo = new ApiInfo(
-                "Money-Manager",
-                "Collection and Management tool for Money-Manager application",
-                buildProperties.getVersion(),
-                "terms of service url",
-                new Contact("Test", "http://test.com", "test@gmail.com"),
-                "license",
-                "http://license.com",
-                Collections.emptyList()
-        );
+  @Bean
+  public Docket api(TypeResolver typeResolver) {
+    ApiInfo apiInfo = new ApiInfo(
+        "Money-Manager",
+        "Collection and Management tool for Money-Manager application",
+        buildProperties.getVersion(),
+        "terms of service url",
+        new Contact("Test", "http://test.com", "test@gmail.com"),
+        "license",
+        "http://license.com",
+        Collections.emptyList()
+    );
 
-        return new Docket(DocumentationType.SWAGGER_2)
-                .select()
-                .apis(RequestHandlerSelectors.basePackage("ru.rgasymov.moneymanager.controller"))
-                .build()
-                .apiInfo(apiInfo)
-                .additionalModels(typeResolver.resolve(ErrorDto.class));
-    }
+    return new Docket(DocumentationType.SWAGGER_2)
+        .select()
+        .apis(RequestHandlerSelectors.basePackage("ru.rgasymov.moneymanager.controller"))
+        .build()
+        .apiInfo(apiInfo)
+        .additionalModels(typeResolver.resolve(ErrorDto.class));
+  }
 }

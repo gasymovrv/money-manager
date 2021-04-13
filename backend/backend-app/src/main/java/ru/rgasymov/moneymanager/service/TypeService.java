@@ -4,9 +4,9 @@ import java.util.Set;
 
 public interface TypeService<T, R> {
 
-    Set<R> findAll();
+  Set<R> findAll();
 
-    R create(T dto);
+  R create(T dto);
 
-    void delete(Long id);
+  void delete(Long id);
 }

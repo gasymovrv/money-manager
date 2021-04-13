@@ -10,30 +10,31 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import ru.rgasymov.moneymanager.domain.entity.Accumulation;
 
-public interface AccumulationRepository extends JpaRepository<Accumulation, Long>, JpaSpecificationExecutor<Accumulation> {
+public interface AccumulationRepository
+    extends JpaRepository<Accumulation, Long>, JpaSpecificationExecutor<Accumulation> {
 
-    Optional<Accumulation> findByDateAndUserId(LocalDate date, String userId);
+  Optional<Accumulation> findByDateAndUserId(LocalDate date, String userId);
 
-    Optional<Accumulation> findFirstByDateLessThanAndUserIdOrderByDateDesc(LocalDate date,
-                                                                           String userId);
+  Optional<Accumulation> findFirstByDateLessThanAndUserIdOrderByDateDesc(LocalDate date,
+                                                                         String userId);
 
-    @Modifying
-    @Query("""
-            update Accumulation a
-            set a.value = a.value + :increment
-            where a.date > :date and a.user.id = :userId
-            """)
-    void increaseValueByDateGreaterThan(@Param("increment") BigDecimal increment,
-                                        @Param("date") LocalDate date,
-                                        @Param("userId") String userId);
+  @Modifying
+  @Query("""
+      update Accumulation a
+      set a.value = a.value + :increment
+      where a.date > :date and a.user.id = :userId
+      """)
+  void increaseValueByDateGreaterThan(@Param("increment") BigDecimal increment,
+                                      @Param("date") LocalDate date,
+                                      @Param("userId") String userId);
 
-    @Modifying
-    @Query("""
-            update Accumulation a
-            set a.value = a.value - :decrement
-            where a.date > :date and a.user.id = :userId
-            """)
-    void decreaseValueByDateGreaterThan(@Param("decrement") BigDecimal decrement,
-                                        @Param("date") LocalDate date,
-                                        @Param("userId") String userId);
+  @Modifying
+  @Query("""
+      update Accumulation a
+      set a.value = a.value - :decrement
+      where a.date > :date and a.user.id = :userId
+      """)
+  void decreaseValueByDateGreaterThan(@Param("decrement") BigDecimal decrement,
+                                      @Param("date") LocalDate date,
+                                      @Param("userId") String userId);
 }

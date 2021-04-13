@@ -22,21 +22,21 @@ import ru.rgasymov.moneymanager.constant.DateTimeFormats;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class AccumulationResponseDto {
 
-    private Long id;
+  private Long id;
 
-    private String userId;
+  private String userId;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING,
-            pattern = DateTimeFormats.COMMON_DATE_FORMAT)
-    private LocalDate date;
+  @JsonFormat(shape = JsonFormat.Shape.STRING,
+      pattern = DateTimeFormats.COMMON_DATE_FORMAT)
+  private LocalDate date;
 
-    private BigDecimal value;
+  private BigDecimal value;
 
-    @EqualsAndHashCode.Exclude
-    @ToString.Exclude
-    private List<IncomeResponseDto> incomes;
+  @EqualsAndHashCode.Exclude
+  @ToString.Exclude
+  private List<IncomeResponseDto> incomes;
 
-    @EqualsAndHashCode.Exclude
-    @ToString.Exclude
-    private List<ExpenseResponseDto> expenses;
+  @EqualsAndHashCode.Exclude
+  @ToString.Exclude
+  private List<ExpenseResponseDto> expenses;
 }

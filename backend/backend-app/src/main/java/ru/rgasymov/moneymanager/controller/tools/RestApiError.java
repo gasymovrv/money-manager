@@ -15,10 +15,10 @@ import ru.rgasymov.moneymanager.domain.dto.response.ErrorDto;
 @Builder
 final class RestApiError {
 
-    private Integer code;
+  private Integer code;
 
-    private HttpStatus status;
+  private HttpStatus status;
 
-    @Builder.Default
-    private List<ErrorDto> errors = new ArrayList<>();
+  @Builder.Default
+  private List<ErrorDto> errors = new ArrayList<>();
 }

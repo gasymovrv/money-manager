@@ -16,22 +16,22 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @SuperBuilder
 public class User {
-    @Id
-    private String id;
+  @Id
+  private String id;
 
-    private String name;
+  private String name;
 
-    @ToString.Exclude
-    @Column(columnDefinition = "clob")
-    private String picture;
+  @ToString.Exclude
+  @Column(columnDefinition = "clob")
+  private String picture;
 
-    @ToString.Exclude
-    private String email;
+  @ToString.Exclude
+  private String email;
 
-    @ToString.Exclude
-    private String locale;
+  @ToString.Exclude
+  private String locale;
 
-    @ToString.Exclude
-    @Column(name = "last_visit")
-    private LocalDateTime lastVisit;
+  @ToString.Exclude
+  @Column(name = "last_visit")
+  private LocalDateTime lastVisit;
 }

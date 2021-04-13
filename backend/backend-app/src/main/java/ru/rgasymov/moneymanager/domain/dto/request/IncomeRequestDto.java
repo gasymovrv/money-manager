@@ -17,15 +17,15 @@ import lombok.NoArgsConstructor;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class IncomeRequestDto {
 
-    @NotNull
-    private Long incomeTypeId;
+  @NotNull
+  private Long incomeTypeId;
 
-    @NotNull
-    private LocalDate date;
+  @NotNull
+  private LocalDate date;
 
-    private String description;
+  private String description;
 
-    @Positive
-    @NotNull
-    private BigDecimal value;
+  @Positive
+  @NotNull
+  private BigDecimal value;
 }

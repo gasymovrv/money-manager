@@ -18,13 +18,14 @@ import ru.rgasymov.moneymanager.service.UserService;
 @Slf4j
 public class AccumulationController {
 
-    private final UserService userService;
+  private final UserService userService;
 
-    private final AccumulationService accumulationService;
+  private final AccumulationService accumulationService;
 
-    @GetMapping
-    public SearchResultDto<AccumulationResponseDto> search(@Valid AccumulationCriteriaDto criteria) {
-        log.info("# Search for accumulations, criteria: {}, current user: {}", criteria, userService.getCurrentUser());
-        return accumulationService.search(criteria);
-    }
+  @GetMapping
+  public SearchResultDto<AccumulationResponseDto> search(@Valid AccumulationCriteriaDto criteria) {
+    log.info("# Search for accumulations, criteria: {}, current user: {}", criteria,
+        userService.getCurrentUser());
+    return accumulationService.search(criteria);
+  }
 }

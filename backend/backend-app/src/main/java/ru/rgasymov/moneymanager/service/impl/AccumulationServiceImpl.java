@@ -28,100 +28,103 @@ import ru.rgasymov.moneymanager.specs.AccumulationSpec;
 @RequiredArgsConstructor
 public class AccumulationServiceImpl implements AccumulationService {
 
-    private final AccumulationRepository accumulationRepository;
+  private final AccumulationRepository accumulationRepository;
 
-    private final AccumulationMapper accumulationMapper;
+  private final AccumulationMapper accumulationMapper;
 
-    private final UserService userService;
+  private final UserService userService;
 
-    @Transactional(readOnly = true)
-    @Override
-    public SearchResultDto<AccumulationResponseDto> search(AccumulationCriteriaDto criteria) {
-        Specification<Accumulation> criteriaAsSpec = applyCriteria(criteria);
+  @Transactional(readOnly = true)
+  @Override
+  public SearchResultDto<AccumulationResponseDto> search(AccumulationCriteriaDto criteria) {
+    Specification<Accumulation> criteriaAsSpec = applyCriteria(criteria);
 
-        Page<Accumulation> page = accumulationRepository.findAll(criteriaAsSpec,
-                PageRequest.of(
-                        criteria.getPageNum(),
-                        criteria.getPageSize(),
-                        Sort.by(criteria.getSortDirection(),
-                                criteria.getSortBy().getFieldName())));
+    Page<Accumulation> page = accumulationRepository.findAll(criteriaAsSpec,
+        PageRequest.of(
+            criteria.getPageNum(),
+            criteria.getPageSize(),
+            Sort.by(criteria.getSortDirection(),
+                criteria.getSortBy().getFieldName())));
 
-        List<AccumulationResponseDto> result = accumulationMapper.toDtos(page.getContent());
-        return SearchResultDto
-                .<AccumulationResponseDto>builder()
-                .result(result)
-                .totalElements(page.getTotalElements())
-                .build();
+    List<AccumulationResponseDto> result = accumulationMapper.toDtos(page.getContent());
+    return SearchResultDto
+        .<AccumulationResponseDto>builder()
+        .result(result)
+        .totalElements(page.getTotalElements())
+        .build();
+  }
+
+  @Transactional(readOnly = true)
+  @Override
+  public Accumulation findByDate(LocalDate date) {
+    User currentUser = userService.getCurrentUser();
+    String currentUserId = currentUser.getId();
+    return accumulationRepository.findByDateAndUserId(date, currentUserId).orElseThrow(() ->
+        new EntityNotFoundException(
+            String.format("Could not find accumulation by date = '%s' in the database",
+                date)));
+  }
+
+  @Transactional
+  @Override
+  public void increase(BigDecimal value, LocalDate date) {
+    recalculate(date, value, BigDecimal::add,
+        accumulationRepository::increaseValueByDateGreaterThan);
+  }
+
+  @Transactional
+  @Override
+  public void decrease(BigDecimal value, LocalDate date) {
+    recalculate(date, value, BigDecimal::subtract,
+        accumulationRepository::decreaseValueByDateGreaterThan);
+  }
+
+  private void recalculate(LocalDate date,
+                           BigDecimal value,
+                           BiFunction<BigDecimal, BigDecimal, BigDecimal> setValueFunc,
+                           RecalculateFunc recalculateOthersFunc) {
+    User currentUser = userService.getCurrentUser();
+    String currentUserId = currentUser.getId();
+
+    //Find the accumulation by date and recalculate its value by the specified value
+    Optional<Accumulation> accOpt = accumulationRepository.findByDateAndUserId(date, currentUserId);
+    if (accOpt.isPresent()) {
+      Accumulation acc = accOpt.get();
+      acc.setValue(setValueFunc.apply(acc.getValue(), value));
+      accumulationRepository.save(acc);
+    } else {
+      accOpt = accumulationRepository
+          .findFirstByDateLessThanAndUserIdOrderByDateDesc(date, currentUserId);
+
+      Accumulation newAccumulation = Accumulation.builder()
+          .date(date)
+          .user(currentUser)
+          .build();
+
+      if (accOpt.isPresent()) {
+        newAccumulation.setValue(setValueFunc.apply(accOpt.get().getValue(), value));
+      } else {
+        newAccumulation.setValue(setValueFunc.apply(BigDecimal.ZERO, value));
+      }
+      accumulationRepository.save(newAccumulation);
     }
 
-    @Transactional(readOnly = true)
-    @Override
-    public Accumulation findByDate(LocalDate date) {
-        User currentUser = userService.getCurrentUser();
-        String currentUserId = currentUser.getId();
-        return accumulationRepository.findByDateAndUserId(date, currentUserId).orElseThrow(() ->
-                new EntityNotFoundException(
-                        String.format("Could not find accumulation by date = '%s' in the database",
-                                date)));
+    //Recalculate the value of other accumulations by the specified value
+    recalculateOthersFunc.recalculate(value, date, currentUserId);
+  }
+
+  private Specification<Accumulation> applyCriteria(AccumulationCriteriaDto criteria) {
+    User currentUser = userService.getCurrentUser();
+    String currentUserId = currentUser.getId();
+
+    Specification<Accumulation> criteriaAsSpec = AccumulationSpec.userIdEq(currentUserId);
+
+    LocalDate from = criteria.getFrom();
+    LocalDate to = criteria.getTo();
+    if (from != null || to != null) {
+      criteriaAsSpec = criteriaAsSpec.and(AccumulationSpec.filterByDate(from, to));
     }
 
-    @Transactional
-    @Override
-    public void increase(BigDecimal value, LocalDate date) {
-        recalculate(date, value, BigDecimal::add, accumulationRepository::increaseValueByDateGreaterThan);
-    }
-
-    @Transactional
-    @Override
-    public void decrease(BigDecimal value, LocalDate date) {
-        recalculate(date, value, BigDecimal::subtract, accumulationRepository::decreaseValueByDateGreaterThan);
-    }
-
-    private void recalculate(LocalDate date,
-                             BigDecimal value,
-                             BiFunction<BigDecimal, BigDecimal, BigDecimal> setValueFunc,
-                             RecalculateFunc recalculateOthersFunc) {
-        User currentUser = userService.getCurrentUser();
-        String currentUserId = currentUser.getId();
-
-        //Find the accumulation by date and recalculate its value by the specified value
-        Optional<Accumulation> accOpt = accumulationRepository.findByDateAndUserId(date, currentUserId);
-        if (accOpt.isPresent()) {
-            Accumulation acc = accOpt.get();
-            acc.setValue(setValueFunc.apply(acc.getValue(), value));
-            accumulationRepository.save(acc);
-        } else {
-            accOpt = accumulationRepository.findFirstByDateLessThanAndUserIdOrderByDateDesc(date, currentUserId);
-
-            Accumulation newAccumulation = Accumulation.builder()
-                    .date(date)
-                    .user(currentUser)
-                    .build();
-
-            if (accOpt.isPresent()) {
-                newAccumulation.setValue(setValueFunc.apply(accOpt.get().getValue(), value));
-            } else {
-                newAccumulation.setValue(setValueFunc.apply(BigDecimal.ZERO, value));
-            }
-            accumulationRepository.save(newAccumulation);
-        }
-
-        //Recalculate the value of other accumulations by the specified value
-        recalculateOthersFunc.recalculate(value, date, currentUserId);
-    }
-
-    private Specification<Accumulation> applyCriteria(AccumulationCriteriaDto criteria) {
-        User currentUser = userService.getCurrentUser();
-        String currentUserId = currentUser.getId();
-        
-        Specification<Accumulation> criteriaAsSpec = AccumulationSpec.userIdEq(currentUserId);
-
-        LocalDate from = criteria.getFrom();
-        LocalDate to = criteria.getTo();
-        if (from != null || to != null) {
-            criteriaAsSpec = criteriaAsSpec.and(AccumulationSpec.filterByDate(from, to));
-        }
-
-        return criteriaAsSpec;
-    }
+    return criteriaAsSpec;
+  }
 }

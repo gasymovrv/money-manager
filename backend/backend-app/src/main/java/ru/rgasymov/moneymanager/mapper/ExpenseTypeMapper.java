@@ -9,12 +9,12 @@ import ru.rgasymov.moneymanager.domain.dto.response.ExpenseTypeResponseDto;
 import ru.rgasymov.moneymanager.domain.entity.ExpenseType;
 
 @Mapper(componentModel = "spring",
-        unmappedTargetPolicy = ReportingPolicy.IGNORE)
+    unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface ExpenseTypeMapper {
 
-    @Named(value = "toDto")
-    ExpenseTypeResponseDto toDto(ExpenseType entity);
+  @Named(value = "toDto")
+  ExpenseTypeResponseDto toDto(ExpenseType entity);
 
-    @IterableMapping(qualifiedByName = "toDto")
-    Set<ExpenseTypeResponseDto> toDtos(Set<ExpenseType> entities);
+  @IterableMapping(qualifiedByName = "toDto")
+  Set<ExpenseTypeResponseDto> toDtos(Set<ExpenseType> entities);
 }

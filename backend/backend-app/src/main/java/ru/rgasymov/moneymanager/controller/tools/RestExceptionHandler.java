@@ -19,46 +19,46 @@ import ru.rgasymov.moneymanager.util.ErrorUtils;
 @Slf4j
 public class RestExceptionHandler {
 
-    /**
-     * Client side errors:
-     * no data found in the database
-     */
-    @ExceptionHandler(EntityNotFoundException.class)
-    public ResponseEntity<RestApiError> handleEntityNotFoundException(EntityNotFoundException ex) {
-        ErrorUtils.logException(ex, log);
-        return createErrorResponse(ex, HttpStatus.NOT_FOUND);
-    }
+  /**
+   * Client side errors.
+   * no data found in the database
+   */
+  @ExceptionHandler(EntityNotFoundException.class)
+  public ResponseEntity<RestApiError> handleEntityNotFoundException(EntityNotFoundException ex) {
+    ErrorUtils.logException(ex, log);
+    return createErrorResponse(ex, HttpStatus.NOT_FOUND);
+  }
 
-    /**
-     * Client side errors:
-     * validation exception, incorrect request body format
-     */
-    @ExceptionHandler({
-            ValidationException.class,
-            BindException.class,
-            HttpMessageNotReadableException.class,
-            MethodArgumentNotValidException.class
-    })
-    public ResponseEntity<RestApiError> handleValidationException(Exception ex) {
-        ErrorUtils.logException(ex, log);
-        return createErrorResponse(ex, HttpStatus.BAD_REQUEST);
-    }
+  /**
+   * Client side errors.
+   * validation exception, incorrect request body format
+   */
+  @ExceptionHandler({
+      ValidationException.class,
+      BindException.class,
+      HttpMessageNotReadableException.class,
+      MethodArgumentNotValidException.class
+  })
+  public ResponseEntity<RestApiError> handleValidationException(Exception ex) {
+    ErrorUtils.logException(ex, log);
+    return createErrorResponse(ex, HttpStatus.BAD_REQUEST);
+  }
 
-    /**
-     * Remaining errors are server side
-     */
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<RestApiError> handleOtherExceptions(Exception ex) {
-        ErrorUtils.logException(ex, log);
-        return createErrorResponse(ex, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+  /**
+   * Remaining errors are server side.
+   */
+  @ExceptionHandler(Exception.class)
+  public ResponseEntity<RestApiError> handleOtherExceptions(Exception ex) {
+    ErrorUtils.logException(ex, log);
+    return createErrorResponse(ex, HttpStatus.INTERNAL_SERVER_ERROR);
+  }
 
-    private ResponseEntity<RestApiError> createErrorResponse(Throwable err, HttpStatus status) {
-        return ResponseEntity.status(status).body(
-                RestApiError.builder()
-                        .code(status.value())
-                        .status(status)
-                        .errors(ErrorUtils.getErrorsFromStack(err))
-                        .build());
-    }
+  private ResponseEntity<RestApiError> createErrorResponse(Throwable err, HttpStatus status) {
+    return ResponseEntity.status(status).body(
+        RestApiError.builder()
+            .code(status.value())
+            .status(status)
+            .errors(ErrorUtils.getErrorsFromStack(err))
+            .build());
+  }
 }

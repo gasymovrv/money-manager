@@ -7,9 +7,9 @@ import ru.rgasymov.moneymanager.domain.entity.IncomeType;
 
 public interface IncomeTypeRepository extends JpaRepository<IncomeType, Long> {
 
-    Optional<IncomeType> findByIdAndUserId(Long id, String userId);
+  Optional<IncomeType> findByIdAndUserId(Long id, String userId);
 
-    void deleteByIdAndUserId(Long id, String userId);
+  void deleteByIdAndUserId(Long id, String userId);
 
-    Set<IncomeType> findAllByUserId(String userId);
+  Set<IncomeType> findAllByUserId(String userId);
 }

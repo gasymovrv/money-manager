@@ -10,29 +10,29 @@ import ru.rgasymov.moneymanager.domain.dto.response.ErrorDto;
 @UtilityClass
 public class ErrorUtils {
 
-    /**
-     * Create error list from stacktrace
-     */
-    public List<ErrorDto> getErrorsFromStack(Throwable error) {
-        List<ErrorDto> errors = new ArrayList<>();
-        while (error != null) {
-            ErrorDto errorDto = ErrorDto
-                    .builder()
-                    .message(error.getMessage())
-                    .shortName(error.getClass().getName())
-                    .build();
-            errors.add(errorDto);
-            error = error.getCause();
-        }
-        return errors;
+  /**
+   * Create error list from stacktrace.
+   */
+  public List<ErrorDto> getErrorsFromStack(Throwable error) {
+    List<ErrorDto> errors = new ArrayList<>();
+    while (error != null) {
+      ErrorDto errorDto = ErrorDto
+          .builder()
+          .message(error.getMessage())
+          .shortName(error.getClass().getName())
+          .build();
+      errors.add(errorDto);
+      error = error.getCause();
     }
+    return errors;
+  }
 
-    public void logException(Exception ex, Logger log) {
-        String message = ex.getMessage();
-        if (StringUtils.isNotBlank(message)) {
-            log.error("# " + message, ex);
-        } else {
-            log.error("# " + ex.toString(), ex);
-        }
+  public void logException(Exception ex, Logger log) {
+    String message = ex.getMessage();
+    if (StringUtils.isNotBlank(message)) {
+      log.error("# " + message, ex);
+    } else {
+      log.error("# " + ex, ex);
     }
+  }
 }

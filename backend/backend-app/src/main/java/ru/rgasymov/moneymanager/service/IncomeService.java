@@ -6,11 +6,11 @@ import ru.rgasymov.moneymanager.domain.dto.response.IncomeResponseDto;
 
 public interface IncomeService {
 
-    List<IncomeResponseDto> findAll();
+  List<IncomeResponseDto> findAll();
 
-    IncomeResponseDto create(IncomeRequestDto dto);
+  IncomeResponseDto create(IncomeRequestDto dto);
 
-    IncomeResponseDto update(Long id, IncomeRequestDto dto);
+  IncomeResponseDto update(Long id, IncomeRequestDto dto);
 
-    void delete(Long id);
+  void delete(Long id);
 }

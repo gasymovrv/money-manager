@@ -18,32 +18,32 @@ import ru.rgasymov.moneymanager.util.SecurityContextUtils;
 @Slf4j
 public class ErrorFilter extends GenericFilterBean {
 
-    private final String apiBaseUrl;
+  private final String apiBaseUrl;
 
-    private final String baseUrl;
+  private final String baseUrl;
 
-    @Override
-    public void doFilter(ServletRequest request,
-                         ServletResponse response,
-                         FilterChain chain) throws IOException, ServletException {
-        HttpServletRequest rq = (HttpServletRequest) request;
-        HttpServletResponse rs = (HttpServletResponse) response;
-        try {
-            if (HttpStatus.NOT_FOUND.value() == rs.getStatus()) {
-                rs.sendRedirect(baseUrl);
-            } else {
-                chain.doFilter(request, response);
-            }
-        } catch (AccessDeniedException e) {
-            if (rq.getRequestURI().startsWith(apiBaseUrl + "/")) {
-                if (SecurityContextUtils.isAnonymous()) {
-                    rs.sendError(HttpStatus.UNAUTHORIZED.value());
-                } else {
-                    rs.sendError(HttpStatus.FORBIDDEN.value());
-                }
-            } else {
-                throw e;
-            }
+  @Override
+  public void doFilter(ServletRequest request,
+                       ServletResponse response,
+                       FilterChain chain) throws IOException, ServletException {
+    HttpServletRequest rq = (HttpServletRequest) request;
+    HttpServletResponse rs = (HttpServletResponse) response;
+    try {
+      if (HttpStatus.NOT_FOUND.value() == rs.getStatus()) {
+        rs.sendRedirect(baseUrl);
+      } else {
+        chain.doFilter(request, response);
+      }
+    } catch (AccessDeniedException e) {
+      if (rq.getRequestURI().startsWith(apiBaseUrl + "/")) {
+        if (SecurityContextUtils.isAnonymous()) {
+          rs.sendError(HttpStatus.UNAUTHORIZED.value());
+        } else {
+          rs.sendError(HttpStatus.FORBIDDEN.value());
         }
+      } else {
+        throw e;
+      }
     }
+  }
 }

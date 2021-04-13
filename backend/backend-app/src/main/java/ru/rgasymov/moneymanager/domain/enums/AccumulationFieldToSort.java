@@ -5,11 +5,11 @@ import ru.rgasymov.moneymanager.domain.entity.Accumulation_;
 
 @Getter
 public enum AccumulationFieldToSort {
-    DATE(Accumulation_.DATE);
+  DATE(Accumulation_.DATE);
 
-    private final String fieldName;
+  private final String fieldName;
 
-    AccumulationFieldToSort(String fieldName) {
-        this.fieldName = fieldName;
-    }
+  AccumulationFieldToSort(String fieldName) {
+    this.fieldName = fieldName;
+  }
 }

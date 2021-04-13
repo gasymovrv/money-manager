@@ -19,44 +19,46 @@ import ru.rgasymov.moneymanager.service.UserService;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class ExpenseTypeService implements TypeService<ExpenseTypeRequestDto, ExpenseTypeResponseDto> {
+public class ExpenseTypeService
+    implements TypeService<ExpenseTypeRequestDto, ExpenseTypeResponseDto> {
 
-    private final ExpenseTypeRepository expenseTypeRepository;
+  private final ExpenseTypeRepository expenseTypeRepository;
 
-    private final ExpenseRepository expenseRepository;
+  private final ExpenseRepository expenseRepository;
 
-    private final UserService userService;
+  private final UserService userService;
 
-    private final ExpenseTypeMapper expenseTypeMapper;
+  private final ExpenseTypeMapper expenseTypeMapper;
 
-    @Transactional(readOnly = true)
-    @Override
-    public Set<ExpenseTypeResponseDto> findAll() {
-        User currentUser = userService.getCurrentUser();
-        Set<ExpenseType> result = expenseTypeRepository.findAllByUserId(currentUser.getId());
-        return expenseTypeMapper.toDtos(result);
+  @Transactional(readOnly = true)
+  @Override
+  public Set<ExpenseTypeResponseDto> findAll() {
+    User currentUser = userService.getCurrentUser();
+    Set<ExpenseType> result = expenseTypeRepository.findAllByUserId(currentUser.getId());
+    return expenseTypeMapper.toDtos(result);
+  }
+
+  @Transactional
+  @Override
+  public ExpenseTypeResponseDto create(ExpenseTypeRequestDto dto) {
+    User currentUser = userService.getCurrentUser();
+    ExpenseType newExpenseType = ExpenseType.builder()
+        .name(dto.getName())
+        .user(currentUser)
+        .build();
+    ExpenseType saved = expenseTypeRepository.save(newExpenseType);
+    return expenseTypeMapper.toDto(saved);
+  }
+
+  @Transactional
+  @Override
+  public void delete(Long id) {
+    User currentUser = userService.getCurrentUser();
+
+    if (expenseRepository.existsByExpenseTypeId(id)) {
+      throw new ValidationException(
+          "Could not delete an expense type while it is being referenced by any expenses");
     }
-
-    @Transactional
-    @Override
-    public ExpenseTypeResponseDto create(ExpenseTypeRequestDto dto) {
-        User currentUser = userService.getCurrentUser();
-        ExpenseType newExpenseType = ExpenseType.builder()
-                .name(dto.getName())
-                .user(currentUser)
-                .build();
-        ExpenseType saved = expenseTypeRepository.save(newExpenseType);
-        return expenseTypeMapper.toDto(saved);
-    }
-
-    @Transactional
-    @Override
-    public void delete(Long id) {
-        User currentUser = userService.getCurrentUser();
-
-        if (expenseRepository.existsByExpenseTypeId(id)) {
-            throw new ValidationException("Could not delete an expense type while it is being referenced by any expenses");
-        }
-        expenseTypeRepository.deleteByIdAndUserId(id, currentUser.getId());
-    }
+    expenseTypeRepository.deleteByIdAndUserId(id, currentUser.getId());
+  }
 }

@@ -17,20 +17,21 @@ import springfox.documentation.annotations.ApiIgnore;
 @RequestMapping("/")
 public class MainController {
 
-    private static final String GOOGLE_AUTHORIZATION_URI = "oauth2/authorization/google";
+  private static final String GOOGLE_AUTHORIZATION_URI = "oauth2/authorization/google";
 
-    private final UserService userService;
+  private final UserService userService;
 
-    @GetMapping
-    public String root(Model model, @AuthenticationPrincipal(expression = "idToken") OidcIdToken token) {
-        User user = userService.findByOidcToken(token);
-        model.addAttribute("user", user);
-        return "index";
-    }
+  @GetMapping
+  public String root(Model model,
+                     @AuthenticationPrincipal(expression = "idToken") OidcIdToken token) {
+    User user = userService.findByOidcToken(token);
+    model.addAttribute("user", user);
+    return "index";
+  }
 
-    @GetMapping("/login")
-    public String getLoginPage(Model model) {
-        model.addAttribute("googleAuthUri", GOOGLE_AUTHORIZATION_URI);
-        return "login";
-    }
+  @GetMapping("/login")
+  public String getLoginPage(Model model) {
+    model.addAttribute("googleAuthUri", GOOGLE_AUTHORIZATION_URI);
+    return "login";
+  }
 }

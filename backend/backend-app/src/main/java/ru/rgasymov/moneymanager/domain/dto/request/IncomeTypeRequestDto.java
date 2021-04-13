@@ -13,6 +13,6 @@ import lombok.NoArgsConstructor;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class IncomeTypeRequestDto {
-    @NotNull
-    private String name;
+  @NotNull
+  private String name;
 }
