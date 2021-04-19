@@ -16,11 +16,9 @@ public class ErrorUtils {
   public List<ErrorDto> getErrorsFromStack(Throwable error) {
     List<ErrorDto> errors = new ArrayList<>();
     while (error != null) {
-      ErrorDto errorDto = ErrorDto
-          .builder()
-          .message(error.getMessage())
-          .shortName(error.getClass().getName())
-          .build();
+      ErrorDto errorDto = new ErrorDto(
+          error.getClass().getName(),
+          error.getMessage());
       errors.add(errorDto);
       error = error.getCause();
     }

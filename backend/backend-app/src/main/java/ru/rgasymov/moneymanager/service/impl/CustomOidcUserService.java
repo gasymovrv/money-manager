@@ -29,7 +29,7 @@ public class CustomOidcUserService extends OidcUserService implements UserServic
   public User getCurrentUser() {
     var authentication = SecurityContextHolder.getContext().getAuthentication();
     var principal = (OidcUserProxy) authentication.getPrincipal();
-    return principal.getCurrentUser();
+    return principal.currentUser();
   }
 
   @Transactional
