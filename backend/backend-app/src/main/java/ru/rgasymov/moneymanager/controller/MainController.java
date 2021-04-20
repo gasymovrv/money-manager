@@ -17,8 +17,6 @@ import springfox.documentation.annotations.ApiIgnore;
 @RequestMapping("/")
 public class MainController {
 
-  private static final String GOOGLE_AUTHORIZATION_URI = "oauth2/authorization/google";
-
   private final UserService userService;
 
   @GetMapping
@@ -30,8 +28,7 @@ public class MainController {
   }
 
   @GetMapping("/login")
-  public String getLoginPage(Model model) {
-    model.addAttribute("googleAuthUri", GOOGLE_AUTHORIZATION_URI);
+  public String getLoginPage() {
     return "login";
   }
 }

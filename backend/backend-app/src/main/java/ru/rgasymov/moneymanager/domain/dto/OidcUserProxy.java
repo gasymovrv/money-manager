@@ -2,21 +2,16 @@ package ru.rgasymov.moneymanager.domain.dto;
 
 import java.util.Collection;
 import java.util.Map;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.core.oidc.OidcIdToken;
 import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import ru.rgasymov.moneymanager.domain.entity.User;
 
-@RequiredArgsConstructor
-@Getter
-public class OidcUserProxy implements OidcUser {
-
-  private final OidcUser oidcUser;
-
-  private final User currentUser;
+public record OidcUserProxy(
+    OidcUser oidcUser,
+    User currentUser
+) implements OidcUser {
 
   @Override
   public Map<String, Object> getClaims() {
