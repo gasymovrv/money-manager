@@ -8,7 +8,7 @@ import io.swagger.annotations.ApiModel;
 @ApiModel(description = "This DTO will return on some errors")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public record ErrorDto (
+public record ErrorDto(
     @JsonProperty
     String shortName,
 
