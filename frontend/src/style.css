@@ -40,13 +40,24 @@ table {
     border: 4px #ccc;
     border-collapse: collapse;
 }
+
 th {
     text-align: center;
     background: #ccc;
     padding: 5px;
     border: 1px solid #7f7f7f;
 }
+
 td {
     padding: 5px;
     border: 1px solid #ccc;
+}
+
+a, a:hover, a:focus, a:active {
+    color: inherit;
+    text-decoration: none;
+}
+
+button {
+    cursor: pointer;
 }

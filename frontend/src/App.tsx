@@ -132,6 +132,9 @@ class MainTable extends Component<AppProps, AppState> {
             <div>
               <p>Name: {user.name}</p>
               <p>Email: {user.email}</p>
+              <form method="GET" action="logout">
+                <button type="submit">Logout</button>
+              </form>
             </div>
             <div>
               <img src={user.picture} alt="not found"/>
