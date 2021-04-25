@@ -15,7 +15,7 @@ import lombok.experimental.SuperBuilder;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class IncomeTypeResponseDto {
 
-  private String id;
+  private Long id;
 
   private String name;
 }

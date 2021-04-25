@@ -14,7 +14,9 @@ import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.rgasymov.moneymanager.domain.dto.OidcUserProxy;
+import ru.rgasymov.moneymanager.domain.dto.response.UserResponseDto;
 import ru.rgasymov.moneymanager.domain.entity.User;
+import ru.rgasymov.moneymanager.mapper.UserMapper;
 import ru.rgasymov.moneymanager.repository.UserRepository;
 import ru.rgasymov.moneymanager.service.UserService;
 
@@ -25,11 +27,18 @@ public class CustomOidcUserService extends OidcUserService implements UserServic
 
   private final UserRepository userRepository;
 
+  private final UserMapper userMapper;
+
   @Override
   public User getCurrentUser() {
     var authentication = SecurityContextHolder.getContext().getAuthentication();
     var principal = (OidcUserProxy) authentication.getPrincipal();
     return principal.currentUser();
+  }
+
+  @Override
+  public UserResponseDto getCurrentUserAsDto() {
+    return userMapper.toDto(getCurrentUser());
   }
 
   @Transactional

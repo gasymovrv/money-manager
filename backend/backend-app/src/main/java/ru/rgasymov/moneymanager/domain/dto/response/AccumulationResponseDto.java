@@ -7,6 +7,7 @@ import io.swagger.annotations.ApiModel;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -39,4 +40,12 @@ public class AccumulationResponseDto {
   @EqualsAndHashCode.Exclude
   @ToString.Exclude
   private List<ExpenseResponseDto> expenses;
+
+  @EqualsAndHashCode.Exclude
+  @ToString.Exclude
+  private Map<String, IncomeResponseDto> incomesByType;
+
+  @EqualsAndHashCode.Exclude
+  @ToString.Exclude
+  private Map<String, ExpenseResponseDto> expensesByType;
 }
