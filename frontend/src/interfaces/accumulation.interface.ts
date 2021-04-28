@@ -1,6 +1,6 @@
-import { Income } from "./income.interface";
-import { Expense } from "./expense.interface";
-import { SearchResult } from "./common.interface";
+import { Income } from './income.interface';
+import { Expense } from './expense.interface';
+import { SearchResult } from './common.interface';
 
 export class Accumulation {
   id: number;

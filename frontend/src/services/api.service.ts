@@ -1,12 +1,12 @@
-import { User } from "../interfaces/user.interface";
-import { ExpenseType } from "../interfaces/expense.interface";
-import { Expense } from "../interfaces/expense.interface";
-import { IncomeType } from "../interfaces/income.interface";
-import { Income } from "../interfaces/income.interface";
-import { AccumulationResponse } from "../interfaces/accumulation.interface";
-import { Accumulation } from "../interfaces/accumulation.interface";
-import { AccumulationSearchResult } from "../interfaces/accumulation.interface";
-import { SearchResult } from "../interfaces/common.interface";
+import { User } from '../interfaces/user.interface';
+import { ExpenseType } from '../interfaces/expense.interface';
+import { Expense } from '../interfaces/expense.interface';
+import { IncomeType } from '../interfaces/income.interface';
+import { Income } from '../interfaces/income.interface';
+import { AccumulationResponse } from '../interfaces/accumulation.interface';
+import { Accumulation } from '../interfaces/accumulation.interface';
+import { AccumulationSearchResult } from '../interfaces/accumulation.interface';
+import { SearchResult } from '../interfaces/common.interface';
 
 const apiUrl = '/api/';
 
