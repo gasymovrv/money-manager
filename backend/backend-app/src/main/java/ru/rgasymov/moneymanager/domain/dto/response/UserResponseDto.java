@@ -3,6 +3,7 @@ package ru.rgasymov.moneymanager.domain.dto.response;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModel;
+import java.time.LocalDateTime;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
@@ -13,9 +14,17 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class ExpenseTypeResponseDto {
+public class UserResponseDto {
 
-  private Long id;
+  private String id;
 
   private String name;
+
+  private String picture;
+
+  private String email;
+
+  private String locale;
+
+  private LocalDateTime lastVisit;
 }

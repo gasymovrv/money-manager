@@ -15,10 +15,4 @@ public interface AccumulationService {
   void increase(BigDecimal value, LocalDate date);
 
   void decrease(BigDecimal value, LocalDate date);
-
-  interface RecalculateFunc {
-    void recalculate(BigDecimal decrement,
-                     LocalDate date,
-                     String userId);
-  }
 }

@@ -28,6 +28,12 @@ import ru.rgasymov.moneymanager.specs.AccumulationSpec;
 @RequiredArgsConstructor
 public class AccumulationServiceImpl implements AccumulationService {
 
+  interface RecalculateFunc {
+    void recalculate(BigDecimal decrement,
+                     LocalDate date,
+                     String userId);
+  }
+
   private final AccumulationRepository accumulationRepository;
 
   private final AccumulationMapper accumulationMapper;

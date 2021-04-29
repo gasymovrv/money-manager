@@ -1,0 +1,14 @@
+header {
+  margin: 15px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.account {
+  background-color: #c6e3cb;
+  padding: 15px;
+  border: 1px solid #7f7f7f;
+  width: 320px;
+  display: flex;
+  justify-content: space-between;
+}

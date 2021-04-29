@@ -1,6 +1,7 @@
 package ru.rgasymov.moneymanager.mapper;
 
 import java.util.List;
+import org.mapstruct.DecoratedWith;
 import org.mapstruct.IterableMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -12,12 +13,11 @@ import ru.rgasymov.moneymanager.domain.entity.Accumulation;
 @Mapper(componentModel = "spring",
     uses = {IncomeMapper.class, ExpenseMapper.class},
     unmappedTargetPolicy = ReportingPolicy.IGNORE)
+@DecoratedWith(AccumulationMapperDecorator.class)
 public interface AccumulationMapper {
 
   @Mapping(target = "userId", source = "user.id")
-  @Named(value = "toDto")
   AccumulationResponseDto toDto(Accumulation entity);
 
-  @IterableMapping(qualifiedByName = "toDto")
   List<AccumulationResponseDto> toDtos(List<Accumulation> entities);
 }
