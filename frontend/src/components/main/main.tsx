@@ -90,16 +90,25 @@ async function getTable(): Promise<MainState> {
 }
 
 const Main: React.FC = () => {
-  const [{columns, rows}, setState] = useState<MainState>({
+  const [{columns, rows}, setData] = useState<MainState>({
     columns: [],
     rows: []
   })
+  const [isLoading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    getTable().then((result) => setState(result))
-  })
+    getTable().then((data) => {
+        setData(data);
+        setLoading(false)
+      },
+      (err) => {
+        console.log(`Getting main table error: ${err}`)
+      })
+  }, [])
 
+  console.log('Main rendering')
   return (
+    isLoading ? <div>Loading...</div> :
     <main>
       <table>
         <tbody>

@@ -12,7 +12,6 @@ import { IContext } from './interfaces/auth-context.interface';
 
 type AppState = {
   user: User
-  isLoading: boolean
 }
 
 interface PrivateRouterProps {
@@ -37,29 +36,31 @@ const PrivateRoute: React.FC<PrivateRouterProps> = (props) => {
 }
 
 const App: React.FC = () => {
-  const [{user, isLoading}, setState] = useState<AppState>(
+  const [{user}, setUser] = useState<AppState>(
     {
       user: {
         id: '',
         name: '',
         picture: '',
         email: '',
-      },
-      isLoading: true
+      }
     });
+  const [isLoading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     getCurrentUser()
       .then(
         (user) => {
-          setState({user: user, isLoading: false});
+          setUser({user});
+          setLoading(false);
         },
         (err) => {
           console.log(`Getting current user error: ${err}`)
         }
       )
-  });
+  }, []);
 
+  console.log('App rendering, user:', user)
   if (isLoading) {
     return (<div>Loading...</div>);
   }
