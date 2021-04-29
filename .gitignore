@@ -42,5 +42,6 @@ out/
 
 installer/
 database/
+uploaded-files/
 *.log
 *.log.*.gz
