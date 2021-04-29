@@ -32,6 +32,11 @@
             <artifactId>frontend</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>ru.rgasymov</groupId>
+            <artifactId>backend-lib</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
         <!-- Spring -->
         <dependency>

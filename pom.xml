@@ -37,6 +37,7 @@
 
     <modules>
         <module>backend/backend-app</module>
+        <module>backend/backend-lib</module>
         <module>frontend</module>
     </modules>
 
