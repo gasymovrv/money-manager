@@ -66,7 +66,7 @@ public class CustomOidcUserService extends OidcUserService implements UserServic
   private OidcUser processOidcUser(OidcUser oidcUser) {
     String id = oidcUser.getClaim("sub");
     User user = userRepository.findById(id).orElseGet(() -> {
-      User newUser = new User();
+      var newUser = new User();
       newUser.setId(id);
       newUser.setName(oidcUser.getClaim("name"));
       newUser.setEmail(oidcUser.getClaim("email"));

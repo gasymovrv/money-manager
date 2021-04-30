@@ -9,7 +9,6 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.rgasymov.moneymanager.domain.dto.request.ExpenseTypeRequestDto;
 import ru.rgasymov.moneymanager.domain.dto.response.ExpenseTypeResponseDto;
 import ru.rgasymov.moneymanager.domain.entity.ExpenseType;
-import ru.rgasymov.moneymanager.domain.entity.User;
 import ru.rgasymov.moneymanager.mapper.ExpenseTypeMapper;
 import ru.rgasymov.moneymanager.repository.ExpenseRepository;
 import ru.rgasymov.moneymanager.repository.ExpenseTypeRepository;
@@ -33,7 +32,7 @@ public class ExpenseTypeService
   @Transactional(readOnly = true)
   @Override
   public Set<ExpenseTypeResponseDto> findAll() {
-    User currentUser = userService.getCurrentUser();
+    var currentUser = userService.getCurrentUser();
     Set<ExpenseType> result = expenseTypeRepository.findAllByUserId(currentUser.getId());
     return expenseTypeMapper.toDtos(result);
   }
@@ -41,8 +40,8 @@ public class ExpenseTypeService
   @Transactional
   @Override
   public ExpenseTypeResponseDto create(ExpenseTypeRequestDto dto) {
-    User currentUser = userService.getCurrentUser();
-    ExpenseType newExpenseType = ExpenseType.builder()
+    var currentUser = userService.getCurrentUser();
+    var newExpenseType = ExpenseType.builder()
         .name(dto.getName())
         .user(currentUser)
         .build();
@@ -53,7 +52,7 @@ public class ExpenseTypeService
   @Transactional
   @Override
   public void delete(Long id) {
-    User currentUser = userService.getCurrentUser();
+    var currentUser = userService.getCurrentUser();
 
     if (expenseRepository.existsByExpenseTypeId(id)) {
       throw new ValidationException(

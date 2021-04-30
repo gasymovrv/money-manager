@@ -3,7 +3,6 @@ package ru.rgasymov.moneymanager.mapper;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.rgasymov.moneymanager.domain.dto.response.AccumulationResponseDto;
@@ -22,7 +21,7 @@ public class AccumulationMapperDecorator implements AccumulationMapper {
     AccumulationResponseDto dto = delegate.toDto(entity);
 
     //todo remove merging, add expenses lists
-    Map<String, ExpenseResponseDto> expenseMap = new HashMap<>();
+    var expenseMap = new HashMap<String, ExpenseResponseDto>();
     dto.getExpenses().forEach((exp) ->
         expenseMap.merge(exp.getExpenseType().getName(), exp,
             ((dto1, dto2) -> {
@@ -31,7 +30,7 @@ public class AccumulationMapperDecorator implements AccumulationMapper {
             })));
 
     //todo remove merging, add incomes lists
-    Map<String, IncomeResponseDto> incomeMap = new HashMap<>();
+    var incomeMap = new HashMap<String, IncomeResponseDto>();
     dto.getIncomes().forEach((inc) ->
         incomeMap.merge(inc.getIncomeType().getName(), inc,
             ((dto1, dto2) -> {
@@ -50,7 +49,7 @@ public class AccumulationMapperDecorator implements AccumulationMapper {
       return null;
     }
 
-    List<AccumulationResponseDto> list = new ArrayList<>(entities.size());
+    var list = new ArrayList<AccumulationResponseDto>(entities.size());
     for (Accumulation accumulation : entities) {
       list.add(toDto(accumulation));
     }

@@ -4,7 +4,6 @@ import static ru.rgasymov.moneymanager.util.ComparingUtils.isChanged;
 import static ru.rgasymov.moneymanager.util.ComparingUtils.valueLessThan;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.util.List;
 import javax.persistence.EntityNotFoundException;
 import javax.validation.ValidationException;
@@ -42,8 +41,8 @@ public class ExpenseServiceImpl implements ExpenseService {
 
   @Override
   public List<ExpenseResponseDto> findAll() {
-    User currentUser = userService.getCurrentUser();
-    String currentUserId = currentUser.getId();
+    var currentUser = userService.getCurrentUser();
+    var currentUserId = currentUser.getId();
 
     return expenseMapper.toDtos(expenseRepository.findAllByUserId(currentUserId));
   }
@@ -51,11 +50,11 @@ public class ExpenseServiceImpl implements ExpenseService {
   @Transactional
   @Override
   public ExpenseResponseDto create(ExpenseRequestDto dto) {
-    User currentUser = userService.getCurrentUser();
-    String currentUserId = currentUser.getId();
-    Long typeId = dto.getExpenseTypeId();
-    LocalDate date = dto.getDate();
-    BigDecimal value = dto.getValue();
+    var currentUser = userService.getCurrentUser();
+    var currentUserId = currentUser.getId();
+    var typeId = dto.getExpenseTypeId();
+    var date = dto.getDate();
+    var value = dto.getValue();
 
     ExpenseType expenseType = expenseTypeRepository.findByIdAndUserId(typeId, currentUserId)
         .orElseThrow(() ->
@@ -63,7 +62,7 @@ public class ExpenseServiceImpl implements ExpenseService {
                 String.format("Could not find expense type with id = '%s' in the database",
                     typeId)));
 
-    Expense newExpense = Expense.builder()
+    var newExpense = Expense.builder()
         .date(date)
         .value(value)
         .description(dto.getDescription())
@@ -82,20 +81,20 @@ public class ExpenseServiceImpl implements ExpenseService {
   @Transactional
   @Override
   public ExpenseResponseDto update(Long id, ExpenseRequestDto dto) {
-    User currentUser = userService.getCurrentUser();
-    String currentUserId = currentUser.getId();
-    Long typeId = dto.getExpenseTypeId();
-    LocalDate date = dto.getDate();
-    BigDecimal value = dto.getValue();
+    var currentUser = userService.getCurrentUser();
+    var currentUserId = currentUser.getId();
+    var typeId = dto.getExpenseTypeId();
+    var date = dto.getDate();
+    var value = dto.getValue();
 
     Expense expense = expenseRepository.findByIdAndUserId(id, currentUserId)
         .orElseThrow(() ->
             new EntityNotFoundException(
                 String.format("Could not find expense with id = '%s' in the database",
                     id)));
-    Long oldTypeId = expense.getExpenseType().getId();
-    LocalDate oldDate = expense.getDate();
-    BigDecimal oldValue = expense.getValue();
+    var oldTypeId = expense.getExpenseType().getId();
+    var oldDate = expense.getDate();
+    var oldValue = expense.getValue();
 
     if (isChanged(oldDate, date)) {
       throw new ValidationException("Expense date cannot be changed");

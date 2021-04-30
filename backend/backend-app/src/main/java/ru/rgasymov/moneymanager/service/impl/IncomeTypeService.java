@@ -9,7 +9,6 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.rgasymov.moneymanager.domain.dto.request.IncomeTypeRequestDto;
 import ru.rgasymov.moneymanager.domain.dto.response.IncomeTypeResponseDto;
 import ru.rgasymov.moneymanager.domain.entity.IncomeType;
-import ru.rgasymov.moneymanager.domain.entity.User;
 import ru.rgasymov.moneymanager.mapper.IncomeTypeMapper;
 import ru.rgasymov.moneymanager.repository.IncomeRepository;
 import ru.rgasymov.moneymanager.repository.IncomeTypeRepository;
@@ -32,7 +31,7 @@ public class IncomeTypeService implements TypeService<IncomeTypeRequestDto, Inco
   @Transactional(readOnly = true)
   @Override
   public Set<IncomeTypeResponseDto> findAll() {
-    User currentUser = userService.getCurrentUser();
+    var currentUser = userService.getCurrentUser();
     Set<IncomeType> result = incomeTypeRepository.findAllByUserId(currentUser.getId());
     return incomeTypeMapper.toDtos(result);
   }
@@ -40,8 +39,8 @@ public class IncomeTypeService implements TypeService<IncomeTypeRequestDto, Inco
   @Transactional
   @Override
   public IncomeTypeResponseDto create(IncomeTypeRequestDto dto) {
-    User currentUser = userService.getCurrentUser();
-    IncomeType newIncomeType = IncomeType.builder()
+    var currentUser = userService.getCurrentUser();
+    var newIncomeType = IncomeType.builder()
         .name(dto.getName())
         .user(currentUser)
         .build();
@@ -52,7 +51,7 @@ public class IncomeTypeService implements TypeService<IncomeTypeRequestDto, Inco
   @Transactional
   @Override
   public void delete(Long id) {
-    User currentUser = userService.getCurrentUser();
+    var currentUser = userService.getCurrentUser();
 
     if (incomeRepository.existsByIncomeTypeId(id)) {
       throw new ValidationException(

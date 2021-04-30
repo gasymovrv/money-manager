@@ -4,7 +4,6 @@ import static ru.rgasymov.moneymanager.util.ComparingUtils.isChanged;
 import static ru.rgasymov.moneymanager.util.ComparingUtils.valueLessThan;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.util.List;
 import javax.persistence.EntityNotFoundException;
 import javax.validation.ValidationException;
@@ -17,7 +16,6 @@ import ru.rgasymov.moneymanager.domain.dto.response.IncomeResponseDto;
 import ru.rgasymov.moneymanager.domain.entity.Accumulation;
 import ru.rgasymov.moneymanager.domain.entity.Income;
 import ru.rgasymov.moneymanager.domain.entity.IncomeType;
-import ru.rgasymov.moneymanager.domain.entity.User;
 import ru.rgasymov.moneymanager.mapper.IncomeMapper;
 import ru.rgasymov.moneymanager.repository.IncomeRepository;
 import ru.rgasymov.moneymanager.repository.IncomeTypeRepository;
@@ -42,8 +40,8 @@ public class IncomeServiceImpl implements IncomeService {
 
   @Override
   public List<IncomeResponseDto> findAll() {
-    User currentUser = userService.getCurrentUser();
-    String currentUserId = currentUser.getId();
+    var currentUser = userService.getCurrentUser();
+    var currentUserId = currentUser.getId();
 
     return incomeMapper.toDtos(incomeRepository.findAllByUserId(currentUserId));
   }
@@ -51,11 +49,11 @@ public class IncomeServiceImpl implements IncomeService {
   @Transactional
   @Override
   public IncomeResponseDto create(IncomeRequestDto dto) {
-    User currentUser = userService.getCurrentUser();
-    String currentUserId = currentUser.getId();
-    Long incomeTypeId = dto.getIncomeTypeId();
-    LocalDate date = dto.getDate();
-    BigDecimal value = dto.getValue();
+    var currentUser = userService.getCurrentUser();
+    var currentUserId = currentUser.getId();
+    var incomeTypeId = dto.getIncomeTypeId();
+    var date = dto.getDate();
+    var value = dto.getValue();
 
     IncomeType incomeType = incomeTypeRepository.findByIdAndUserId(incomeTypeId, currentUserId)
         .orElseThrow(() ->
@@ -63,7 +61,7 @@ public class IncomeServiceImpl implements IncomeService {
                 String.format("Could not find income type with id = '%s' in the database",
                     incomeTypeId)));
 
-    Income newIncome = Income.builder()
+    var newIncome = Income.builder()
         .date(date)
         .value(value)
         .description(dto.getDescription())
@@ -82,20 +80,20 @@ public class IncomeServiceImpl implements IncomeService {
   @Transactional
   @Override
   public IncomeResponseDto update(Long id, IncomeRequestDto dto) {
-    User currentUser = userService.getCurrentUser();
-    String currentUserId = currentUser.getId();
-    Long typeId = dto.getIncomeTypeId();
-    LocalDate date = dto.getDate();
-    BigDecimal value = dto.getValue();
+    var currentUser = userService.getCurrentUser();
+    var currentUserId = currentUser.getId();
+    var typeId = dto.getIncomeTypeId();
+    var date = dto.getDate();
+    var value = dto.getValue();
 
     Income income = incomeRepository.findByIdAndUserId(id, currentUserId)
         .orElseThrow(() ->
             new EntityNotFoundException(
                 String.format("Could not find income with id = '%s' in the database",
                     id)));
-    Long oldTypeId = income.getIncomeType().getId();
-    LocalDate oldDate = income.getDate();
-    BigDecimal oldValue = income.getValue();
+    var oldTypeId = income.getIncomeType().getId();
+    var oldDate = income.getDate();
+    var oldValue = income.getValue();
 
     if (isChanged(oldDate, date)) {
       throw new ValidationException("Income date cannot be changed");
@@ -130,8 +128,8 @@ public class IncomeServiceImpl implements IncomeService {
   @Transactional
   @Override
   public void delete(Long id) {
-    User currentUser = userService.getCurrentUser();
-    String currentUserId = currentUser.getId();
+    var currentUser = userService.getCurrentUser();
+    var currentUserId = currentUser.getId();
 
     Income income = incomeRepository.findByIdAndUserId(id, currentUserId)
         .orElseThrow(() ->

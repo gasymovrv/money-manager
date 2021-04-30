@@ -17,7 +17,6 @@ import ru.rgasymov.moneymanager.domain.dto.request.AccumulationCriteriaDto;
 import ru.rgasymov.moneymanager.domain.dto.response.AccumulationResponseDto;
 import ru.rgasymov.moneymanager.domain.dto.response.SearchResultDto;
 import ru.rgasymov.moneymanager.domain.entity.Accumulation;
-import ru.rgasymov.moneymanager.domain.entity.User;
 import ru.rgasymov.moneymanager.mapper.AccumulationMapper;
 import ru.rgasymov.moneymanager.repository.AccumulationRepository;
 import ru.rgasymov.moneymanager.service.AccumulationService;
@@ -63,8 +62,8 @@ public class AccumulationServiceImpl implements AccumulationService {
   @Transactional(readOnly = true)
   @Override
   public Accumulation findByDate(LocalDate date) {
-    User currentUser = userService.getCurrentUser();
-    String currentUserId = currentUser.getId();
+    var currentUser = userService.getCurrentUser();
+    var currentUserId = currentUser.getId();
     return accumulationRepository.findByDateAndUserId(date, currentUserId).orElseThrow(() ->
         new EntityNotFoundException(
             String.format("Could not find accumulation by date = '%s' in the database",
@@ -89,8 +88,8 @@ public class AccumulationServiceImpl implements AccumulationService {
                            BigDecimal value,
                            BiFunction<BigDecimal, BigDecimal, BigDecimal> setValueFunc,
                            RecalculateFunc recalculateOthersFunc) {
-    User currentUser = userService.getCurrentUser();
-    String currentUserId = currentUser.getId();
+    var currentUser = userService.getCurrentUser();
+    var currentUserId = currentUser.getId();
 
     //Find the accumulation by date and recalculate its value by the specified value
     Optional<Accumulation> accOpt = accumulationRepository.findByDateAndUserId(date, currentUserId);
@@ -102,7 +101,7 @@ public class AccumulationServiceImpl implements AccumulationService {
       accOpt = accumulationRepository
           .findFirstByDateLessThanAndUserIdOrderByDateDesc(date, currentUserId);
 
-      Accumulation newAccumulation = Accumulation.builder()
+      var newAccumulation = Accumulation.builder()
           .date(date)
           .user(currentUser)
           .build();
@@ -120,8 +119,8 @@ public class AccumulationServiceImpl implements AccumulationService {
   }
 
   private Specification<Accumulation> applyCriteria(AccumulationCriteriaDto criteria) {
-    User currentUser = userService.getCurrentUser();
-    String currentUserId = currentUser.getId();
+    var currentUser = userService.getCurrentUser();
+    var currentUserId = currentUser.getId();
 
     Specification<Accumulation> criteriaAsSpec = AccumulationSpec.userIdEq(currentUserId);
 
