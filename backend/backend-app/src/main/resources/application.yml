@@ -70,3 +70,4 @@ logging:
 
 file-service:
   root: ${FILE_STORAGE_ROOT:uploaded-files}
+  delete-parsed-files: ${DELETE_PARSED_FILES:true}

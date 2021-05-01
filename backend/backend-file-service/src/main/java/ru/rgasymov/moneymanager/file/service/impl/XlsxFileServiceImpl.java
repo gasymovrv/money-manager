@@ -1,13 +1,11 @@
 package ru.rgasymov.moneymanager.file.service.impl;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -20,9 +18,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import ru.rgasymov.moneymanager.constant.DateTimeFormats;
+import ru.rgasymov.moneymanager.domain.dto.XlsxParsingResult;
 import ru.rgasymov.moneymanager.domain.entity.Accumulation;
+import ru.rgasymov.moneymanager.file.exception.ExtractDataException;
 import ru.rgasymov.moneymanager.file.exception.FileReadingException;
 import ru.rgasymov.moneymanager.file.exception.IncorrectFileStorageRootException;
+import ru.rgasymov.moneymanager.file.service.XlsxDataExtractionService;
 import ru.rgasymov.moneymanager.file.service.XlsxFileService;
 
 @Service
@@ -30,39 +31,51 @@ import ru.rgasymov.moneymanager.file.service.XlsxFileService;
 @Slf4j
 public class XlsxFileServiceImpl implements XlsxFileService {
 
+  private final XlsxDataExtractionService xlsxDataExtractionService;
+
   private static final String FILE_NAME_PATTERN = "%s/%s_%s.%s";
 
   @Value("${file-service.root}")
   private String root;
 
+  @Value("${file-service.delete-parsed-files}")
+  private Boolean deleteUploadedFiles;
+
   @Override
-  public List<Accumulation> parseFile(MultipartFile multipartFile) {
-    log.info("# XlsxFileService: parsing file was started");
-    Path rootPath = Paths.get(root);
+  public XlsxParsingResult parseFile(MultipartFile multipartFile) {
+    log.info("# XlsxFileService: parsing file has started");
+    var rootPath = Paths.get(root);
     createRootIfNotExists(rootPath);
 
-    List<Accumulation> result = new ArrayList<>();
-
-    String originalFileName = multipartFile.getOriginalFilename();
-    File destination = Paths.get(generateFilePath(originalFileName, rootPath)).toFile();
+    var originalFileName = multipartFile.getOriginalFilename();
+    var destination = Paths.get(generateFilePath(originalFileName, rootPath)).toFile();
     try {
       FileUtils.copyInputStreamToFile(multipartFile.getInputStream(), destination);
-      log.info("# File was written on disk: {}, original name: {}", destination.getName(),
+      log.info("# File has written on disk: {}, original name: {}", destination.getName(),
           originalFileName);
     } catch (IOException e) {
       throw new FileReadingException(
           String.format("Error while reading content from file '%s'", originalFileName));
     }
 
-    //todo do parsing xls
+    try {
+      XlsxParsingResult result = xlsxDataExtractionService.extract(destination);
+      if (deleteUploadedFiles) {
+        destination.delete();
+      }
+      log.info("# XlsxFileService: parsing file has successfully completed");
+      return result;
 
-    log.info("# XlsxFileService: parsing file was completed");
-    return result;
+    } catch (Exception e) {
+      log.error("# XlsxFileService: error has occurred while parsing file");
+      destination.delete();
+      throw new ExtractDataException(e);
+    }
   }
 
   @Override
   public ResponseEntity<Resource> generateFile(List<Accumulation> data) {
-    log.info("# XlsxFileService: generation file was started");
+    log.info("# XlsxFileService: generation file has started");
     return null;
   }
 

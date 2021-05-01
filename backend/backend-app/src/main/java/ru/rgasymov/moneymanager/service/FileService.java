@@ -2,7 +2,7 @@ package ru.rgasymov.moneymanager.service;
 
 import org.springframework.web.multipart.MultipartFile;
 
-public interface UploadService {
+public interface FileService {
 
   void uploadXlsx(MultipartFile file);
 }

@@ -69,12 +69,13 @@ public class IncomeServiceImpl implements IncomeService {
         .user(currentUser)
         .build();
 
-    accumulationService.increase(value, date);
-    Accumulation accumulation = accumulationService.findByDate(date);
-    newIncome.setAccumulation(accumulation);
+    return saveNewIncome(newIncome);
+  }
 
-    Income saved = incomeRepository.save(newIncome);
-    return incomeMapper.toDto(saved);
+  @Transactional
+  @Override
+  public void create(Income income) {
+    saveNewIncome(income);
   }
 
   @Transactional
@@ -139,5 +140,16 @@ public class IncomeServiceImpl implements IncomeService {
 
     accumulationService.decrease(income.getValue(), income.getDate());
     incomeRepository.deleteByIdAndUserId(id, currentUserId);
+  }
+
+  private IncomeResponseDto saveNewIncome(Income newIncome) {
+    var value = newIncome.getValue();
+    var date = newIncome.getDate();
+    accumulationService.increase(value, date);
+    Accumulation accumulation = accumulationService.findByDate(date);
+    newIncome.setAccumulation(accumulation);
+
+    Income saved = incomeRepository.save(newIncome);
+    return incomeMapper.toDto(saved);
   }
 }

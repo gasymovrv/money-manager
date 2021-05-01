@@ -16,7 +16,6 @@ import ru.rgasymov.moneymanager.domain.dto.response.ExpenseResponseDto;
 import ru.rgasymov.moneymanager.domain.entity.Accumulation;
 import ru.rgasymov.moneymanager.domain.entity.Expense;
 import ru.rgasymov.moneymanager.domain.entity.ExpenseType;
-import ru.rgasymov.moneymanager.domain.entity.User;
 import ru.rgasymov.moneymanager.mapper.ExpenseMapper;
 import ru.rgasymov.moneymanager.repository.ExpenseRepository;
 import ru.rgasymov.moneymanager.repository.ExpenseTypeRepository;
@@ -70,12 +69,13 @@ public class ExpenseServiceImpl implements ExpenseService {
         .user(currentUser)
         .build();
 
-    accumulationService.decrease(value, date);
-    Accumulation accumulation = accumulationService.findByDate(date);
-    newExpense.setAccumulation(accumulation);
+    return saveNewExpense(newExpense);
+  }
 
-    Expense saved = expenseRepository.save(newExpense);
-    return expenseMapper.toDto(saved);
+  @Transactional
+  @Override
+  public void create(Expense expense) {
+    saveNewExpense(expense);
   }
 
   @Transactional
@@ -129,8 +129,8 @@ public class ExpenseServiceImpl implements ExpenseService {
   @Transactional
   @Override
   public void delete(Long id) {
-    User currentUser = userService.getCurrentUser();
-    String currentUserId = currentUser.getId();
+    var currentUser = userService.getCurrentUser();
+    var currentUserId = currentUser.getId();
 
     Expense expense = expenseRepository.findByIdAndUserId(id, currentUserId)
         .orElseThrow(() ->
@@ -140,5 +140,16 @@ public class ExpenseServiceImpl implements ExpenseService {
 
     accumulationService.increase(expense.getValue(), expense.getDate());
     expenseRepository.deleteByIdAndUserId(id, currentUserId);
+  }
+
+  private ExpenseResponseDto saveNewExpense(Expense newExpense) {
+    var value = newExpense.getValue();
+    var date = newExpense.getDate();
+    accumulationService.decrease(value, date);
+    Accumulation accumulation = accumulationService.findByDate(date);
+    newExpense.setAccumulation(accumulation);
+
+    Expense saved = expenseRepository.save(newExpense);
+    return expenseMapper.toDto(saved);
   }
 }
