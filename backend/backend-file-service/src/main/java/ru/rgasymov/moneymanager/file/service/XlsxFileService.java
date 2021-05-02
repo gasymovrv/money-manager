@@ -5,11 +5,13 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
 import ru.rgasymov.moneymanager.domain.dto.XlsxParsingResult;
-import ru.rgasymov.moneymanager.domain.entity.Accumulation;
+import ru.rgasymov.moneymanager.domain.dto.response.AccumulationResponseDto;
 
 public interface XlsxFileService {
 
-  XlsxParsingResult parseFile(MultipartFile file);
+  XlsxParsingResult parse(MultipartFile file);
 
-  ResponseEntity<Resource> generateFile(List<Accumulation> data);
+  ResponseEntity<Resource> generate(List<AccumulationResponseDto> data);
+
+  ResponseEntity<Resource> getTemplate();
 }

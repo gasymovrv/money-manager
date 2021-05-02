@@ -5,11 +5,14 @@ import java.time.LocalDate;
 import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.Resource;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import ru.rgasymov.moneymanager.domain.dto.XlsxParsingResult;
+import ru.rgasymov.moneymanager.domain.dto.request.AccumulationCriteriaDto;
 import ru.rgasymov.moneymanager.domain.entity.ExpenseType;
 import ru.rgasymov.moneymanager.domain.entity.IncomeType;
 import ru.rgasymov.moneymanager.exception.UploadFileException;
@@ -25,6 +28,8 @@ import ru.rgasymov.moneymanager.service.UserService;
 @Service
 @RequiredArgsConstructor
 public class FileServiceImpl implements FileService {
+
+  public static final int MAX_ACCUMULATIONS = 1_000_000;
 
   private final XlsxFileService xlsxFileService;
 
@@ -52,7 +57,7 @@ public class FileServiceImpl implements FileService {
           "# Failed to upload .xlsx file because the database is not empty");
     }
 
-    XlsxParsingResult result = xlsxFileService.parseFile(file);
+    XlsxParsingResult result = xlsxFileService.parse(file);
 
     BigDecimal previousSavings = result.getPreviousSavings();
     LocalDate previousSavingsDate = result.getPreviousSavingsDate();
@@ -75,15 +80,27 @@ public class FileServiceImpl implements FileService {
         .collect(Collectors.toMap(ExpenseType::getName, expenseType -> expenseType));
 
     result.getIncomes().forEach((income -> {
-      String typeName = income.getIncomeType().getName();
+      var typeName = income.getIncomeType().getName();
       income.setIncomeType(incomeTypes.get(typeName));
       incomeService.create(income);
     }));
 
     result.getExpenses().forEach((expense -> {
-      String typeName = expense.getExpenseType().getName();
+      var typeName = expense.getExpenseType().getName();
       expense.setExpenseType(expenseTypes.get(typeName));
       expenseService.create(expense);
     }));
+  }
+
+  @Override
+  public ResponseEntity<Resource> generateXlsx() {
+    var criteria = new AccumulationCriteriaDto();
+    criteria.setPageSize(MAX_ACCUMULATIONS);
+    return xlsxFileService.generate(accumulationService.search(criteria).getResult());
+  }
+
+  @Override
+  public ResponseEntity<Resource> getXlsxTemplate() {
+    return xlsxFileService.getTemplate();
   }
 }

@@ -1,6 +1,7 @@
 package ru.rgasymov.moneymanager.file.service.impl;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -22,7 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import ru.rgasymov.moneymanager.constant.DateTimeFormats;
 import ru.rgasymov.moneymanager.domain.dto.XlsxParsingResult;
-import ru.rgasymov.moneymanager.domain.entity.Accumulation;
+import ru.rgasymov.moneymanager.domain.dto.response.AccumulationResponseDto;
 import ru.rgasymov.moneymanager.file.exception.ExtractDataException;
 import ru.rgasymov.moneymanager.file.exception.FileReadingException;
 import ru.rgasymov.moneymanager.file.exception.IncorrectFileStorageRootException;
@@ -49,7 +50,7 @@ public class XlsxFileServiceImpl implements XlsxFileService {
   private Boolean deleteUploadedFiles;
 
   @Override
-  public XlsxParsingResult parseFile(MultipartFile multipartFile) {
+  public XlsxParsingResult parse(MultipartFile multipartFile) {
     log.info("# XlsxFileService: file parsing has started");
     var rootPath = Paths.get(root);
     createRootIfNotExists(rootPath);
@@ -81,12 +82,12 @@ public class XlsxFileServiceImpl implements XlsxFileService {
   }
 
   @Override
-  public ResponseEntity<Resource> generateFile(List<Accumulation> data) {
+  public ResponseEntity<Resource> generate(List<AccumulationResponseDto> data) {
     log.info("# XlsxFileService: file generation has started");
-    ClassPathResource resource = new ClassPathResource(PATH_TO_TEMPLATE);
 
     try {
-      Resource result = xlsxHandlingService.generate(resource, data);
+      InputStream template = new ClassPathResource(PATH_TO_TEMPLATE).getInputStream();
+      Resource result = xlsxHandlingService.generate(template, data);
       log.info("# XlsxFileService: file generation has successfully completed");
       return ResponseEntity.ok()
           .header(HttpHeaders.CONTENT_DISPOSITION,
@@ -98,6 +99,16 @@ public class XlsxFileServiceImpl implements XlsxFileService {
       log.error("# XlsxFileService: error has occurred while generating the file");
       throw new ExtractDataException(e);
     }
+  }
+
+  @Override
+  public ResponseEntity<Resource> getTemplate() {
+    ClassPathResource resource = new ClassPathResource(PATH_TO_TEMPLATE);
+    return ResponseEntity.ok()
+        .header(HttpHeaders.CONTENT_DISPOSITION,
+            String.format("attachment; filename=\"%s\"", DOWNLOADED_FILE_NAME))
+        .contentType(MediaType.APPLICATION_OCTET_STREAM)
+        .body(resource);
   }
 
   private String generateFilePath(String originalFileName, Path rootPath) {

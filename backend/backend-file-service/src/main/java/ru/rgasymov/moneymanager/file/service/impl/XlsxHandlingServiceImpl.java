@@ -3,6 +3,7 @@ package ru.rgasymov.moneymanager.file.service.impl;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -26,7 +27,7 @@ import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import ru.rgasymov.moneymanager.domain.dto.XlsxParsingResult;
-import ru.rgasymov.moneymanager.domain.entity.Accumulation;
+import ru.rgasymov.moneymanager.domain.dto.response.AccumulationResponseDto;
 import ru.rgasymov.moneymanager.domain.entity.Expense;
 import ru.rgasymov.moneymanager.domain.entity.ExpenseType;
 import ru.rgasymov.moneymanager.domain.entity.Income;
@@ -109,9 +110,9 @@ public class XlsxHandlingServiceImpl implements XlsxHandlingService {
   }
 
   @Override
-  public Resource generate(Resource resource,
-                           List<Accumulation> data) throws IOException, InvalidFormatException {
-    XSSFWorkbook wb = new XSSFWorkbook(resource.getFile());
+  public Resource generate(InputStream template,
+                           List<AccumulationResponseDto> data) throws IOException {
+    XSSFWorkbook wb = new XSSFWorkbook(template);
     //todo handle data
     try (wb; ByteArrayOutputStream os = new ByteArrayOutputStream()) {
       wb.write(os);

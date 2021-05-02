@@ -36,4 +36,4 @@ databaseChangeLog:
         - addUniqueConstraint:
             tableName: accumulation
             columnNames: date, user_id
-            constraintName: date_unique
+            constraintName: accumulation_date_unique
