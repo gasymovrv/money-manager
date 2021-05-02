@@ -32,22 +32,27 @@ public class XlsxDataExtractionServiceImpl implements XlsxDataExtractionService 
    * The number of columns after the last income column.
    * For example, it could be 'Incomes sum'.
    */
-  private static final int COLUMNS_AFTER_LAST_INC = 3;
+  private static final int COLUMNS_AFTER_LAST_INCOME = 3;
 
   /**
    * Index of income types row.
    */
-  private static final int INC_TYPES_ROW = 4;
+  private static final int INCOME_TYPES_ROW = 4;
 
   /**
    * Index of expense types row.
    */
-  private static final int EXP_TYPES_ROW = 3;
+  private static final int EXPENSE_TYPES_ROW = 3;
 
   /**
    * Index of first row with income or expense.
    */
   private static final int START_ROW = 6;
+
+  /**
+   * Column name of the sum of income.
+   */
+  private static final String INCOME_SUM_COLUMN_NAME = "сумма";
 
   private final CommonUserService userService;
 
@@ -59,8 +64,8 @@ public class XlsxDataExtractionServiceImpl implements XlsxDataExtractionService 
     XlsxParsingResult result = null;
     while (sheetIterator.hasNext()) {
       var sheet = (XSSFSheet) sheetIterator.next();
-      var incTypesRow = sheet.getRow(INC_TYPES_ROW);
-      var expTypesRow = sheet.getRow(EXP_TYPES_ROW);
+      var incTypesRow = sheet.getRow(INCOME_TYPES_ROW);
+      var expTypesRow = sheet.getRow(EXPENSE_TYPES_ROW);
 
       XlsxParsingResult tempResult = extractData(sheet, incTypesRow, expTypesRow);
       if (result != null) {
@@ -157,7 +162,7 @@ public class XlsxDataExtractionServiceImpl implements XlsxDataExtractionService 
     }
     var currentUser = userService.getCurrentUser();
 
-    for (int i = incomeLastCol + COLUMNS_AFTER_LAST_INC; i <= expTypesRow.getLastCellNum(); i++) {
+    for (int i = incomeLastCol + COLUMNS_AFTER_LAST_INCOME; i <= expTypesRow.getLastCellNum(); i++) {
       var cell = expTypesRow.getCell(i);
       if (cell == null
           || CellType.STRING != cell.getCellType()) {
@@ -185,7 +190,7 @@ public class XlsxDataExtractionServiceImpl implements XlsxDataExtractionService 
       var cell = incTypesRow.getCell(i);
       var cellValue = cell.getStringCellValue();
 
-      if (cellValue.equals("сумма")) {
+      if (cellValue.equals(INCOME_SUM_COLUMN_NAME)) {
         return cell.getColumnIndex();
       } else {
         var incType = IncomeType.builder()
