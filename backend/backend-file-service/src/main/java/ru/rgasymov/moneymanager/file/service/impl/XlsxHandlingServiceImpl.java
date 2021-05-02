@@ -1,71 +1,100 @@
 package ru.rgasymov.moneymanager.file.service.impl;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import ru.rgasymov.moneymanager.domain.dto.XlsxParsingResult;
+import ru.rgasymov.moneymanager.domain.entity.Accumulation;
 import ru.rgasymov.moneymanager.domain.entity.Expense;
 import ru.rgasymov.moneymanager.domain.entity.ExpenseType;
 import ru.rgasymov.moneymanager.domain.entity.Income;
 import ru.rgasymov.moneymanager.domain.entity.IncomeType;
-import ru.rgasymov.moneymanager.file.service.XlsxDataExtractionService;
+import ru.rgasymov.moneymanager.file.service.XlsxHandlingService;
 import ru.rgasymov.moneymanager.service.CommonUserService;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class XlsxDataExtractionServiceImpl implements XlsxDataExtractionService {
+public class XlsxHandlingServiceImpl implements XlsxHandlingService {
   /**
    * The number of columns after the last income column.
-   * For example, it could be 'Incomes sum'.
    */
-  private static final int COLUMNS_AFTER_LAST_INCOME = 3;
+  private static final int COLUMNS_AFTER_LAST_INCOME = 1;
 
   /**
-   * Index of income types row.
+   * Index of row with type names.
    */
-  private static final int INCOME_TYPES_ROW = 4;
-
-  /**
-   * Index of expense types row.
-   */
-  private static final int EXPENSE_TYPES_ROW = 3;
+  private static final int TYPES_ROW = 1;
 
   /**
    * Index of first row with income or expense.
    */
-  private static final int START_ROW = 6;
+  private static final int START_ROW = 3;
 
   /**
-   * Column name of the sum of income.
+   * Index of first incomes column.
    */
-  private static final String INCOME_SUM_COLUMN_NAME = "сумма";
+  private static final int START_COLUMN = 1;
+
+  /**
+   * Column name of the sum of incomes.
+   */
+  private static final String INCOMES_SUM_COLUMN_NAME = "Incomes sum";
+
+  /**
+   * Column name of the sum of expenses.
+   */
+  private static final String EXPENSES_SUM_COLUMN_NAME = "Expenses sum";
+
+  /**
+   * Index of previous savings row.
+   */
+  private static final int PREVIOUS_SAVINGS_ROW = 2;
+
+  /**
+   * Column name of the previous savings value.
+   */
+  private static final String PREVIOUS_SAVINGS_COLUMN_NAME = "Savings";
 
   private final CommonUserService userService;
 
   @Override
-  public XlsxParsingResult extract(File file) throws IOException, InvalidFormatException {
+  public XlsxParsingResult parse(File file) throws IOException, InvalidFormatException {
     var workBook = new XSSFWorkbook(file);
     var sheetIterator = workBook.sheetIterator();
 
     XlsxParsingResult result = null;
+    SortedSet<XSSFSheet> sortedSheets =
+        new TreeSet<>(Comparator.comparing(XSSFSheet::getSheetName));
+
     while (sheetIterator.hasNext()) {
       var sheet = (XSSFSheet) sheetIterator.next();
-      var incTypesRow = sheet.getRow(INCOME_TYPES_ROW);
-      var expTypesRow = sheet.getRow(EXPENSE_TYPES_ROW);
+      sortedSheets.add(sheet);
+
+      var incTypesRow = sheet.getRow(TYPES_ROW);
+      var expTypesRow = sheet.getRow(TYPES_ROW);
 
       XlsxParsingResult tempResult = extractData(sheet, incTypesRow, expTypesRow);
       if (result != null) {
@@ -75,7 +104,19 @@ public class XlsxDataExtractionServiceImpl implements XlsxDataExtractionService 
       }
     }
 
+    addPrevSavings(result, sortedSheets);
     return result;
+  }
+
+  @Override
+  public Resource generate(Resource resource,
+                           List<Accumulation> data) throws IOException, InvalidFormatException {
+    XSSFWorkbook wb = new XSSFWorkbook(resource.getFile());
+    //todo handle data
+    try (wb; ByteArrayOutputStream os = new ByteArrayOutputStream()) {
+      wb.write(os);
+      return new ByteArrayResource(os.toByteArray());
+    }
   }
 
   private XlsxParsingResult extractData(XSSFSheet sheet,
@@ -104,7 +145,7 @@ public class XlsxDataExtractionServiceImpl implements XlsxDataExtractionService 
 
       var date = firstCellValue.toLocalDate();
 
-      for (int j = 1; j < row.getLastCellNum(); j++) {
+      for (int j = START_COLUMN; j <= row.getLastCellNum(); j++) {
         var cell = row.getCell(j);
         if (cell == null
             || CellType.NUMERIC != cell.getCellType()
@@ -162,16 +203,14 @@ public class XlsxDataExtractionServiceImpl implements XlsxDataExtractionService 
     }
     var currentUser = userService.getCurrentUser();
 
-    for (int i = incomeLastCol + COLUMNS_AFTER_LAST_INCOME; i <= expTypesRow.getLastCellNum(); i++) {
+    for (int i = incomeLastCol + COLUMNS_AFTER_LAST_INCOME;
+         i <= expTypesRow.getLastCellNum();
+         i++) {
       var cell = expTypesRow.getCell(i);
-      if (cell == null
-          || CellType.STRING != cell.getCellType()) {
-        break;
-      }
       var cellValue = cell.getStringCellValue();
 
-      if (StringUtils.isBlank(cellValue)) {
-        break;
+      if (cellValue.equals(EXPENSES_SUM_COLUMN_NAME)) {
+        return;
       } else {
         var expType = ExpenseType.builder()
             .name(cellValue)
@@ -186,11 +225,11 @@ public class XlsxDataExtractionServiceImpl implements XlsxDataExtractionService 
                                   HashMap<Integer, IncomeType> incomeTypes) {
     var currentUser = userService.getCurrentUser();
 
-    for (int i = 1; i <= incTypesRow.getLastCellNum(); i++) {
+    for (int i = START_COLUMN; i <= incTypesRow.getLastCellNum(); i++) {
       var cell = incTypesRow.getCell(i);
       var cellValue = cell.getStringCellValue();
 
-      if (cellValue.equals(INCOME_SUM_COLUMN_NAME)) {
+      if (cellValue.equals(INCOMES_SUM_COLUMN_NAME)) {
         return cell.getColumnIndex();
       } else {
         var incType = IncomeType.builder()
@@ -201,5 +240,29 @@ public class XlsxDataExtractionServiceImpl implements XlsxDataExtractionService 
       }
     }
     return null;
+  }
+
+  private void addPrevSavings(XlsxParsingResult result,
+                              SortedSet<XSSFSheet> sortedSheets) {
+    XSSFSheet oldest = sortedSheets.first();
+    XSSFRow headRow = oldest.getRow(0);
+
+    for (Cell cell : headRow) {
+      if (cell != null
+          && cell.getCellType() == CellType.STRING
+          && cell.getStringCellValue().equals(PREVIOUS_SAVINGS_COLUMN_NAME)) {
+
+        XSSFCell prevSavingsCell =
+            oldest.getRow(PREVIOUS_SAVINGS_ROW).getCell(cell.getColumnIndex());
+        double prevSavingsValue = prevSavingsCell.getNumericCellValue();
+
+        if (prevSavingsValue != 0) {
+          result.setPreviousSavings(new BigDecimal(prevSavingsValue));
+          result.setPreviousSavingsDate(
+              LocalDate.of(Integer.parseInt(oldest.getSheetName()), 1, 1));
+        }
+        return;
+      }
+    }
   }
 }
