@@ -33,3 +33,7 @@ databaseChangeLog:
             constraintName: fk_income_type_user
             referencedColumnNames: id
             referencedTableName: users
+        - addUniqueConstraint:
+            tableName: income_type
+            columnNames: name, user_id
+            constraintName: income_type_name_unique

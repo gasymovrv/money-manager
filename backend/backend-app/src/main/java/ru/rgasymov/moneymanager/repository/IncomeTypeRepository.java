@@ -12,4 +12,6 @@ public interface IncomeTypeRepository extends JpaRepository<IncomeType, Long> {
   void deleteByIdAndUserId(Long id, String userId);
 
   Set<IncomeType> findAllByUserId(String userId);
+
+  boolean existsByUserId(String userId);
 }

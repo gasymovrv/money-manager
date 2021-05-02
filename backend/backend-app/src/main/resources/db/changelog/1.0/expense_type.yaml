@@ -33,3 +33,7 @@ databaseChangeLog:
             constraintName: fk_expense_type_user
             referencedColumnNames: id
             referencedTableName: users
+        - addUniqueConstraint:
+            tableName: expense_type
+            columnNames: name, user_id
+            constraintName: expense_type_name_unique
