@@ -1,11 +1,12 @@
 import { User } from '../interfaces/user.interface';
-import { ExpenseType } from '../interfaces/expense.interface';
-import { Expense } from '../interfaces/expense.interface';
-import { IncomeType } from '../interfaces/income.interface';
-import { Income } from '../interfaces/income.interface';
-import { AccumulationResponse } from '../interfaces/accumulation.interface';
-import { Accumulation } from '../interfaces/accumulation.interface';
-import { AccumulationSearchResult } from '../interfaces/accumulation.interface';
+import { Expense, ExpenseType } from '../interfaces/expense.interface';
+import { Income, IncomeType } from '../interfaces/income.interface';
+import {
+  Accumulation,
+  AccumulationRequestParams,
+  AccumulationResponse,
+  AccumulationSearchResult
+} from '../interfaces/accumulation.interface';
 import { SearchResult } from '../interfaces/common.interface';
 
 const apiUrl = '/api/';
@@ -40,8 +41,8 @@ export async function getExpenses(): Promise<Array<Expense>> {
   return body;
 }
 
-export async function getAccumulations(): Promise<SearchResult<Accumulation>> {
-  return fetch(apiUrl + 'accumulations')
+export async function getAccumulations(request: AccumulationRequestParams): Promise<SearchResult<Accumulation>> {
+  return fetch(apiUrl + 'accumulations?' + request.toUrlSearchParams().toString())
     .then((response) => {
       return response.json();
     })

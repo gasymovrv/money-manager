@@ -1,13 +1,13 @@
 import React from 'react';
-import './home.css';
-import Main from '../main/main';
+import MainTable from '../main-table/main-table';
 import Header from '../header/header';
+import { Container } from '@material-ui/core';
 
 const Home: React.FC = () => (
-  <>
+  <Container maxWidth="xl">
     <Header/>
-    <Main/>
-  </>
+    <MainTable/>
+  </Container>
 )
 
 export default Home;

@@ -1,14 +1,13 @@
-import React from 'react';
-import { useState } from 'react';
-import { useEffect } from 'react';
-import { Route } from 'react-router-dom';
-import { BrowserRouter as Router, Redirect, Switch } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { BrowserRouter as Router, Redirect, Route, Switch } from 'react-router-dom';
 import Login from './components/login/login';
 import Home from './components/home/home';
 import { getCurrentUser } from './services/api.service';
 import { User } from './interfaces/user.interface';
-import { AuthContext } from './interfaces/auth-context.interface';
-import { IContext } from './interfaces/auth-context.interface';
+import { AuthContext, IContext } from './interfaces/auth-context.interface';
+import { CssBaseline, LinearProgress, ThemeProvider } from '@material-ui/core';
+import useMediaQuery from '@material-ui/core/useMediaQuery';
+import { darkTheme, lightTheme } from './theme';
 
 type AppState = {
   user: User
@@ -60,21 +59,28 @@ const App: React.FC = () => {
       )
   }, []);
 
+  const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
+
+  const theme = prefersDarkMode ? darkTheme : lightTheme;
+
   console.log('App rendering, user:', user)
   if (isLoading) {
-    return (<div>Loading...</div>);
+    return (<LinearProgress/>);
   }
   const context: IContext = {user};
 
   return (
-    <AuthContext.Provider value={context}>
-      <Router>
-        <Switch>
-          <PrivateRoute path="/" exact isAuth={!!user.id} component={Home}/>
-          <Route path="/login" component={Login}/>
-        </Switch>
-      </Router>
-    </AuthContext.Provider>
+    <ThemeProvider theme={theme}>
+      <CssBaseline/>
+      <AuthContext.Provider value={context}>
+        <Router>
+          <Switch>
+            <PrivateRoute path="/" exact isAuth={!!user.id} component={Home}/>
+            <Route path="/login" component={Login}/>
+          </Switch>
+        </Router>
+      </AuthContext.Provider>
+    </ThemeProvider>
   )
 }
 

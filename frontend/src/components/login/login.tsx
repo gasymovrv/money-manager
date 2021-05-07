@@ -1,11 +1,22 @@
 import React from 'react';
-import './login.css';
+import { Grid, Link, Typography } from '@material-ui/core';
 
 const Login: React.FC = () => (
-  <main>
-    <h3>You can login with:</h3>
-    <a href="oauth2/authorization/google">Google</a>
-  </main>
+  <Grid
+    container
+    spacing={0}
+    direction="column"
+    alignItems="center"
+    justify="center"
+    style={{minHeight: '100vh'}}
+  >
+    <Grid item xs={5}>
+      <Typography variant="h6">
+        You can login with:
+      </Typography>
+      <Link color="inherit" href="oauth2/authorization/google">Google</Link>
+    </Grid>
+  </Grid>
 );
 
 export default Login;
