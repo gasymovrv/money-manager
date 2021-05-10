@@ -20,7 +20,8 @@ import {
 import { createStyles, Theme } from '@material-ui/core/styles';
 import { MainTableProps, Row } from '../../interfaces/main-table.interface';
 import AddCircleIcon from '@material-ui/icons/AddCircle';
-import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import ExpandLessIcon from '@material-ui/icons/ExpandLess';
 import AddIncomeTypeDialog from '../dialog/add-income-type.dialog';
 import AddExpenseTypeDialog from '../dialog/add-expense-type.dialog';
 
@@ -89,15 +90,17 @@ const MainTable: React.FC<MainTableProps> = ({
                                              }) => {
   const classes = useStyles();
 
+  const [showIncomeTypes, setShowIncomeTypes] = React.useState(true);
+  const [showExpenseTypes, setShowExpenseTypes] = React.useState(true);
   const [openAddIncomeType, setOpenAddIncomeType] = React.useState(false);
   const [openAddExpenseType, setOpenAddExpenseType] = React.useState(false);
 
-  const handleHideIncomeTypes = (event: React.MouseEvent<HTMLButtonElement>) => {
-
+  const handleHideIncomeTypes = () => {
+    setShowIncomeTypes(!showIncomeTypes);
   }
 
-  const handleHideExpenseTypes = (event: React.MouseEvent<HTMLButtonElement>) => {
-
+  const handleHideExpenseTypes = () => {
+    setShowExpenseTypes(!showExpenseTypes);
   }
 
   const handleOpenAddIncomeType = () => {
@@ -130,12 +133,15 @@ const MainTable: React.FC<MainTableProps> = ({
                 </StyledTableCell>
 
                 <StyledTableCell className={classes.boldFont}
-                                 colSpan={incomeTypes.length + 1}>
-                  <Grid container xs={12}>
-                    <Grid item xs={8}>Incomes</Grid>
-                    <Grid item xs={4}>
+                                 colSpan={showIncomeTypes? incomeTypes.length + 1 : 1}>
+                  <Grid justify="center" container>
+                    <Grid item>Incomes</Grid>
+                    <Grid item>
                       <IconButton size="small" onClick={handleHideIncomeTypes}>
-                        <ArrowDropDownIcon fontSize="small"/>
+                        {showIncomeTypes ?
+                          <ExpandLessIcon fontSize="small"/> :
+                          <ExpandMoreIcon fontSize="small"/>
+                        }
                       </IconButton>
                       <IconButton size="small" onClick={handleOpenAddIncomeType}>
                         <AddCircleIcon fontSize="small"/>
@@ -150,12 +156,15 @@ const MainTable: React.FC<MainTableProps> = ({
                 </StyledTableCell>
 
                 <StyledTableCell className={classes.boldFont}
-                                 colSpan={expenseTypes.length + 1}>
-                  <Grid container xs={12}>
-                    <Grid item xs={8}>Expenses</Grid>
-                    <Grid item xs={4}>
+                                 colSpan={showExpenseTypes ? expenseTypes.length + 1 : 1}>
+                  <Grid justify="center" container>
+                    <Grid item>Expenses</Grid>
+                    <Grid item>
                       <IconButton size="small" onClick={handleHideExpenseTypes}>
-                        <ArrowDropDownIcon fontSize="small"/>
+                        {showExpenseTypes ?
+                          <ExpandLessIcon fontSize="small"/> :
+                          <ExpandMoreIcon fontSize="small"/>
+                        }
                       </IconButton>
                       <IconButton size="small" onClick={handleOpenAddExpenseType}>
                         <AddCircleIcon fontSize="small"/>
@@ -177,21 +186,25 @@ const MainTable: React.FC<MainTableProps> = ({
               <TableRow>
                 <StyledTableCell className={classes.top24}/>
 
-                {incomeTypes.map(({id, name}) =>
+                {showIncomeTypes && incomeTypes.map(({id, name}) =>
                   <StyledTableCell key={id} className={classes.top24}>
                     {name}
                   </StyledTableCell>
                 )}
 
-                <StyledTableCell className={`${classes.top24} ${classes.boldFont}`}>Incomes sum</StyledTableCell>
+                <StyledTableCell className={`${classes.top24} ${classes.boldFont}`}>
+                  {showIncomeTypes && 'Incomes sum'}
+                </StyledTableCell>
 
-                {expenseTypes.map(({id, name}) =>
+                {showExpenseTypes && expenseTypes.map(({id, name}) =>
                   <StyledTableCell key={id} className={classes.top24}>
                     {name}
                   </StyledTableCell>
                 )}
 
-                <StyledTableCell className={`${classes.top24} ${classes.boldFont}`}>Expenses sum</StyledTableCell>
+                <StyledTableCell className={`${classes.top24} ${classes.boldFont}`}>
+                  {showExpenseTypes && 'Expenses sum'}
+                </StyledTableCell>
 
                 <StyledTableCell className={classes.top24}/>
               </TableRow>
@@ -202,7 +215,7 @@ const MainTable: React.FC<MainTableProps> = ({
                 <StyledTableRow key={id}>
 
                   <StyledTableCell key={'date_' + id}>{date}</StyledTableCell>
-                  {incomes.map((inc: Income | null | undefined, index) =>
+                  {showIncomeTypes && incomes.map((inc: Income | null | undefined, index) =>
                     inc ?
                       <StyledTableCell key={id + '_' + inc.id} className={classes.green}>
                         {inc.value}
@@ -214,7 +227,7 @@ const MainTable: React.FC<MainTableProps> = ({
                     {incomes.reduce((acc, value) => (value ? acc + value.value : acc), 0)}
                   </StyledTableCell>
 
-                  {expenses.map((exp: Expense | null | undefined, index) =>
+                  {showExpenseTypes && expenses.map((exp: Expense | null | undefined, index) =>
                     exp ?
                       <StyledTableCell key={id + '_' + exp.id} className={classes.red}>
                         {exp.value}
