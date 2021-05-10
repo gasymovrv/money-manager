@@ -9,3 +9,10 @@ export interface Income {
   date: string,
   incomeType: IncomeType,
 }
+
+export interface AddIncomeRequest {
+  value: number,
+  date: string,
+  description?: string,
+  incomeTypeId: number,
+}

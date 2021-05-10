@@ -8,6 +8,9 @@ import { AuthContext, IContext } from './interfaces/auth-context.interface';
 import { CssBaseline, LinearProgress, ThemeProvider } from '@material-ui/core';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
 import { darkTheme, lightTheme } from './theme';
+import moment from 'moment-timezone';
+
+moment.tz.setDefault('Etc/UTC')
 
 type AppState = {
   user: User
@@ -54,7 +57,8 @@ const App: React.FC = () => {
           setLoading(false);
         },
         (err) => {
-          console.log(`Getting current user error: ${err}`)
+          console.log(`Getting current user error: ${err.text}`)
+          setLoading(false);
         }
       )
   }, []);

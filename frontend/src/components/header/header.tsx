@@ -17,6 +17,12 @@ import {
 } from '@material-ui/core';
 import MenuIcon from '@material-ui/icons/Menu';
 import { AccountCircle } from '@material-ui/icons';
+import AddExpenseDialog from '../dialog/add-expense.dialog';
+import AddIncomeDialog from '../dialog/add-income.dialog';
+
+type HeaderProps = {
+  refreshTable(): void
+}
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -26,10 +32,13 @@ const useStyles = makeStyles((theme: Theme) =>
       alignItems: 'center',
       maxHeight: '10vh',
     },
+    buttonsBox: {
+      minWidth: 400,
+      display: 'flex',
+      justifyContent: 'center',
+    },
     menuButton: {
-      backgroundColor: theme.palette.primary.light,
-      fontWeight: 'bold',
-      marginRight: theme.spacing(5),
+      marginRight: theme.spacing(3),
     },
     greenText: {
       color: theme.palette.greenText.main
@@ -40,66 +49,112 @@ const useStyles = makeStyles((theme: Theme) =>
   }),
 );
 
-const Header: React.FC = (props) => {
-  const {user} = useContext(AuthContext);
-  const classes = useStyles();
-  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+const Header: React.FC<HeaderProps> =
+  ({refreshTable}) => {
+    const {user} = useContext(AuthContext);
+    const classes = useStyles();
+    const [openAddIncome, setOpenAddIncome] = React.useState(false);
+    const [openAddExpense, setOpenAddExpense] = React.useState(false);
+    const [accountMenuAnchorEl, setAccountMenuAnchorEl] = React.useState<null | HTMLElement>(null);
 
-  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
+    const handleClickOnAccountMenu = (event: React.MouseEvent<HTMLButtonElement>) => {
+      setAccountMenuAnchorEl(event.currentTarget);
+    };
 
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
+    const handleCloseAccountMenu = () => {
+      setAccountMenuAnchorEl(null);
+    };
 
-  const handleLogout = () => {
-    window.location.assign('logout');
-  };
+    const handleOpenAddIncome = () => {
+      setOpenAddIncome(true);
+    };
 
-  return (
-    <AppBar position="static">
-      <Toolbar className={classes.root}>
-        <Box className={classes.root}>
-          <IconButton edge="start" color="inherit" aria-label="menu">
-            <MenuIcon/>
-          </IconButton>
-          <Typography variant="h6">
-            Money Manager
-          </Typography>
-        </Box>
-        <Box>
-          <Button variant="outlined" className={`${classes.menuButton} ${classes.greenText}`}>
-            Add income
-          </Button>
-          <Button variant="outlined" className={`${classes.menuButton} ${classes.redText}`}>
-            Add expense
-          </Button>
-        </Box>
-        <IconButton aria-label="account" onClick={handleClick}>
-          <AccountCircle fontSize="large"/>
-        </IconButton>
-        <Menu
-          id="account-menu"
-          anchorEl={anchorEl}
-          keepMounted
-          open={Boolean(anchorEl)}
-          onClose={handleClose}
-        >
-          <ListItem>
-            <ListItemAvatar>
-              <Avatar
-                alt="Avatar"
-                src={user.picture}
+    const handleCloseAddIncome = () => {
+      setOpenAddIncome(false);
+    };
+
+    const handleOpenAddExpense = () => {
+      setOpenAddExpense(true);
+    };
+
+    const handleCloseAddExpense = () => {
+      setOpenAddExpense(false);
+    };
+
+    const handleLogout = () => {
+      window.location.assign('logout');
+    };
+
+    return (
+      <AppBar position="static">
+        <Toolbar className={classes.root}>
+
+          <Box className={classes.root}>
+            <IconButton className={classes.menuButton} edge="start" color="inherit" aria-label="menu">
+              <MenuIcon/>
+            </IconButton>
+            <Typography variant="h6">
+              Money Manager
+            </Typography>
+          </Box>
+
+          <Box className={classes.buttonsBox}>
+            <Box>
+              <Button
+                variant="outlined"
+                className={`${classes.menuButton} ${classes.greenText}`}
+                onClick={handleOpenAddIncome}
+              >
+                Add income
+              </Button>
+              <AddIncomeDialog
+                open={openAddIncome}
+                handleClose={handleCloseAddIncome}
+                handleSave={refreshTable}
               />
-            </ListItemAvatar>
-            <ListItemText primary={user.name}/>
-          </ListItem>
-          <MenuItem onClick={handleLogout}>Logout</MenuItem>
-        </Menu>
-      </Toolbar>
-    </AppBar>
-  )
-}
+            </Box>
+
+            <Box>
+              <Button
+                variant="outlined"
+                className={`${classes.menuButton} ${classes.redText}`}
+                onClick={handleOpenAddExpense}
+              >
+                Add expense
+              </Button>
+              <AddExpenseDialog
+                open={openAddExpense}
+                handleClose={handleCloseAddExpense}
+                handleSave={refreshTable}
+              />
+            </Box>
+          </Box>
+
+          <IconButton aria-label="account" onClick={handleClickOnAccountMenu}>
+            <AccountCircle fontSize="large"/>
+          </IconButton>
+          <Menu
+            id="account-menu"
+            anchorEl={accountMenuAnchorEl}
+            keepMounted
+            open={Boolean(accountMenuAnchorEl)}
+            onClose={handleCloseAccountMenu}
+          >
+            <ListItem>
+              <ListItemAvatar>
+                <Avatar
+                  alt="Avatar"
+                  src={user.picture}
+                />
+              </ListItemAvatar>
+              <ListItemText primary={user.name}/>
+            </ListItem>
+            <MenuItem onClick={handleLogout}>Logout</MenuItem>
+          </Menu>
+
+        </Toolbar>
+      </AppBar>
+    )
+  }
 
 export default Header;

@@ -1,9 +1,6 @@
-import React, { useEffect, useState } from 'react';
-import { Income, IncomeType } from '../../interfaces/income.interface';
-import { Expense, ExpenseType } from '../../interfaces/expense.interface';
-import { getAccumulations, getExpenseTypes, getIncomeTypes } from '../../services/api.service';
-import { SearchResult, SortDirection } from '../../interfaces/common.interface';
-import { Accumulation, AccumulationRequestParams } from '../../interfaces/accumulation.interface';
+import React from 'react';
+import { Income } from '../../interfaces/income.interface';
+import { Expense } from '../../interfaces/expense.interface';
 import { grey } from '@material-ui/core/colors';
 import {
   LinearProgress,
@@ -19,82 +16,7 @@ import {
   withStyles
 } from '@material-ui/core';
 import { createStyles, Theme } from '@material-ui/core/styles';
-
-type Column = {
-  id: number,
-  name: string
-}
-
-type Row = {
-  id: number
-  date: string
-  incomes: Array<Income | null | undefined>
-  expenses: Array<Expense | null | undefined>
-  savings: number
-}
-
-type MainTableState = {
-  incomeTypes: Column[],
-  expenseTypes: Column[],
-  rows: Row[],
-  totalElements: number
-}
-
-function stringSort(s1: string, s2: string): number {
-  if (s1 > s2) {
-    return 1;
-  } else if (s1 === s2) {
-    return 0;
-  } else {
-    return -1;
-  }
-}
-
-function incomeTypeSort(t1: IncomeType, t2: IncomeType): number {
-  return stringSort(t1.name, t2.name);
-}
-
-function expenseTypeSort(t1: ExpenseType, t2: ExpenseType): number {
-  return stringSort(t1.name, t2.name);
-}
-
-async function getTable(page: number, rowsPerPage: number): Promise<MainTableState> {
-  const expenseTypes = await getExpenseTypes();
-  expenseTypes.sort(expenseTypeSort);
-  const expColumns: Column[] = expenseTypes.map(({id, name}: ExpenseType) => {
-      return {id: id, name: name}
-    }
-  );
-
-  const incomeTypes = await getIncomeTypes();
-  incomeTypes.sort(incomeTypeSort);
-  const incColumns: Column[] = incomeTypes.map(({id, name}: IncomeType) => {
-      return {id: id, name: name}
-    }
-  );
-
-  const searchResult: SearchResult<Accumulation> = await getAccumulations(
-    new AccumulationRequestParams(SortDirection.DESC, page, rowsPerPage)
-  );
-  const accumulations = searchResult.result;
-  const rows: Row[] = accumulations.map(({id, date, value, expensesByType, incomesByType}: Accumulation) => {
-    const expenses: Array<Expense | undefined> = [];
-    const incomes: Array<Income | undefined> = [];
-
-    expenseTypes.forEach(({name}: ExpenseType) => {
-      const exp = expensesByType.get(name);
-      expenses.push(exp);
-    })
-    incomeTypes.forEach(({name}: IncomeType) => {
-      const inc = incomesByType.get(name);
-      incomes.push(inc);
-    });
-
-    return {id, date, incomes, expenses, savings: value};
-  });
-
-  return {incomeTypes: incColumns, expenseTypes: expColumns, rows: rows, totalElements: searchResult.totalElements};
-}
+import { MainTableProps, Row } from '../../interfaces/main-table.interface';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -147,41 +69,21 @@ const StyledTableRow = withStyles((theme: Theme) =>
   }),
 )(TableRow);
 
-const MainTable: React.FC = () => {
+const MainTable: React.FC<MainTableProps> = (props) => {
   const classes = useStyles();
+  const {
+    isLoading,
+    incomeTypes,
+    expenseTypes,
+    rows,
+    totalElements,
+    page,
+    pageSize,
+    handleChangePage,
+    handleChangeRowsPerPage
+  } = props;
 
-  const [{incomeTypes, expenseTypes, rows, totalElements}, setData] = useState<MainTableState>({
-    incomeTypes: [],
-    expenseTypes: [],
-    rows: [],
-    totalElements: 0
-  })
-  const [isLoading, setLoading] = useState<boolean>(true);
-  const [page, setPage] = useState<number>(0);
-  const [pageSize, setPageSize] = useState<number>(100);
-
-  const handleChangePage = (event: unknown, newPage: number) => {
-    setLoading(true);
-    setPage(newPage);
-  };
-
-  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setLoading(true);
-    setPageSize(+event.target.value);
-    setPage(0);
-  };
-
-  useEffect(() => {
-    getTable(page, pageSize).then((data) => {
-        setData(data);
-        setLoading(false)
-      },
-      (err) => {
-        console.log(`Getting main table error: ${err}`)
-      })
-  }, [page, pageSize])
-
-  console.log('Main rendering')
+  console.log('Main Table rendering')
   return (
     isLoading ? <LinearProgress/> :
       <Paper>
@@ -208,13 +110,13 @@ const MainTable: React.FC = () => {
 
               <TableRow>
                 <StyledTableCell className={classes.top24}/>
-                {incomeTypes.map(({id, name}: Column) =>
+                {incomeTypes.map(({id, name}) =>
                   <StyledTableCell key={id} className={classes.top24}>
                     {name}
                   </StyledTableCell>
                 )}
                 <StyledTableCell className={`${classes.top24} ${classes.boldFont}`}>Incomes sum</StyledTableCell>
-                {expenseTypes.map(({id, name}: Column) =>
+                {expenseTypes.map(({id, name}) =>
                   <StyledTableCell key={id} className={classes.top24}>
                     {name}
                   </StyledTableCell>

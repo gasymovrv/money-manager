@@ -41,7 +41,7 @@ export interface AccumulationResponse {
   expensesByType: any
 }
 
-export class AccumulationRequestParams {
+export class AccumulationSearchParams {
   from?: string;
   to?: string;
   sortBy?: AccumulationFieldToSort;

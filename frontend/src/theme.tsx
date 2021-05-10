@@ -1,5 +1,5 @@
 import { createMuiTheme } from '@material-ui/core';
-import { blueGrey, green, red } from '@material-ui/core/colors';
+import { blueGrey, common, green, red } from '@material-ui/core/colors';
 import { Theme } from '@material-ui/core/styles';
 
 declare module '@material-ui/core/styles/createPalette' {
@@ -15,10 +15,28 @@ declare module '@material-ui/core/styles/createPalette' {
 }
 
 export const darkTheme: Theme = createMuiTheme({
+  overrides: {
+    MuiButton: {
+      textPrimary: {
+        color: common.white
+      }
+    },
+    MuiIconButton: {
+      label: {
+        color: common.white
+      },
+      root: {
+        color: common.white
+      },
+    }
+  },
   palette: {
     type: 'dark',
     primary: {
       main: blueGrey['800']
+    },
+    secondary: {
+      main: common.white
     },
     redText: {
       main: red['200'],
@@ -30,10 +48,28 @@ export const darkTheme: Theme = createMuiTheme({
 });
 
 export const lightTheme: Theme = createMuiTheme({
+  overrides: {
+    MuiButton: {
+      textPrimary: {
+        color: common.black
+      }
+    },
+    MuiIconButton: {
+      label: {
+        color: common.black
+      },
+      root: {
+        color: common.black
+      },
+    }
+  },
   palette: {
     type: 'light',
     primary: {
       main: blueGrey['200']
+    },
+    secondary: {
+      main: common.black
     },
     redText: {
       main: red['800'],
