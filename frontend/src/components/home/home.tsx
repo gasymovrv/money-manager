@@ -84,6 +84,7 @@ const Home: React.FC = () => {
         refreshTable={setTableData}
       />
       <MainTable
+        refreshTable={setTableData}
         isLoading={isLoading}
         incomeTypes={incomeTypes}
         expenseTypes={expenseTypes}

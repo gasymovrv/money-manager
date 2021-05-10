@@ -16,3 +16,7 @@ export interface AddIncomeRequest {
   description?: string,
   incomeTypeId: number,
 }
+
+export interface AddIncomeTypeRequest {
+  name: string,
+}

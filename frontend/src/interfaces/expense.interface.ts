@@ -16,3 +16,7 @@ export interface AddExpenseRequest {
   description?: string,
   expenseTypeId: number,
 }
+
+export interface AddExpenseTypeRequest {
+  name: string,
+}

@@ -49,8 +49,7 @@ const useStyles = makeStyles((theme: Theme) =>
   }),
 );
 
-const Header: React.FC<HeaderProps> =
-  ({refreshTable}) => {
+const Header: React.FC<HeaderProps> = ({refreshTable}) => {
     const {user} = useContext(AuthContext);
     const classes = useStyles();
     const [openAddIncome, setOpenAddIncome] = React.useState(false);

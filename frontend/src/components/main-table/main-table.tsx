@@ -3,6 +3,8 @@ import { Income } from '../../interfaces/income.interface';
 import { Expense } from '../../interfaces/expense.interface';
 import { grey } from '@material-ui/core/colors';
 import {
+  Grid,
+  IconButton,
   LinearProgress,
   makeStyles,
   Paper,
@@ -17,6 +19,10 @@ import {
 } from '@material-ui/core';
 import { createStyles, Theme } from '@material-ui/core/styles';
 import { MainTableProps, Row } from '../../interfaces/main-table.interface';
+import AddCircleIcon from '@material-ui/icons/AddCircle';
+import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
+import AddIncomeTypeDialog from '../dialog/add-income-type.dialog';
+import AddExpenseTypeDialog from '../dialog/add-expense-type.dialog';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -69,19 +75,46 @@ const StyledTableRow = withStyles((theme: Theme) =>
   }),
 )(TableRow);
 
-const MainTable: React.FC<MainTableProps> = (props) => {
+const MainTable: React.FC<MainTableProps> = ({
+                                               refreshTable,
+                                               isLoading,
+                                               incomeTypes,
+                                               expenseTypes,
+                                               rows,
+                                               totalElements,
+                                               page,
+                                               pageSize,
+                                               handleChangePage,
+                                               handleChangeRowsPerPage
+                                             }) => {
   const classes = useStyles();
-  const {
-    isLoading,
-    incomeTypes,
-    expenseTypes,
-    rows,
-    totalElements,
-    page,
-    pageSize,
-    handleChangePage,
-    handleChangeRowsPerPage
-  } = props;
+
+  const [openAddIncomeType, setOpenAddIncomeType] = React.useState(false);
+  const [openAddExpenseType, setOpenAddExpenseType] = React.useState(false);
+
+  const handleHideIncomeTypes = (event: React.MouseEvent<HTMLButtonElement>) => {
+
+  }
+
+  const handleHideExpenseTypes = (event: React.MouseEvent<HTMLButtonElement>) => {
+
+  }
+
+  const handleOpenAddIncomeType = () => {
+    setOpenAddIncomeType(true);
+  }
+
+  const handleOpenAddExpenseType = () => {
+    setOpenAddExpenseType(true);
+  }
+
+  const handleCloseAddIncomeType = () => {
+    setOpenAddIncomeType(false);
+  }
+
+  const handleCloseAddExpenseType = () => {
+    setOpenAddExpenseType(false);
+  }
 
   console.log('Main Table rendering')
   return (
@@ -95,14 +128,47 @@ const MainTable: React.FC<MainTableProps> = (props) => {
                 <StyledTableCell className={classes.boldFont}>
                   Date
                 </StyledTableCell>
+
                 <StyledTableCell className={classes.boldFont}
                                  colSpan={incomeTypes.length + 1}>
-                  Incomes
+                  <Grid container xs={12}>
+                    <Grid item xs={8}>Incomes</Grid>
+                    <Grid item xs={4}>
+                      <IconButton size="small" onClick={handleHideIncomeTypes}>
+                        <ArrowDropDownIcon fontSize="small"/>
+                      </IconButton>
+                      <IconButton size="small" onClick={handleOpenAddIncomeType}>
+                        <AddCircleIcon fontSize="small"/>
+                      </IconButton>
+                      <AddIncomeTypeDialog
+                        open={openAddIncomeType}
+                        handleClose={handleCloseAddIncomeType}
+                        handleSave={refreshTable}
+                      />
+                    </Grid>
+                  </Grid>
                 </StyledTableCell>
+
                 <StyledTableCell className={classes.boldFont}
                                  colSpan={expenseTypes.length + 1}>
-                  Expenses
+                  <Grid container xs={12}>
+                    <Grid item xs={8}>Expenses</Grid>
+                    <Grid item xs={4}>
+                      <IconButton size="small" onClick={handleHideExpenseTypes}>
+                        <ArrowDropDownIcon fontSize="small"/>
+                      </IconButton>
+                      <IconButton size="small" onClick={handleOpenAddExpenseType}>
+                        <AddCircleIcon fontSize="small"/>
+                      </IconButton>
+                      <AddExpenseTypeDialog
+                        open={openAddExpenseType}
+                        handleClose={handleCloseAddExpenseType}
+                        handleSave={refreshTable}
+                      />
+                    </Grid>
+                  </Grid>
                 </StyledTableCell>
+
                 <StyledTableCell className={classes.boldFont}>
                   Savings
                 </StyledTableCell>
@@ -110,18 +176,23 @@ const MainTable: React.FC<MainTableProps> = (props) => {
 
               <TableRow>
                 <StyledTableCell className={classes.top24}/>
+
                 {incomeTypes.map(({id, name}) =>
                   <StyledTableCell key={id} className={classes.top24}>
                     {name}
                   </StyledTableCell>
                 )}
+
                 <StyledTableCell className={`${classes.top24} ${classes.boldFont}`}>Incomes sum</StyledTableCell>
+
                 {expenseTypes.map(({id, name}) =>
                   <StyledTableCell key={id} className={classes.top24}>
                     {name}
                   </StyledTableCell>
                 )}
+
                 <StyledTableCell className={`${classes.top24} ${classes.boldFont}`}>Expenses sum</StyledTableCell>
+
                 <StyledTableCell className={classes.top24}/>
               </TableRow>
             </TableHead>

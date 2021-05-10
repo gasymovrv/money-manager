@@ -1,6 +1,6 @@
 import { User } from '../interfaces/user.interface';
-import { AddExpenseRequest, Expense, ExpenseType } from '../interfaces/expense.interface';
-import { AddIncomeRequest, Income, IncomeType } from '../interfaces/income.interface';
+import { AddExpenseRequest, AddExpenseTypeRequest, Expense, ExpenseType } from '../interfaces/expense.interface';
+import { AddIncomeRequest, AddIncomeTypeRequest, Income, IncomeType } from '../interfaces/income.interface';
 import {
   Accumulation,
   AccumulationResponse,
@@ -72,6 +72,26 @@ export async function addIncome(request: AddIncomeRequest): Promise<Response> {
 
 export async function addExpense(request: AddExpenseRequest): Promise<Response> {
   return handleErrors(await fetch(apiUrl + 'expenses', {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json;charset=UTF-8',
+    },
+    body: JSON.stringify(request),
+  }));
+}
+
+export async function addIncomeType(request: AddIncomeTypeRequest): Promise<Response> {
+  return handleErrors(await fetch(apiUrl + 'incomes/types', {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json;charset=UTF-8',
+    },
+    body: JSON.stringify(request),
+  }));
+}
+
+export async function addExpenseType(request: AddExpenseTypeRequest): Promise<Response> {
+  return handleErrors(await fetch(apiUrl + 'expenses/types', {
     method: 'POST',
     headers: {
       'content-type': 'application/json;charset=UTF-8',
