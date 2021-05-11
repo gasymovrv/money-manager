@@ -7,10 +7,10 @@ import org.springframework.data.jpa.domain.Specification;
 
 public class SpecUtils {
   public static <T, R> Specification<R> andOptionally(@NotNull Specification<R> sourceSpec,
-                                                      T arg,
-                                                      Function<T, Specification<R>> spec) {
-    if (arg instanceof String) {
-      if (StringUtils.isNotBlank((String) arg)) {
+                                                      Function<T, Specification<R>> spec,
+                                                      T arg) {
+    if (arg instanceof String strArg) {
+      if (StringUtils.isNotBlank(strArg)) {
         return sourceSpec.and(spec.apply(arg));
       }
     } else if (arg != null) {

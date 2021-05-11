@@ -37,11 +37,6 @@
             <artifactId>backend-lib</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>ru.rgasymov</groupId>
-            <artifactId>backend-file-service</artifactId>
-            <version>${project.version}</version>
-        </dependency>
 
         <!-- Spring -->
         <dependency>
@@ -133,8 +128,23 @@
             <version>${commons-collections.version}</version>
         </dependency>
         <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>${commons-io.version}</version>
+        </dependency>
+        <dependency>
             <groupId>javax.validation</groupId>
             <artifactId>validation-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi</artifactId>
+            <version>${poi.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-ooxml</artifactId>
+            <version>${poi.version}</version>
         </dependency>
 
         <!-- Test -->

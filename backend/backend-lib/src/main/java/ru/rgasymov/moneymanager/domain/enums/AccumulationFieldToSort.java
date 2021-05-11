@@ -1,11 +1,10 @@
 package ru.rgasymov.moneymanager.domain.enums;
 
 import lombok.Getter;
-import ru.rgasymov.moneymanager.domain.entity.Accumulation_;
 
 @Getter
 public enum AccumulationFieldToSort {
-  DATE(Accumulation_.DATE);
+  DATE("date");
 
   private final String fieldName;
 

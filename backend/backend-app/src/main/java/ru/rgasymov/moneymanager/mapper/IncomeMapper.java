@@ -1,10 +1,8 @@
 package ru.rgasymov.moneymanager.mapper;
 
 import java.util.List;
-import org.mapstruct.IterableMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.Named;
 import org.mapstruct.ReportingPolicy;
 import ru.rgasymov.moneymanager.domain.dto.response.IncomeResponseDto;
 import ru.rgasymov.moneymanager.domain.entity.Income;
@@ -17,9 +15,7 @@ public interface IncomeMapper {
   @Mapping(target = "accumulation.incomes", ignore = true)
   @Mapping(target = "accumulation.expenses", ignore = true)
   @Mapping(target = "userId", source = "user.id")
-  @Named(value = "toDto")
   IncomeResponseDto toDto(Income entity);
 
-  @IterableMapping(qualifiedByName = "toDto")
   List<IncomeResponseDto> toDtos(List<Income> entities);
 }

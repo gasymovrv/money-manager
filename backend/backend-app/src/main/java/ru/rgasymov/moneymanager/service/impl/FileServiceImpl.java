@@ -11,12 +11,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import ru.rgasymov.moneymanager.domain.dto.XlsxParsingResult;
+import ru.rgasymov.moneymanager.domain.XlsxParsingResult;
 import ru.rgasymov.moneymanager.domain.dto.request.AccumulationCriteriaDto;
 import ru.rgasymov.moneymanager.domain.entity.ExpenseType;
 import ru.rgasymov.moneymanager.domain.entity.IncomeType;
 import ru.rgasymov.moneymanager.exception.UploadFileException;
-import ru.rgasymov.moneymanager.file.service.XlsxFileService;
 import ru.rgasymov.moneymanager.repository.ExpenseTypeRepository;
 import ru.rgasymov.moneymanager.repository.IncomeTypeRepository;
 import ru.rgasymov.moneymanager.service.AccumulationService;
@@ -24,6 +23,7 @@ import ru.rgasymov.moneymanager.service.ExpenseService;
 import ru.rgasymov.moneymanager.service.FileService;
 import ru.rgasymov.moneymanager.service.IncomeService;
 import ru.rgasymov.moneymanager.service.UserService;
+import ru.rgasymov.moneymanager.service.XlsxFileService;
 
 @Service
 @RequiredArgsConstructor

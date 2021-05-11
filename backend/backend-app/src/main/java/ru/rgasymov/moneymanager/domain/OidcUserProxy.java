@@ -1,4 +1,4 @@
-package ru.rgasymov.moneymanager.domain.dto;
+package ru.rgasymov.moneymanager.domain;
 
 import java.util.Collection;
 import java.util.Map;

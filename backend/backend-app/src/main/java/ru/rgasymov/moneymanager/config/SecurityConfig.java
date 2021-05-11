@@ -1,6 +1,6 @@
 package ru.rgasymov.moneymanager.config;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -10,6 +10,7 @@ import org.springframework.security.web.access.intercept.FilterSecurityIntercept
 import ru.rgasymov.moneymanager.service.impl.CustomOidcUserService;
 
 @Configuration
+@RequiredArgsConstructor
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
   private static final String BASE_URL = "/";
@@ -17,13 +18,16 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
   @Value("${server.api-base-url}")
   private String apiBaseUrl;
 
-  @Autowired
-  private CustomOidcUserService customOidcUserService;
+  private final CustomOidcUserService customOidcUserService;
 
   @Override
   protected void configure(HttpSecurity http) throws Exception {
     http.authorizeRequests()
-        .antMatchers(HttpMethod.GET, "/", "/login", "/static/**").permitAll()
+        .antMatchers(HttpMethod.GET,
+            "/",
+            "/login",
+            apiBaseUrl + "/version",
+            "/static/**").permitAll()
         .anyRequest().authenticated()
         .and()
         .addFilterBefore(new ErrorFilter(apiBaseUrl, BASE_URL), FilterSecurityInterceptor.class)

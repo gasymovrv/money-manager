@@ -1,4 +1,4 @@
-package ru.rgasymov.moneymanager.file.service.impl;
+package ru.rgasymov.moneymanager.service.impl;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -26,14 +26,14 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
-import ru.rgasymov.moneymanager.domain.dto.XlsxParsingResult;
+import ru.rgasymov.moneymanager.domain.XlsxParsingResult;
 import ru.rgasymov.moneymanager.domain.dto.response.AccumulationResponseDto;
 import ru.rgasymov.moneymanager.domain.entity.Expense;
 import ru.rgasymov.moneymanager.domain.entity.ExpenseType;
 import ru.rgasymov.moneymanager.domain.entity.Income;
 import ru.rgasymov.moneymanager.domain.entity.IncomeType;
-import ru.rgasymov.moneymanager.file.service.XlsxHandlingService;
-import ru.rgasymov.moneymanager.service.CommonUserService;
+import ru.rgasymov.moneymanager.service.UserService;
+import ru.rgasymov.moneymanager.service.XlsxHandlingService;
 
 @Service
 @RequiredArgsConstructor
@@ -79,7 +79,7 @@ public class XlsxHandlingServiceImpl implements XlsxHandlingService {
    */
   private static final String PREVIOUS_SAVINGS_COLUMN_NAME = "Savings";
 
-  private final CommonUserService userService;
+  private final UserService userService;
 
   @Override
   public XlsxParsingResult parse(File file) throws IOException, InvalidFormatException {

@@ -38,7 +38,6 @@
 
     <modules>
         <module>backend/backend-app</module>
-        <module>backend/backend-file-service</module>
         <module>backend/backend-lib</module>
         <module>frontend</module>
     </modules>

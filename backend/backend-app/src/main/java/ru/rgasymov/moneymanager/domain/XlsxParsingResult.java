@@ -1,4 +1,4 @@
-package ru.rgasymov.moneymanager.domain.dto;
+package ru.rgasymov.moneymanager.domain;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;

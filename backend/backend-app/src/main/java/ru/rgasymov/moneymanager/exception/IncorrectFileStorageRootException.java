@@ -1,4 +1,4 @@
-package ru.rgasymov.moneymanager.file.exception;
+package ru.rgasymov.moneymanager.exception;
 
 public class IncorrectFileStorageRootException extends RuntimeException {
   public IncorrectFileStorageRootException(String message) {
