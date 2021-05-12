@@ -12,16 +12,16 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import ru.rgasymov.moneymanager.domain.XlsxParsingResult;
-import ru.rgasymov.moneymanager.domain.dto.request.AccumulationCriteriaDto;
+import ru.rgasymov.moneymanager.domain.dto.request.SavingCriteriaDto;
 import ru.rgasymov.moneymanager.domain.entity.ExpenseType;
 import ru.rgasymov.moneymanager.domain.entity.IncomeType;
 import ru.rgasymov.moneymanager.exception.UploadFileException;
 import ru.rgasymov.moneymanager.repository.ExpenseTypeRepository;
 import ru.rgasymov.moneymanager.repository.IncomeTypeRepository;
-import ru.rgasymov.moneymanager.service.AccumulationService;
 import ru.rgasymov.moneymanager.service.ExpenseService;
 import ru.rgasymov.moneymanager.service.FileService;
 import ru.rgasymov.moneymanager.service.IncomeService;
+import ru.rgasymov.moneymanager.service.SavingService;
 import ru.rgasymov.moneymanager.service.UserService;
 import ru.rgasymov.moneymanager.service.XlsxFileService;
 
@@ -29,7 +29,7 @@ import ru.rgasymov.moneymanager.service.XlsxFileService;
 @RequiredArgsConstructor
 public class FileServiceImpl implements FileService {
 
-  public static final int MAX_ACCUMULATIONS = 1_000_000;
+  public static final int MAX_SAVINGS = 1_000_000;
 
   private final XlsxFileService xlsxFileService;
 
@@ -39,7 +39,7 @@ public class FileServiceImpl implements FileService {
 
   private final ExpenseTypeRepository expenseTypeRepository;
 
-  private final AccumulationService accumulationService;
+  private final SavingService savingService;
 
   private final IncomeService incomeService;
 
@@ -63,9 +63,9 @@ public class FileServiceImpl implements FileService {
     LocalDate previousSavingsDate = result.getPreviousSavingsDate();
     if (previousSavings != null && previousSavingsDate != null) {
       if (previousSavings.signum() < 0) {
-        accumulationService.decrease(previousSavings.abs(), previousSavingsDate);
+        savingService.decrease(previousSavings.abs(), previousSavingsDate);
       } else {
-        accumulationService.increase(previousSavings, previousSavingsDate);
+        savingService.increase(previousSavings, previousSavingsDate);
       }
     }
 
@@ -94,9 +94,9 @@ public class FileServiceImpl implements FileService {
 
   @Override
   public ResponseEntity<Resource> generateXlsx() {
-    var criteria = new AccumulationCriteriaDto();
-    criteria.setPageSize(MAX_ACCUMULATIONS);
-    return xlsxFileService.generate(accumulationService.search(criteria).getResult());
+    var criteria = new SavingCriteriaDto();
+    criteria.setPageSize(MAX_SAVINGS);
+    return xlsxFileService.generate(savingService.search(criteria).getResult());
   }
 
   @Override

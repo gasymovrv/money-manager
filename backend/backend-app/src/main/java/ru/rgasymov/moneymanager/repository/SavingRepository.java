@@ -8,19 +8,19 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import ru.rgasymov.moneymanager.domain.entity.Accumulation;
+import ru.rgasymov.moneymanager.domain.entity.Saving;
 
-public interface AccumulationRepository
-    extends JpaRepository<Accumulation, Long>, JpaSpecificationExecutor<Accumulation> {
+public interface SavingRepository
+    extends JpaRepository<Saving, Long>, JpaSpecificationExecutor<Saving> {
 
-  Optional<Accumulation> findByDateAndUserId(LocalDate date, String userId);
+  Optional<Saving> findByDateAndUserId(LocalDate date, String userId);
 
-  Optional<Accumulation> findFirstByDateLessThanAndUserIdOrderByDateDesc(LocalDate date,
-                                                                         String userId);
+  Optional<Saving> findFirstByDateLessThanAndUserIdOrderByDateDesc(LocalDate date,
+                                                                   String userId);
 
   @Modifying
   @Query("""
-      update Accumulation a
+      update Saving a
       set a.value = a.value + :increment
       where a.date > :date and a.user.id = :userId
       """)
@@ -30,7 +30,7 @@ public interface AccumulationRepository
 
   @Modifying
   @Query("""
-      update Accumulation a
+      update Saving a
       set a.value = a.value - :decrement
       where a.date > :date and a.user.id = :userId
       """)

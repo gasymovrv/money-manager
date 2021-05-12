@@ -1,11 +1,11 @@
 databaseChangeLog:
 
   - changeSet:
-      id: 000000-create-table-accumulation
+      id: 000000-create-table-saving
       author: Gasymov Ruslan
       changes:
         - createTable:
-            tableName: accumulation
+            tableName: saving
             columns:
               - column: { name: id, type: bigint }
               - column: { name: user_id, type: varchar(255) }
@@ -13,27 +13,27 @@ databaseChangeLog:
               - column: { name: value, type: numeric }
 
   - changeSet:
-      id: 000000-create-constraint-accumulation
+      id: 000000-create-constraint-saving
       author: Gasymov Ruslan
       changes:
         - addNotNullConstraint:
-            tableName: accumulation
+            tableName: saving
             columnName: id
             columnDataType: bigint
         - addPrimaryKey:
             columnNames: id
-            tableName: accumulation
+            tableName: saving
         - addAutoIncrement:
             columnName: id
             columnDataType: bigint
-            tableName: accumulation
+            tableName: saving
         - addForeignKeyConstraint:
             baseColumnNames: user_id
-            baseTableName: accumulation
-            constraintName: fk_accumulation_user
+            baseTableName: saving
+            constraintName: fk_saving_user
             referencedColumnNames: id
             referencedTableName: users
         - addUniqueConstraint:
-            tableName: accumulation
+            tableName: saving
             columnNames: date, user_id
-            constraintName: accumulation_date_unique
+            constraintName: saving_date_unique

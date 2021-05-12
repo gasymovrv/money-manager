@@ -32,8 +32,8 @@ public class Expense {
   private ExpenseType expenseType;
 
   @ManyToOne
-  @JoinColumn(name = "accumulation_id")
-  private Accumulation accumulation;
+  @JoinColumn(name = "saving_id")
+  private Saving saving;
 
   private LocalDate date;
 

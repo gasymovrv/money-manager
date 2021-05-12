@@ -13,47 +13,39 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.rgasymov.moneymanager.domain.dto.request.AccumulationCriteriaDto;
-import ru.rgasymov.moneymanager.domain.dto.response.AccumulationResponseDto;
+import ru.rgasymov.moneymanager.domain.dto.request.SavingCriteriaDto;
+import ru.rgasymov.moneymanager.domain.dto.response.SavingResponseDto;
 import ru.rgasymov.moneymanager.domain.dto.response.SearchResultDto;
-import ru.rgasymov.moneymanager.domain.entity.Accumulation;
-import ru.rgasymov.moneymanager.mapper.AccumulationMapper;
-import ru.rgasymov.moneymanager.repository.AccumulationRepository;
-import ru.rgasymov.moneymanager.service.AccumulationService;
+import ru.rgasymov.moneymanager.domain.entity.Saving;
+import ru.rgasymov.moneymanager.mapper.SavingMapper;
+import ru.rgasymov.moneymanager.repository.SavingRepository;
+import ru.rgasymov.moneymanager.service.SavingService;
 import ru.rgasymov.moneymanager.service.UserService;
-import ru.rgasymov.moneymanager.specs.AccumulationSpec;
+import ru.rgasymov.moneymanager.specs.SavingSpec;
 
 @Service
 @RequiredArgsConstructor
-public class AccumulationServiceImpl implements AccumulationService {
+public class SavingServiceImpl implements SavingService {
 
-  interface RecalculateFunc {
-    void recalculate(BigDecimal decrement,
-                     LocalDate date,
-                     String userId);
-  }
-
-  private final AccumulationRepository accumulationRepository;
-
-  private final AccumulationMapper accumulationMapper;
-
+  private final SavingRepository savingRepository;
+  private final SavingMapper savingMapper;
   private final UserService userService;
 
   @Transactional(readOnly = true)
   @Override
-  public SearchResultDto<AccumulationResponseDto> search(AccumulationCriteriaDto criteria) {
-    Specification<Accumulation> criteriaAsSpec = applyCriteria(criteria);
+  public SearchResultDto<SavingResponseDto> search(SavingCriteriaDto criteria) {
+    Specification<Saving> criteriaAsSpec = applyCriteria(criteria);
 
-    Page<Accumulation> page = accumulationRepository.findAll(criteriaAsSpec,
+    Page<Saving> page = savingRepository.findAll(criteriaAsSpec,
         PageRequest.of(
             criteria.getPageNum(),
             criteria.getPageSize(),
             Sort.by(criteria.getSortDirection(),
                 criteria.getSortBy().getFieldName())));
 
-    List<AccumulationResponseDto> result = accumulationMapper.toDtos(page.getContent());
+    List<SavingResponseDto> result = savingMapper.toDtos(page.getContent());
     return SearchResultDto
-        .<AccumulationResponseDto>builder()
+        .<SavingResponseDto>builder()
         .result(result)
         .totalElements(page.getTotalElements())
         .build();
@@ -61,12 +53,12 @@ public class AccumulationServiceImpl implements AccumulationService {
 
   @Transactional(readOnly = true)
   @Override
-  public Accumulation findByDate(LocalDate date) {
+  public Saving findByDate(LocalDate date) {
     var currentUser = userService.getCurrentUser();
     var currentUserId = currentUser.getId();
-    return accumulationRepository.findByDateAndUserId(date, currentUserId).orElseThrow(() ->
+    return savingRepository.findByDateAndUserId(date, currentUserId).orElseThrow(() ->
         new EntityNotFoundException(
-            String.format("Could not find accumulation by date = '%s' in the database",
+            String.format("Could not find saving by date = '%s' in the database",
                 date)));
   }
 
@@ -74,14 +66,14 @@ public class AccumulationServiceImpl implements AccumulationService {
   @Override
   public void increase(BigDecimal value, LocalDate date) {
     recalculate(date, value, BigDecimal::add,
-        accumulationRepository::increaseValueByDateGreaterThan);
+        savingRepository::increaseValueByDateGreaterThan);
   }
 
   @Transactional
   @Override
   public void decrease(BigDecimal value, LocalDate date) {
     recalculate(date, value, BigDecimal::subtract,
-        accumulationRepository::decreaseValueByDateGreaterThan);
+        savingRepository::decreaseValueByDateGreaterThan);
   }
 
   private void recalculate(LocalDate date,
@@ -91,45 +83,51 @@ public class AccumulationServiceImpl implements AccumulationService {
     var currentUser = userService.getCurrentUser();
     var currentUserId = currentUser.getId();
 
-    //Find the accumulation by date and recalculate its value by the specified value
-    Optional<Accumulation> accOpt = accumulationRepository.findByDateAndUserId(date, currentUserId);
+    //Find the saving by date and recalculate its value by the specified value
+    Optional<Saving> accOpt = savingRepository.findByDateAndUserId(date, currentUserId);
     if (accOpt.isPresent()) {
-      Accumulation acc = accOpt.get();
+      Saving acc = accOpt.get();
       acc.setValue(setValueFunc.apply(acc.getValue(), value));
-      accumulationRepository.save(acc);
+      savingRepository.save(acc);
     } else {
-      accOpt = accumulationRepository
+      accOpt = savingRepository
           .findFirstByDateLessThanAndUserIdOrderByDateDesc(date, currentUserId);
 
-      var newAccumulation = Accumulation.builder()
+      var newSaving = Saving.builder()
           .date(date)
           .user(currentUser)
           .build();
 
       if (accOpt.isPresent()) {
-        newAccumulation.setValue(setValueFunc.apply(accOpt.get().getValue(), value));
+        newSaving.setValue(setValueFunc.apply(accOpt.get().getValue(), value));
       } else {
-        newAccumulation.setValue(setValueFunc.apply(BigDecimal.ZERO, value));
+        newSaving.setValue(setValueFunc.apply(BigDecimal.ZERO, value));
       }
-      accumulationRepository.save(newAccumulation);
+      savingRepository.save(newSaving);
     }
 
-    //Recalculate the value of other accumulations by the specified value
+    //Recalculate the value of other savings by the specified value
     recalculateOthersFunc.recalculate(value, date, currentUserId);
   }
 
-  private Specification<Accumulation> applyCriteria(AccumulationCriteriaDto criteria) {
+  private Specification<Saving> applyCriteria(SavingCriteriaDto criteria) {
     var currentUser = userService.getCurrentUser();
     var currentUserId = currentUser.getId();
 
-    Specification<Accumulation> criteriaAsSpec = AccumulationSpec.userIdEq(currentUserId);
+    Specification<Saving> criteriaAsSpec = SavingSpec.userIdEq(currentUserId);
 
     LocalDate from = criteria.getFrom();
     LocalDate to = criteria.getTo();
     if (from != null || to != null) {
-      criteriaAsSpec = criteriaAsSpec.and(AccumulationSpec.filterByDate(from, to));
+      criteriaAsSpec = criteriaAsSpec.and(SavingSpec.filterByDate(from, to));
     }
 
     return criteriaAsSpec;
+  }
+
+  interface RecalculateFunc {
+    void recalculate(BigDecimal decrement,
+                     LocalDate date,
+                     String userId);
   }
 }

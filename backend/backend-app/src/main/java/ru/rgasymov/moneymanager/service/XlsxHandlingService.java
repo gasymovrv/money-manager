@@ -7,12 +7,12 @@ import java.util.List;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.springframework.core.io.Resource;
 import ru.rgasymov.moneymanager.domain.XlsxParsingResult;
-import ru.rgasymov.moneymanager.domain.dto.response.AccumulationResponseDto;
+import ru.rgasymov.moneymanager.domain.dto.response.SavingResponseDto;
 
 public interface XlsxHandlingService {
 
   XlsxParsingResult parse(File file) throws IOException, InvalidFormatException;
 
   Resource generate(InputStream template,
-                    List<AccumulationResponseDto> data) throws IOException, InvalidFormatException;
+                    List<SavingResponseDto> data) throws IOException, InvalidFormatException;
 }

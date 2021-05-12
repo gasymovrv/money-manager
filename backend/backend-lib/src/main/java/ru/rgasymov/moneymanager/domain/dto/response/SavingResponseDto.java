@@ -21,7 +21,7 @@ import ru.rgasymov.moneymanager.constant.DateTimeFormats;
 @SuperBuilder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class AccumulationResponseDto {
+public class SavingResponseDto {
 
   private Long id;
 

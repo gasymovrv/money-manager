@@ -5,17 +5,17 @@ import org.mapstruct.DecoratedWith;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
-import ru.rgasymov.moneymanager.domain.dto.response.AccumulationResponseDto;
-import ru.rgasymov.moneymanager.domain.entity.Accumulation;
+import ru.rgasymov.moneymanager.domain.dto.response.SavingResponseDto;
+import ru.rgasymov.moneymanager.domain.entity.Saving;
 
 @Mapper(componentModel = "spring",
     uses = {IncomeMapper.class, ExpenseMapper.class},
     unmappedTargetPolicy = ReportingPolicy.IGNORE)
-@DecoratedWith(AccumulationMapperDecorator.class)
-public interface AccumulationMapper {
+@DecoratedWith(SavingMapperDecorator.class)
+public interface SavingMapper {
 
   @Mapping(target = "userId", source = "user.id")
-  AccumulationResponseDto toDto(Accumulation entity);
+  SavingResponseDto toDto(Saving entity);
 
-  List<AccumulationResponseDto> toDtos(List<Accumulation> entities);
+  List<SavingResponseDto> toDtos(List<Saving> entities);
 }

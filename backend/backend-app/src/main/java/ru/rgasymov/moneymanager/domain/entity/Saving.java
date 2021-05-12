@@ -22,11 +22,11 @@ import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
 @Entity
-@Table(name = "accumulation")
+@Table(name = "saving")
 @Data
 @NoArgsConstructor
 @SuperBuilder
-public class Accumulation {
+public class Saving {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
@@ -43,13 +43,13 @@ public class Accumulation {
   @EqualsAndHashCode.Exclude
   @ToString.Exclude
   @Fetch(FetchMode.SUBSELECT)
-  @OneToMany(mappedBy = "accumulation")
+  @OneToMany(mappedBy = "saving")
   private List<Income> incomes = new ArrayList<>();
 
   @Builder.Default
   @EqualsAndHashCode.Exclude
   @ToString.Exclude
   @Fetch(FetchMode.SUBSELECT)
-  @OneToMany(mappedBy = "accumulation")
+  @OneToMany(mappedBy = "saving")
   private List<Expense> expenses = new ArrayList<>();
 }

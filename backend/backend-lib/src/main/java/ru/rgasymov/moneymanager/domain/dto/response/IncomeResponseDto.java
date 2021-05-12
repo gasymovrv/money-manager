@@ -25,7 +25,7 @@ public class IncomeResponseDto {
 
   private IncomeTypeResponseDto incomeType;
 
-  private AccumulationResponseDto accumulation;
+  private SavingResponseDto saving;
 
   @JsonFormat(shape = JsonFormat.Shape.STRING,
       pattern = DateTimeFormats.COMMON_DATE_FORMAT)

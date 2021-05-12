@@ -8,12 +8,12 @@ import ru.rgasymov.moneymanager.domain.dto.response.IncomeResponseDto;
 import ru.rgasymov.moneymanager.domain.entity.Income;
 
 @Mapper(componentModel = "spring",
-    uses = {IncomeTypeMapper.class, AccumulationMapper.class},
+    uses = {IncomeTypeMapper.class, SavingMapper.class},
     unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface IncomeMapper {
 
-  @Mapping(target = "accumulation.incomes", ignore = true)
-  @Mapping(target = "accumulation.expenses", ignore = true)
+  @Mapping(target = "saving.incomes", ignore = true)
+  @Mapping(target = "saving.expenses", ignore = true)
   @Mapping(target = "userId", source = "user.id")
   IncomeResponseDto toDto(Income entity);
 

@@ -23,7 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import ru.rgasymov.moneymanager.constant.DateTimeFormats;
 import ru.rgasymov.moneymanager.domain.XlsxParsingResult;
-import ru.rgasymov.moneymanager.domain.dto.response.AccumulationResponseDto;
+import ru.rgasymov.moneymanager.domain.dto.response.SavingResponseDto;
 import ru.rgasymov.moneymanager.exception.ExtractDataException;
 import ru.rgasymov.moneymanager.exception.FileReadingException;
 import ru.rgasymov.moneymanager.exception.IncorrectFileStorageRootException;
@@ -35,14 +35,10 @@ import ru.rgasymov.moneymanager.service.XlsxHandlingService;
 @Slf4j
 public class XlsxFileServiceImpl implements XlsxFileService {
 
-  private final XlsxHandlingService xlsxHandlingService;
-
   private static final String UPLOADED_FILE_NAME_PATTERN = "%s/%s_%s.%s";
-
   private static final String DOWNLOADED_FILE_NAME = "money-manager.xlsx";
-
   private static final String PATH_TO_TEMPLATE = "template.xlsx";
-
+  private final XlsxHandlingService xlsxHandlingService;
   @Value("${file-service.root}")
   private String root;
 
@@ -82,7 +78,7 @@ public class XlsxFileServiceImpl implements XlsxFileService {
   }
 
   @Override
-  public ResponseEntity<Resource> generate(List<AccumulationResponseDto> data) {
+  public ResponseEntity<Resource> generate(List<SavingResponseDto> data) {
     log.info("# XlsxFileService: file generation has started");
 
     try {

@@ -27,7 +27,7 @@ import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import ru.rgasymov.moneymanager.domain.XlsxParsingResult;
-import ru.rgasymov.moneymanager.domain.dto.response.AccumulationResponseDto;
+import ru.rgasymov.moneymanager.domain.dto.response.SavingResponseDto;
 import ru.rgasymov.moneymanager.domain.entity.Expense;
 import ru.rgasymov.moneymanager.domain.entity.ExpenseType;
 import ru.rgasymov.moneymanager.domain.entity.Income;
@@ -111,7 +111,7 @@ public class XlsxHandlingServiceImpl implements XlsxHandlingService {
 
   @Override
   public Resource generate(InputStream template,
-                           List<AccumulationResponseDto> data) throws IOException {
+                           List<SavingResponseDto> data) throws IOException {
     XSSFWorkbook wb = new XSSFWorkbook(template);
     //todo handle data
     try (wb; ByteArrayOutputStream os = new ByteArrayOutputStream()) {

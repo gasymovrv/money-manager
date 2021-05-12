@@ -4,9 +4,9 @@ import Header from '../header/header';
 import { Container } from '@material-ui/core';
 import { Income, IncomeType } from '../../interfaces/income.interface';
 import { Expense, ExpenseType } from '../../interfaces/expense.interface';
-import { getAccumulations, getExpenseTypes, getIncomeTypes } from '../../services/api.service';
+import { getExpenseTypes, getIncomeTypes, getSavings } from '../../services/api.service';
 import { SearchResult, SortDirection } from '../../interfaces/common.interface';
-import { Accumulation, AccumulationSearchParams } from '../../interfaces/accumulation.interface';
+import { Saving, SavingSearchParams } from '../../interfaces/saving.interface';
 import { HomeState, Row } from '../../interfaces/main-table.interface';
 import ErrorNotification from '../notification/error.notification';
 import { expenseTypeSort, incomeTypeSort } from '../../helpers/sort.helper';
@@ -18,11 +18,11 @@ async function getTable(page: number, rowsPerPage: number): Promise<HomeState> {
   const incomeTypes = await getIncomeTypes();
   incomeTypes.sort(incomeTypeSort);
 
-  const searchResult: SearchResult<Accumulation> = await getAccumulations(
-    new AccumulationSearchParams(SortDirection.DESC, page, rowsPerPage)
+  const searchResult: SearchResult<Saving> = await getSavings(
+    new SavingSearchParams(SortDirection.DESC, page, rowsPerPage)
   );
-  const accumulations = searchResult.result;
-  const rows: Row[] = accumulations.map(({id, date, value, expensesByType, incomesByType}: Accumulation) => {
+  const savings = searchResult.result;
+  const rows: Row[] = savings.map(({id, date, value, expensesByType, incomesByType}: Saving) => {
     const expenses: Array<Expense | undefined> = [];
     const incomes: Array<Income | undefined> = [];
 

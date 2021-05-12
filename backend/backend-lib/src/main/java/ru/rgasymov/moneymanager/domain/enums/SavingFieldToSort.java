@@ -3,12 +3,12 @@ package ru.rgasymov.moneymanager.domain.enums;
 import lombok.Getter;
 
 @Getter
-public enum AccumulationFieldToSort {
+public enum SavingFieldToSort {
   DATE("date");
 
   private final String fieldName;
 
-  AccumulationFieldToSort(String fieldName) {
+  SavingFieldToSort(String fieldName) {
     this.fieldName = fieldName;
   }
 }

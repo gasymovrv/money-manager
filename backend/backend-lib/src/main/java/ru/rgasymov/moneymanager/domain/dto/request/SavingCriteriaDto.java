@@ -10,11 +10,11 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.format.annotation.DateTimeFormat;
 import ru.rgasymov.moneymanager.constant.DateTimeFormats;
-import ru.rgasymov.moneymanager.domain.enums.AccumulationFieldToSort;
+import ru.rgasymov.moneymanager.domain.enums.SavingFieldToSort;
 
 @Data
 @NoArgsConstructor
-public class AccumulationCriteriaDto {
+public class SavingCriteriaDto {
 
   @DateTimeFormat(pattern = DateTimeFormats.COMMON_DATE_FORMAT)
   private LocalDate from;
@@ -22,7 +22,7 @@ public class AccumulationCriteriaDto {
   @DateTimeFormat(pattern = DateTimeFormats.COMMON_DATE_FORMAT)
   private LocalDate to;
 
-  private AccumulationFieldToSort sortBy = AccumulationFieldToSort.DATE;
+  private SavingFieldToSort sortBy = SavingFieldToSort.DATE;
 
   private Sort.Direction sortDirection = Sort.Direction.ASC;
 

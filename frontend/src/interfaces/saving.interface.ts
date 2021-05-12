@@ -2,7 +2,7 @@ import { Income } from './income.interface';
 import { Expense } from './expense.interface';
 import { SearchResult, SortDirection } from './common.interface';
 
-export class Accumulation {
+export class Saving {
   id: number;
   date: string;
   value: number;
@@ -22,18 +22,18 @@ export class Accumulation {
   }
 }
 
-export class AccumulationSearchResult implements SearchResult<Accumulation> {
-  result: Accumulation[];
+export class SavingSearchResult implements SearchResult<Saving> {
+  result: Saving[];
   totalElements: number;
 
-  constructor(result: Accumulation[],
+  constructor(result: Saving[],
               totalElements: number) {
     this.result = result;
     this.totalElements = totalElements;
   }
 }
 
-export interface AccumulationResponse {
+export interface SavingResponse {
   id: number,
   date: string,
   value: number,
@@ -41,10 +41,10 @@ export interface AccumulationResponse {
   expensesByType: any
 }
 
-export class AccumulationSearchParams {
+export class SavingSearchParams {
   from?: string;
   to?: string;
-  sortBy?: AccumulationFieldToSort;
+  sortBy?: SavingFieldToSort;
   sortDirection: SortDirection;
   pageNum: number;
   pageSize: number;
@@ -68,6 +68,6 @@ export class AccumulationSearchParams {
   }
 }
 
-export enum AccumulationFieldToSort {
+export enum SavingFieldToSort {
   DATE = 'DATE',
 }

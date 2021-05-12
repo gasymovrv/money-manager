@@ -1,12 +1,7 @@
 import { User } from '../interfaces/user.interface';
 import { AddExpenseRequest, AddExpenseTypeRequest, Expense, ExpenseType } from '../interfaces/expense.interface';
 import { AddIncomeRequest, AddIncomeTypeRequest, Income, IncomeType } from '../interfaces/income.interface';
-import {
-  Accumulation,
-  AccumulationResponse,
-  AccumulationSearchParams,
-  AccumulationSearchResult
-} from '../interfaces/accumulation.interface';
+import { Saving, SavingResponse, SavingSearchParams, SavingSearchResult } from '../interfaces/saving.interface';
 import { SearchResult } from '../interfaces/common.interface';
 
 const apiUrl = '/api/';
@@ -33,30 +28,20 @@ export async function getIncomeTypes(): Promise<Array<IncomeType>> {
   return await response.json();
 }
 
-export async function getIncomes(): Promise<Array<Income>> {
-  const response = handleErrors(await fetch(apiUrl + 'incomes'));
-  return await response.json();
-}
-
-export async function getExpenses(): Promise<Array<Expense>> {
-  const response = handleErrors(await fetch(apiUrl + 'expenses'));
-  return await response.json();
-}
-
-export async function getAccumulations(request: AccumulationSearchParams): Promise<SearchResult<Accumulation>> {
-  return fetch(apiUrl + 'accumulations?' + request.toUrlSearchParams().toString())
+export async function getSavings(request: SavingSearchParams): Promise<SearchResult<Saving>> {
+  return fetch(apiUrl + 'savings?' + request.toUrlSearchParams().toString())
     .then(handleErrors)
     .then((response) => {
       return response.json();
     })
-    .then((body: SearchResult<AccumulationResponse>): SearchResult<Accumulation> => {
-      const newResult: Accumulation[] = body.result.map((acc) => {
+    .then((body: SearchResult<SavingResponse>): SearchResult<Saving> => {
+      const newResult: Saving[] = body.result.map((acc) => {
         const expMap: Map<string, Expense> = new Map(Object.entries(acc.expensesByType));
         const incMap: Map<string, Income> = new Map(Object.entries(acc.incomesByType));
 
-        return new Accumulation(acc.id, acc.date, acc.value, incMap, expMap);
+        return new Saving(acc.id, acc.date, acc.value, incMap, expMap);
       });
-      return new AccumulationSearchResult(newResult, body.totalElements);
+      return new SavingSearchResult(newResult, body.totalElements);
     });
 }
 

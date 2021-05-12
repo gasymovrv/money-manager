@@ -5,20 +5,20 @@ import java.util.HashMap;
 import java.util.List;
 import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import ru.rgasymov.moneymanager.domain.dto.response.AccumulationResponseDto;
 import ru.rgasymov.moneymanager.domain.dto.response.ExpenseResponseDto;
 import ru.rgasymov.moneymanager.domain.dto.response.IncomeResponseDto;
-import ru.rgasymov.moneymanager.domain.entity.Accumulation;
+import ru.rgasymov.moneymanager.domain.dto.response.SavingResponseDto;
+import ru.rgasymov.moneymanager.domain.entity.Saving;
 
 @NoArgsConstructor
-public class AccumulationMapperDecorator implements AccumulationMapper {
+public class SavingMapperDecorator implements SavingMapper {
 
   @Autowired
-  private AccumulationMapper delegate;
+  private SavingMapper delegate;
 
   @Override
-  public AccumulationResponseDto toDto(Accumulation entity) {
-    AccumulationResponseDto dto = delegate.toDto(entity);
+  public SavingResponseDto toDto(Saving entity) {
+    SavingResponseDto dto = delegate.toDto(entity);
 
     //todo remove merging, add expenses lists
     var expenseMap = new HashMap<String, ExpenseResponseDto>();
@@ -44,14 +44,14 @@ public class AccumulationMapperDecorator implements AccumulationMapper {
   }
 
   @Override
-  public List<AccumulationResponseDto> toDtos(List<Accumulation> entities) {
+  public List<SavingResponseDto> toDtos(List<Saving> entities) {
     if (entities == null) {
       return null;
     }
 
-    var list = new ArrayList<AccumulationResponseDto>(entities.size());
-    for (Accumulation accumulation : entities) {
-      list.add(toDto(accumulation));
+    var list = new ArrayList<SavingResponseDto>(entities.size());
+    for (Saving saving : entities) {
+      list.add(toDto(saving));
     }
 
     return list;

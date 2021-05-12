@@ -13,14 +13,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.rgasymov.moneymanager.domain.dto.request.ExpenseRequestDto;
 import ru.rgasymov.moneymanager.domain.dto.response.ExpenseResponseDto;
-import ru.rgasymov.moneymanager.domain.entity.Accumulation;
 import ru.rgasymov.moneymanager.domain.entity.Expense;
 import ru.rgasymov.moneymanager.domain.entity.ExpenseType;
+import ru.rgasymov.moneymanager.domain.entity.Saving;
 import ru.rgasymov.moneymanager.mapper.ExpenseMapper;
 import ru.rgasymov.moneymanager.repository.ExpenseRepository;
 import ru.rgasymov.moneymanager.repository.ExpenseTypeRepository;
-import ru.rgasymov.moneymanager.service.AccumulationService;
 import ru.rgasymov.moneymanager.service.ExpenseService;
+import ru.rgasymov.moneymanager.service.SavingService;
 import ru.rgasymov.moneymanager.service.UserService;
 
 @Service
@@ -32,7 +32,7 @@ public class ExpenseServiceImpl implements ExpenseService {
 
   private final ExpenseTypeRepository expenseTypeRepository;
 
-  private final AccumulationService accumulationService;
+  private final SavingService savingService;
 
   private final UserService userService;
 
@@ -112,13 +112,13 @@ public class ExpenseServiceImpl implements ExpenseService {
     if (isChanged(oldValue, value)) {
       BigDecimal subtract = value.subtract(oldValue);
       if (valueLessThan(BigDecimal.ZERO, subtract)) {
-        accumulationService.decrease(subtract, date);
+        savingService.decrease(subtract, date);
       } else {
-        accumulationService.increase(subtract.abs(), date);
+        savingService.increase(subtract.abs(), date);
       }
-      Accumulation accumulation = accumulationService.findByDate(date);
+      Saving saving = savingService.findByDate(date);
       expense.setValue(value);
-      expense.setAccumulation(accumulation);
+      expense.setSaving(saving);
     }
 
     expense.setDescription(dto.getDescription());
@@ -138,16 +138,16 @@ public class ExpenseServiceImpl implements ExpenseService {
                 String.format("Could not find expense with id = '%s' in the database",
                     id)));
 
-    accumulationService.increase(expense.getValue(), expense.getDate());
+    savingService.increase(expense.getValue(), expense.getDate());
     expenseRepository.deleteByIdAndUserId(id, currentUserId);
   }
 
   private ExpenseResponseDto saveNewExpense(Expense newExpense) {
     var value = newExpense.getValue();
     var date = newExpense.getDate();
-    accumulationService.decrease(value, date);
-    Accumulation accumulation = accumulationService.findByDate(date);
-    newExpense.setAccumulation(accumulation);
+    savingService.decrease(value, date);
+    Saving saving = savingService.findByDate(date);
+    newExpense.setSaving(saving);
 
     Expense saved = expenseRepository.save(newExpense);
     return expenseMapper.toDto(saved);

@@ -13,14 +13,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.rgasymov.moneymanager.domain.dto.request.IncomeRequestDto;
 import ru.rgasymov.moneymanager.domain.dto.response.IncomeResponseDto;
-import ru.rgasymov.moneymanager.domain.entity.Accumulation;
 import ru.rgasymov.moneymanager.domain.entity.Income;
 import ru.rgasymov.moneymanager.domain.entity.IncomeType;
+import ru.rgasymov.moneymanager.domain.entity.Saving;
 import ru.rgasymov.moneymanager.mapper.IncomeMapper;
 import ru.rgasymov.moneymanager.repository.IncomeRepository;
 import ru.rgasymov.moneymanager.repository.IncomeTypeRepository;
-import ru.rgasymov.moneymanager.service.AccumulationService;
 import ru.rgasymov.moneymanager.service.IncomeService;
+import ru.rgasymov.moneymanager.service.SavingService;
 import ru.rgasymov.moneymanager.service.UserService;
 
 @Service
@@ -32,7 +32,7 @@ public class IncomeServiceImpl implements IncomeService {
 
   private final IncomeTypeRepository incomeTypeRepository;
 
-  private final AccumulationService accumulationService;
+  private final SavingService savingService;
 
   private final UserService userService;
 
@@ -112,13 +112,13 @@ public class IncomeServiceImpl implements IncomeService {
     if (isChanged(oldValue, value)) {
       BigDecimal subtract = value.subtract(oldValue);
       if (valueLessThan(BigDecimal.ZERO, subtract)) {
-        accumulationService.increase(subtract, date);
+        savingService.increase(subtract, date);
       } else {
-        accumulationService.decrease(subtract.abs(), date);
+        savingService.decrease(subtract.abs(), date);
       }
-      Accumulation accumulation = accumulationService.findByDate(date);
+      Saving saving = savingService.findByDate(date);
       income.setValue(value);
-      income.setAccumulation(accumulation);
+      income.setSaving(saving);
     }
 
     income.setDescription(dto.getDescription());
@@ -138,16 +138,16 @@ public class IncomeServiceImpl implements IncomeService {
                 String.format("Could not find income with id = '%s' in the database",
                     id)));
 
-    accumulationService.decrease(income.getValue(), income.getDate());
+    savingService.decrease(income.getValue(), income.getDate());
     incomeRepository.deleteByIdAndUserId(id, currentUserId);
   }
 
   private IncomeResponseDto saveNewIncome(Income newIncome) {
     var value = newIncome.getValue();
     var date = newIncome.getDate();
-    accumulationService.increase(value, date);
-    Accumulation accumulation = accumulationService.findByDate(date);
-    newIncome.setAccumulation(accumulation);
+    savingService.increase(value, date);
+    Saving saving = savingService.findByDate(date);
+    newIncome.setSaving(saving);
 
     Income saved = incomeRepository.save(newIncome);
     return incomeMapper.toDto(saved);
