@@ -1,7 +1,4 @@
 import React from 'react';
-import { Income } from '../../interfaces/income.interface';
-import { Expense } from '../../interfaces/expense.interface';
-import { grey } from '@material-ui/core/colors';
 import {
   Grid,
   IconButton,
@@ -10,12 +7,10 @@ import {
   Paper,
   Table,
   TableBody,
-  TableCell,
   TableContainer,
   TableHead,
   TablePagination,
-  TableRow,
-  withStyles
+  TableRow
 } from '@material-ui/core';
 import { createStyles, Theme } from '@material-ui/core/styles';
 import { MainTableProps, Row } from '../../interfaces/main-table.interface';
@@ -24,19 +19,14 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import ExpandLessIcon from '@material-ui/icons/ExpandLess';
 import AddIncomeTypeDialog from '../dialog/add-income-type.dialog';
 import AddExpenseTypeDialog from '../dialog/add-expense-type.dialog';
+import StyledTableCell from './styled-table-cell';
+import MainTableRow from './main-table-row';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     container: {
-      minWidth: 800,
       height: '80vh',
       maxHeight: 650,
-    },
-    green: {
-      color: theme.palette.greenText.main
-    },
-    red: {
-      color: theme.palette.redText.main
     },
     top24: {
       top: 24
@@ -47,34 +37,6 @@ const useStyles = makeStyles((theme: Theme) =>
     }
   })
 );
-
-const StyledTableCell = withStyles((theme: Theme) =>
-  createStyles({
-    head: {
-      borderBottom: 0,
-      backgroundColor: theme.palette.primary.dark,
-      fontSize: 14
-    },
-    root: {
-      borderRightWidth: 2,
-      borderRightColor: grey['600'],
-      borderRightStyle: 'solid',
-      textAlign: 'center',
-      padding: 0,
-      fontSize: 13,
-    },
-  }),
-)(TableCell);
-
-const StyledTableRow = withStyles((theme: Theme) =>
-  createStyles({
-    root: {
-      '&:nth-of-type(odd)': {
-        backgroundColor: theme.palette.action.hover,
-      },
-    },
-  }),
-)(TableRow);
 
 const MainTable: React.FC<MainTableProps> = ({
                                                refreshTable,
@@ -121,7 +83,8 @@ const MainTable: React.FC<MainTableProps> = ({
 
   console.log('Main Table rendering')
   return (
-    isLoading ? <LinearProgress/> :
+    isLoading ?
+      <LinearProgress/> :
       <Paper>
         <TableContainer className={classes.container}>
           <Table stickyHeader aria-label="sticky table">
@@ -133,7 +96,7 @@ const MainTable: React.FC<MainTableProps> = ({
                 </StyledTableCell>
 
                 <StyledTableCell className={classes.boldFont}
-                                 colSpan={showIncomeTypes? incomeTypes.length + 1 : 1}>
+                                 colSpan={showIncomeTypes ? incomeTypes.length + 1 : 1}>
                   <Grid justify="center" container>
                     <Grid item>Incomes</Grid>
                     <Grid item>
@@ -211,40 +174,13 @@ const MainTable: React.FC<MainTableProps> = ({
             </TableHead>
 
             <TableBody>
-              {rows.map(({id, date, incomes, expenses, savings}: Row) =>
-                <StyledTableRow key={id}>
-
-                  <StyledTableCell key={'date_' + id}>{date}</StyledTableCell>
-                  {showIncomeTypes && incomes.map((inc: Income | null | undefined, index) =>
-                    inc ?
-                      <StyledTableCell key={id + '_' + inc.id} className={classes.green}>
-                        {inc.value}
-                      </StyledTableCell> :
-                      <StyledTableCell key={id + index}/>
-                  )}
-
-                  <StyledTableCell key={'inc_sum_' + id} className={`${classes.green} ${classes.boldFont}`}>
-                    {incomes.reduce((acc, value) => (value ? acc + value.value : acc), 0)}
-                  </StyledTableCell>
-
-                  {showExpenseTypes && expenses.map((exp: Expense | null | undefined, index) =>
-                    exp ?
-                      <StyledTableCell key={id + '_' + exp.id} className={classes.red}>
-                        {exp.value}
-                      </StyledTableCell> :
-                      <StyledTableCell key={id + index}/>
-                  )}
-
-                  <StyledTableCell key={'exp_sum_' + id} className={`${classes.red} ${classes.boldFont}`}>
-                    {expenses.reduce((acc, value) => (value ? acc + value.value : acc), 0)}
-                  </StyledTableCell>
-
-                  <StyledTableCell
-                    key={'savings_' + id}
-                    className={savings >= 0 ? `${classes.green} ${classes.boldFont}` : `${classes.red} ${classes.boldFont}`}>
-                    {savings}
-                  </StyledTableCell>
-                </StyledTableRow>
+              {rows.map((row: Row, i) =>
+                <MainTableRow
+                  key={row.id}
+                  row={row}
+                  showIncomeTypes={showIncomeTypes}
+                  showExpenseTypes={showExpenseTypes}
+                />
               )}
             </TableBody>
 

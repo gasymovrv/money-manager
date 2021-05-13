@@ -25,8 +25,6 @@ public class ExpenseResponseDto {
 
   private ExpenseTypeResponseDto expenseType;
 
-  private SavingResponseDto saving;
-
   @JsonFormat(shape = JsonFormat.Shape.STRING,
       pattern = DateTimeFormats.COMMON_DATE_FORMAT)
   private LocalDate date;

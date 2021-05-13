@@ -7,6 +7,7 @@ export interface Expense {
   id: number,
   value: number,
   date: string,
+  description?: string,
   expenseType: ExpenseType,
 }
 

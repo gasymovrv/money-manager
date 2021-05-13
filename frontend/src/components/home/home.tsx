@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import MainTable from '../main-table/main-table';
 import Header from '../header/header';
-import { Container } from '@material-ui/core';
+import { Container, makeStyles } from '@material-ui/core';
 import { Income, IncomeType } from '../../interfaces/income.interface';
 import { Expense, ExpenseType } from '../../interfaces/expense.interface';
 import { getExpenseTypes, getIncomeTypes, getSavings } from '../../services/api.service';
@@ -10,6 +10,7 @@ import { Saving, SavingSearchParams } from '../../interfaces/saving.interface';
 import { HomeState, Row } from '../../interfaces/main-table.interface';
 import ErrorNotification from '../notification/error.notification';
 import { expenseTypeSort, incomeTypeSort } from '../../helpers/sort.helper';
+import { createStyles, Theme } from '@material-ui/core/styles';
 
 async function getTable(page: number, rowsPerPage: number): Promise<HomeState> {
   const expenseTypes = await getExpenseTypes();
@@ -22,26 +23,50 @@ async function getTable(page: number, rowsPerPage: number): Promise<HomeState> {
     new SavingSearchParams(SortDirection.DESC, page, rowsPerPage)
   );
   const savings = searchResult.result;
-  const rows: Row[] = savings.map(({id, date, value, expensesByType, incomesByType}: Saving) => {
-    const expenses: Array<Expense | undefined> = [];
-    const incomes: Array<Income | undefined> = [];
+  const rows: Row[] = savings.map(({
+                                     id,
+                                     date,
+                                     value,
+                                     incomesSum,
+                                     expensesSum,
+                                     expensesByType,
+                                     incomesByType
+                                   }: Saving) => {
+    const expenseLists: Array<Expense[] | undefined> = [];
+    const incomeLists: Array<Income[] | undefined> = [];
 
     expenseTypes.forEach(({name}: ExpenseType) => {
-      const exp = expensesByType.get(name);
-      expenses.push(exp);
+      const expenses = expensesByType.get(name);
+      expenseLists.push(expenses);
     })
     incomeTypes.forEach(({name}: IncomeType) => {
-      const inc = incomesByType.get(name);
-      incomes.push(inc);
+      const incomes = incomesByType.get(name);
+      incomeLists.push(incomes);
     });
 
-    return {id, date, incomes, expenses, savings: value};
+    return {
+      id,
+      date,
+      incomesSum,
+      expensesSum,
+      incomeLists,
+      expenseLists,
+      savings: value
+    }
   });
 
-  return {incomeTypes: incomeTypes, expenseTypes: expenseTypes, rows: rows, totalElements: searchResult.totalElements};
+  return {incomeTypes, expenseTypes, rows, totalElements: searchResult.totalElements};
 }
+const useStyles = makeStyles((theme: Theme) =>
+  createStyles({
+    container: {
+      minWidth: 800,
+    }
+  })
+);
 
 const Home: React.FC = () => {
+  const classes = useStyles();
   const [{incomeTypes, expenseTypes, rows, totalElements}, setData] = useState<HomeState>({
     incomeTypes: [],
     expenseTypes: [],
@@ -79,7 +104,7 @@ const Home: React.FC = () => {
   useEffect(setTableData, [page, pageSize])
 
   return (
-    <Container maxWidth="xl">
+    <Container maxWidth="xl" className={classes.container}>
       <Header
         refreshTable={setTableData}
       />

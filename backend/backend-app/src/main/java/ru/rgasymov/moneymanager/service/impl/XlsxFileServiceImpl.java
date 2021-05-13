@@ -37,7 +37,7 @@ public class XlsxFileServiceImpl implements XlsxFileService {
 
   private static final String UPLOADED_FILE_NAME_PATTERN = "%s/%s_%s.%s";
   private static final String DOWNLOADED_FILE_NAME = "money-manager.xlsx";
-  private static final String PATH_TO_TEMPLATE = "template.xlsx";
+  private static final String PATH_TO_TEMPLATE = "xlsx/template.xlsx";
   private final XlsxHandlingService xlsxHandlingService;
   @Value("${file-service.root}")
   private String root;

@@ -14,29 +14,45 @@ import ru.rgasymov.moneymanager.domain.entity.Saving;
 public class SavingMapperDecorator implements SavingMapper {
 
   @Autowired
+  private IncomeMapper incomeMapper;
+
+  @Autowired
+  private ExpenseMapper expenseMapper;
+
+  @Autowired
   private SavingMapper delegate;
 
   @Override
   public SavingResponseDto toDto(Saving entity) {
     SavingResponseDto dto = delegate.toDto(entity);
 
-    //todo remove merging, add expenses lists
-    var expenseMap = new HashMap<String, ExpenseResponseDto>();
-    dto.getExpenses().forEach((exp) ->
-        expenseMap.merge(exp.getExpenseType().getName(), exp,
-            ((dto1, dto2) -> {
-              dto1.setValue(dto1.getValue().add(dto2.getValue()));
-              return dto1;
-            })));
+    var expenseMap = new HashMap<String, List<ExpenseResponseDto>>();
 
-    //todo remove merging, add incomes lists
-    var incomeMap = new HashMap<String, IncomeResponseDto>();
-    dto.getIncomes().forEach((inc) ->
-        incomeMap.merge(inc.getIncomeType().getName(), inc,
-            ((dto1, dto2) -> {
-              dto1.setValue(dto1.getValue().add(dto2.getValue()));
-              return dto1;
-            })));
+    entity.getExpenses().forEach((exp) -> {
+      dto.setExpensesSum(dto.getExpensesSum().add(exp.getValue()));
+
+      ArrayList<ExpenseResponseDto> value = new ArrayList<>();
+      value.add(expenseMapper.toDto(exp));
+      expenseMap.merge(exp.getExpenseType().getName(), value,
+          ((list1, list2) -> {
+            list1.addAll(value);
+            return list1;
+          }));
+    });
+
+    var incomeMap = new HashMap<String, List<IncomeResponseDto>>();
+
+    entity.getIncomes().forEach((inc) -> {
+      dto.setIncomesSum(dto.getIncomesSum().add(inc.getValue()));
+
+      ArrayList<IncomeResponseDto> value = new ArrayList<>();
+      value.add(incomeMapper.toDto(inc));
+      incomeMap.merge(inc.getIncomeType().getName(), value,
+          ((list1, list2) -> {
+            list1.addAll(value);
+            return list1;
+          }));
+    });
 
     dto.setExpensesByType(expenseMap);
     dto.setIncomesByType(incomeMap);

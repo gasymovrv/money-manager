@@ -35,11 +35,19 @@ export async function getSavings(request: SavingSearchParams): Promise<SearchRes
       return response.json();
     })
     .then((body: SearchResult<SavingResponse>): SearchResult<Saving> => {
-      const newResult: Saving[] = body.result.map((acc) => {
-        const expMap: Map<string, Expense> = new Map(Object.entries(acc.expensesByType));
-        const incMap: Map<string, Income> = new Map(Object.entries(acc.incomesByType));
+      const newResult: Saving[] = body.result.map((saving) => {
+        const expMap: Map<string, Expense[]> = new Map(Object.entries(saving.expensesByType));
+        const incMap: Map<string, Income[]> = new Map(Object.entries(saving.incomesByType));
 
-        return new Saving(acc.id, acc.date, acc.value, incMap, expMap);
+        return {
+          id: saving.id,
+          date: saving.date,
+          value: saving.value,
+          incomesSum: saving.incomesSum,
+          expensesSum: saving.expensesSum,
+          incomesByType: incMap,
+          expensesByType: expMap
+        };
       });
       return new SavingSearchResult(newResult, body.totalElements);
     });
@@ -48,7 +56,7 @@ export async function getSavings(request: SavingSearchParams): Promise<SearchRes
 export async function addIncome(request: AddIncomeRequest): Promise<Response> {
   return handleErrors(await fetch(apiUrl + 'incomes', {
     method: 'POST',
-      headers: {
+    headers: {
       'content-type': 'application/json;charset=UTF-8',
     },
     body: JSON.stringify(request),

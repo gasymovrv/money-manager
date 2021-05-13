@@ -3,10 +3,12 @@ import { Expense, ExpenseType } from './expense.interface';
 import React from 'react';
 
 export interface Row {
-  id: number
-  date: string
-  incomes: Array<Income | null | undefined>
-  expenses: Array<Expense | null | undefined>
+  id: number,
+  date: string,
+  incomesSum: number,
+  expensesSum: number,
+  incomeLists: Array<Income[] | undefined>,
+  expenseLists: Array<Expense[] | undefined>,
   savings: number
 }
 
@@ -19,6 +21,7 @@ export interface HomeState {
 
 export interface MainTableProps {
   refreshTable(): void,
+
   isLoading: boolean,
   incomeTypes: IncomeType[],
   expenseTypes: ExpenseType[],
@@ -26,6 +29,8 @@ export interface MainTableProps {
   totalElements: number,
   page: number,
   pageSize: number,
+
   handleChangePage(event: unknown, newPage: number): void
+
   handleChangeRowsPerPage(event: React.ChangeEvent<HTMLInputElement>): void
 }

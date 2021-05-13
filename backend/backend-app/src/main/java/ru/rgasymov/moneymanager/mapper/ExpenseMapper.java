@@ -12,8 +12,6 @@ import ru.rgasymov.moneymanager.domain.entity.Expense;
     unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface ExpenseMapper {
 
-  @Mapping(target = "saving.incomes", ignore = true)
-  @Mapping(target = "saving.expenses", ignore = true)
   @Mapping(target = "userId", source = "user.id")
   ExpenseResponseDto toDto(Expense entity);
 

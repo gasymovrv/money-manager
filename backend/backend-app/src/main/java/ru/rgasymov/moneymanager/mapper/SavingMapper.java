@@ -9,7 +9,6 @@ import ru.rgasymov.moneymanager.domain.dto.response.SavingResponseDto;
 import ru.rgasymov.moneymanager.domain.entity.Saving;
 
 @Mapper(componentModel = "spring",
-    uses = {IncomeMapper.class, ExpenseMapper.class},
     unmappedTargetPolicy = ReportingPolicy.IGNORE)
 @DecoratedWith(SavingMapperDecorator.class)
 public interface SavingMapper {

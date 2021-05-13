@@ -8,6 +8,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -33,19 +34,17 @@ public class SavingResponseDto {
 
   private BigDecimal value;
 
-  @EqualsAndHashCode.Exclude
-  @ToString.Exclude
-  private List<IncomeResponseDto> incomes;
+  @Builder.Default
+  private BigDecimal incomesSum = BigDecimal.ZERO;
+
+  @Builder.Default
+  private BigDecimal expensesSum = BigDecimal.ZERO;
 
   @EqualsAndHashCode.Exclude
   @ToString.Exclude
-  private List<ExpenseResponseDto> expenses;
+  private Map<String, List<IncomeResponseDto>> incomesByType;
 
   @EqualsAndHashCode.Exclude
   @ToString.Exclude
-  private Map<String, IncomeResponseDto> incomesByType;
-
-  @EqualsAndHashCode.Exclude
-  @ToString.Exclude
-  private Map<String, ExpenseResponseDto> expensesByType;
+  private Map<String, List<ExpenseResponseDto>> expensesByType;
 }

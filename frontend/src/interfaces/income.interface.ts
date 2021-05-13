@@ -7,6 +7,7 @@ export interface Income {
   id: number,
   value: number,
   date: string,
+  description?: string,
   incomeType: IncomeType,
 }
 
