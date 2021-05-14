@@ -1,19 +1,20 @@
 package ru.rgasymov.moneymanager.service.impl;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoField;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
@@ -23,26 +24,19 @@ import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.springframework.core.io.ByteArrayResource;
-import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import ru.rgasymov.moneymanager.domain.XlsxParsingResult;
-import ru.rgasymov.moneymanager.domain.dto.response.SavingResponseDto;
 import ru.rgasymov.moneymanager.domain.entity.Expense;
 import ru.rgasymov.moneymanager.domain.entity.ExpenseType;
 import ru.rgasymov.moneymanager.domain.entity.Income;
 import ru.rgasymov.moneymanager.domain.entity.IncomeType;
 import ru.rgasymov.moneymanager.service.UserService;
-import ru.rgasymov.moneymanager.service.XlsxHandlingService;
+import ru.rgasymov.moneymanager.service.XlsxParsingService;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class XlsxHandlingServiceImpl implements XlsxHandlingService {
-  /**
-   * The number of columns after the last income column.
-   */
-  private static final int COLUMNS_AFTER_LAST_INCOME = 1;
+public class XlsxParsingServiceImpl implements XlsxParsingService {
 
   /**
    * Index of row with type names.
@@ -60,13 +54,9 @@ public class XlsxHandlingServiceImpl implements XlsxHandlingService {
   private static final int START_COLUMN = 1;
 
   /**
-   * Column name of the sum of incomes.
+   * Column names.
    */
   private static final String INCOMES_SUM_COLUMN_NAME = "Incomes sum";
-
-  /**
-   * Column name of the sum of expenses.
-   */
   private static final String EXPENSES_SUM_COLUMN_NAME = "Expenses sum";
 
   /**
@@ -75,9 +65,9 @@ public class XlsxHandlingServiceImpl implements XlsxHandlingService {
   private static final int PREVIOUS_SAVINGS_ROW = 2;
 
   /**
-   * Column name of the previous savings value.
+   * Savings column name.
    */
-  private static final String PREVIOUS_SAVINGS_COLUMN_NAME = "Savings";
+  private static final String SAVINGS_COLUMN_NAME = "Savings";
 
   private final UserService userService;
 
@@ -109,17 +99,6 @@ public class XlsxHandlingServiceImpl implements XlsxHandlingService {
     return result;
   }
 
-  @Override
-  public Resource generate(InputStream template,
-                           List<SavingResponseDto> data) throws IOException {
-    XSSFWorkbook wb = new XSSFWorkbook(template);
-    //todo handle data
-    try (wb; ByteArrayOutputStream os = new ByteArrayOutputStream()) {
-      wb.write(os);
-      return new ByteArrayResource(os.toByteArray());
-    }
-  }
-
   private XlsxParsingResult extractData(XSSFSheet sheet,
                                         XSSFRow incTypesRow,
                                         XSSFRow expTypesRow) {
@@ -129,9 +108,11 @@ public class XlsxHandlingServiceImpl implements XlsxHandlingService {
     var incomeTypes = new HashMap<Integer, IncomeType>();
     var expenseTypes = new HashMap<Integer, ExpenseType>();
 
+    //Find all types
     Integer incomeLastCol = findIncomeTypes(incTypesRow, incomeTypes);
     findExpenseTypes(expTypesRow, expenseTypes, incomeLastCol);
 
+    //Iterate by data rows
     for (int i = START_ROW; i <= sheet.getLastRowNum(); i++) {
       var row = sheet.getRow(i);
       var firstCell = row.getCell(0);
@@ -146,6 +127,7 @@ public class XlsxHandlingServiceImpl implements XlsxHandlingService {
 
       var date = firstCellValue.toLocalDate();
 
+      //Iterate by cells in row
       for (int j = START_COLUMN; j <= row.getLastCellNum(); j++) {
         var cell = row.getCell(j);
         if (cell == null
@@ -204,7 +186,7 @@ public class XlsxHandlingServiceImpl implements XlsxHandlingService {
     }
     var currentUser = userService.getCurrentUser();
 
-    for (int i = incomeLastCol + COLUMNS_AFTER_LAST_INCOME;
+    for (int i = incomeLastCol + 1;
          i <= expTypesRow.getLastCellNum();
          i++) {
       var cell = expTypesRow.getCell(i);
@@ -251,16 +233,35 @@ public class XlsxHandlingServiceImpl implements XlsxHandlingService {
     for (Cell cell : headRow) {
       if (cell != null
           && cell.getCellType() == CellType.STRING
-          && cell.getStringCellValue().equals(PREVIOUS_SAVINGS_COLUMN_NAME)) {
+          && cell.getStringCellValue().equals(SAVINGS_COLUMN_NAME)) {
 
+        //Get previous savings cell and its value
         XSSFCell prevSavingsCell =
             oldest.getRow(PREVIOUS_SAVINGS_ROW).getCell(cell.getColumnIndex());
         double prevSavingsValue = prevSavingsCell.getNumericCellValue();
 
         if (prevSavingsValue != 0) {
+          //Set previous savings value
           result.setPreviousSavings(new BigDecimal(prevSavingsValue));
-          result.setPreviousSavingsDate(
-              LocalDate.of(Integer.parseInt(oldest.getSheetName()), 1, 1));
+
+          //Calculate min year of incomes and expenses and set to previousSavingsDate
+          List<LocalDate> dates = result.getIncomes()
+              .stream()
+              .map(Income::getDate)
+              .collect(Collectors.toList());
+          dates.addAll(
+              result.getExpenses()
+                  .stream()
+                  .map(Expense::getDate)
+                  .collect(Collectors.toList())
+          );
+          Optional<LocalDate> minDate = dates.stream().min(LocalDate::compareTo);
+          if (minDate.isPresent()) {
+            result.setPreviousSavingsDate(
+                LocalDate.of(minDate.get().get(ChronoField.YEAR), 1, 1));
+          } else {
+            result.setPreviousSavingsDate(LocalDate.of(1970, 1, 1));
+          }
         }
         return;
       }

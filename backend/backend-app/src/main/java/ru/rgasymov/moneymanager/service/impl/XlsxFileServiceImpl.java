@@ -7,7 +7,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,13 +21,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import ru.rgasymov.moneymanager.constant.DateTimeFormats;
+import ru.rgasymov.moneymanager.domain.XlsxInputData;
 import ru.rgasymov.moneymanager.domain.XlsxParsingResult;
-import ru.rgasymov.moneymanager.domain.dto.response.SavingResponseDto;
-import ru.rgasymov.moneymanager.exception.ExtractDataException;
+import ru.rgasymov.moneymanager.exception.DataExtractionException;
+import ru.rgasymov.moneymanager.exception.DataGenerationException;
 import ru.rgasymov.moneymanager.exception.FileReadingException;
 import ru.rgasymov.moneymanager.exception.IncorrectFileStorageRootException;
 import ru.rgasymov.moneymanager.service.XlsxFileService;
-import ru.rgasymov.moneymanager.service.XlsxHandlingService;
+import ru.rgasymov.moneymanager.service.XlsxGenerationService;
+import ru.rgasymov.moneymanager.service.XlsxParsingService;
 
 @Service
 @RequiredArgsConstructor
@@ -37,8 +38,14 @@ public class XlsxFileServiceImpl implements XlsxFileService {
 
   private static final String UPLOADED_FILE_NAME_PATTERN = "%s/%s_%s.%s";
   private static final String DOWNLOADED_FILE_NAME = "money-manager.xlsx";
-  private static final String PATH_TO_TEMPLATE = "xlsx/template.xlsx";
-  private final XlsxHandlingService xlsxHandlingService;
+  private static final String DOWNLOADED_TEMPLATE_FILE_NAME = "money-manager-template.xlsx";
+  private static final String PATH_TO_GENERATION_TEMPLATE = "xlsx/generation-template.xlsx";
+  private static final String PATH_TO_USER_TEMPLATE = "xlsx/user-template.xlsx";
+
+  private final XlsxParsingService xlsxParsingService;
+
+  private final XlsxGenerationService xlsxGenerationService;
+
   @Value("${file-service.root}")
   private String root;
 
@@ -63,7 +70,7 @@ public class XlsxFileServiceImpl implements XlsxFileService {
     }
 
     try {
-      XlsxParsingResult result = xlsxHandlingService.parse(destination);
+      XlsxParsingResult result = xlsxParsingService.parse(destination);
       if (deleteUploadedFiles) {
         destination.delete();
       }
@@ -73,17 +80,17 @@ public class XlsxFileServiceImpl implements XlsxFileService {
     } catch (Exception e) {
       log.error("# XlsxFileService: error has occurred while parsing the file");
       destination.delete();
-      throw new ExtractDataException(e);
+      throw new DataExtractionException(e);
     }
   }
 
   @Override
-  public ResponseEntity<Resource> generate(List<SavingResponseDto> data) {
+  public ResponseEntity<Resource> generate(XlsxInputData data) {
     log.info("# XlsxFileService: file generation has started");
 
     try {
-      InputStream template = new ClassPathResource(PATH_TO_TEMPLATE).getInputStream();
-      Resource result = xlsxHandlingService.generate(template, data);
+      InputStream template = new ClassPathResource(PATH_TO_GENERATION_TEMPLATE).getInputStream();
+      Resource result = xlsxGenerationService.generate(template, data);
       log.info("# XlsxFileService: file generation has successfully completed");
       return ResponseEntity.ok()
           .header(HttpHeaders.CONTENT_DISPOSITION,
@@ -93,16 +100,16 @@ public class XlsxFileServiceImpl implements XlsxFileService {
 
     } catch (Exception e) {
       log.error("# XlsxFileService: error has occurred while generating the file");
-      throw new ExtractDataException(e);
+      throw new DataGenerationException(e);
     }
   }
 
   @Override
   public ResponseEntity<Resource> getTemplate() {
-    ClassPathResource resource = new ClassPathResource(PATH_TO_TEMPLATE);
+    ClassPathResource resource = new ClassPathResource(PATH_TO_USER_TEMPLATE);
     return ResponseEntity.ok()
         .header(HttpHeaders.CONTENT_DISPOSITION,
-            String.format("attachment; filename=\"%s\"", DOWNLOADED_FILE_NAME))
+            String.format("attachment; filename=\"%s\"", DOWNLOADED_TEMPLATE_FILE_NAME))
         .contentType(MediaType.APPLICATION_OCTET_STREAM)
         .body(resource);
   }

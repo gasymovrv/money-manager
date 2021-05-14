@@ -12,6 +12,7 @@ import org.springframework.validation.BindException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import ru.rgasymov.moneymanager.exception.EmptyDataGenerationException;
 import ru.rgasymov.moneymanager.util.ErrorUtils;
 
 @Order(Ordered.HIGHEST_PRECEDENCE)
@@ -37,7 +38,8 @@ public class RestExceptionHandler {
       ValidationException.class,
       BindException.class,
       HttpMessageNotReadableException.class,
-      MethodArgumentNotValidException.class
+      MethodArgumentNotValidException.class,
+      EmptyDataGenerationException.class
   })
   public ResponseEntity<RestApiError> handleValidationException(Exception ex) {
     ErrorUtils.logException(ex, log);

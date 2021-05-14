@@ -2,19 +2,27 @@ package ru.rgasymov.moneymanager.service.impl;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import ru.rgasymov.moneymanager.domain.XlsxInputData;
 import ru.rgasymov.moneymanager.domain.XlsxParsingResult;
 import ru.rgasymov.moneymanager.domain.dto.request.SavingCriteriaDto;
+import ru.rgasymov.moneymanager.domain.dto.response.ExpenseTypeResponseDto;
+import ru.rgasymov.moneymanager.domain.dto.response.IncomeTypeResponseDto;
+import ru.rgasymov.moneymanager.domain.dto.response.SavingResponseDto;
 import ru.rgasymov.moneymanager.domain.entity.ExpenseType;
 import ru.rgasymov.moneymanager.domain.entity.IncomeType;
+import ru.rgasymov.moneymanager.exception.EmptyDataGenerationException;
 import ru.rgasymov.moneymanager.exception.UploadFileException;
 import ru.rgasymov.moneymanager.repository.ExpenseTypeRepository;
 import ru.rgasymov.moneymanager.repository.IncomeTypeRepository;
@@ -44,6 +52,10 @@ public class FileServiceImpl implements FileService {
   private final IncomeService incomeService;
 
   private final ExpenseService expenseService;
+
+  private final IncomeTypeService incomeTypeService;
+
+  private final ExpenseTypeService expenseTypeService;
 
   @Transactional(propagation = Propagation.NEVER)
   @Override
@@ -96,7 +108,14 @@ public class FileServiceImpl implements FileService {
   public ResponseEntity<Resource> generateXlsx() {
     var criteria = new SavingCriteriaDto();
     criteria.setPageSize(MAX_SAVINGS);
-    return xlsxFileService.generate(savingService.search(criteria).getResult());
+    List<SavingResponseDto> savings = savingService.search(criteria).getResult();
+    Set<IncomeTypeResponseDto> incTypes = incomeTypeService.findAll();
+    Set<ExpenseTypeResponseDto> expTypes = expenseTypeService.findAll();
+    if (CollectionUtils.isEmpty(savings)) {
+      throw new EmptyDataGenerationException("There is no data to generate file");
+    }
+
+    return xlsxFileService.generate(new XlsxInputData(savings, incTypes, expTypes));
   }
 
   @Override
