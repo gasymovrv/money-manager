@@ -4,13 +4,13 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.temporal.ChronoField;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -21,6 +21,8 @@ import org.apache.poi.ss.usermodel.ClientAnchor;
 import org.apache.poi.ss.usermodel.Comment;
 import org.apache.poi.ss.usermodel.CreationHelper;
 import org.apache.poi.ss.usermodel.Drawing;
+import org.apache.poi.ss.usermodel.FillPatternType;
+import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.CellRangeAddress;
@@ -29,6 +31,7 @@ import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import ru.rgasymov.moneymanager.domain.XlsxInputData;
@@ -40,7 +43,6 @@ import ru.rgasymov.moneymanager.domain.dto.response.SavingResponseDto;
 import ru.rgasymov.moneymanager.service.XlsxGenerationService;
 
 @Service
-@RequiredArgsConstructor
 @Slf4j
 public class XlsxGenerationServiceImpl implements XlsxGenerationService {
 
@@ -87,8 +89,9 @@ public class XlsxGenerationServiceImpl implements XlsxGenerationService {
   private static final int PREVIOUS_SAVINGS_ROW = 2;
 
   @Override
-  public Resource generate(InputStream template,
+  public Resource generate(String templatePath,
                            XlsxInputData data) throws IOException {
+    InputStream template = new ClassPathResource(templatePath).getInputStream();
     var wb = new XSSFWorkbook(template);
 
     //------- Set sheet name -------
@@ -315,6 +318,16 @@ public class XlsxGenerationServiceImpl implements XlsxGenerationService {
       //Fill saving cell
       cell = row.getCell(savingsCol);
       cell.setCellValue(dto.getValue().doubleValue());
+
+      if (dto.getDate().equals(LocalDate.now())) {
+        cell = row.createCell(savingsCol + 1, CellType.STRING);
+        cell.setCellValue("Download date");
+
+        CellStyle style = workbook.createCellStyle();
+        style.setFillForegroundColor(IndexedColors.RED.getIndex());
+        style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        cell.setCellStyle(style);
+      }
     }
   }
 

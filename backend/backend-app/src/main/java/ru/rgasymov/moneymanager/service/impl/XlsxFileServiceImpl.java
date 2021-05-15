@@ -1,7 +1,6 @@
 package ru.rgasymov.moneymanager.service.impl;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -89,8 +88,7 @@ public class XlsxFileServiceImpl implements XlsxFileService {
     log.info("# XlsxFileService: file generation has started");
 
     try {
-      InputStream template = new ClassPathResource(PATH_TO_GENERATION_TEMPLATE).getInputStream();
-      Resource result = xlsxGenerationService.generate(template, data);
+      Resource result = xlsxGenerationService.generate(PATH_TO_GENERATION_TEMPLATE, data);
       log.info("# XlsxFileService: file generation has successfully completed");
       return ResponseEntity.ok()
           .header(HttpHeaders.CONTENT_DISPOSITION,
