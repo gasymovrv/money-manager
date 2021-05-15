@@ -1,7 +1,7 @@
 import React from 'react';
 import { Income } from '../../interfaces/income.interface';
 import StyledTableCell from './styled-table-cell';
-import { makeStyles, TableRow, withStyles } from '@material-ui/core';
+import { makeStyles, TableRow } from '@material-ui/core';
 import { createStyles, Theme } from '@material-ui/core/styles';
 import { Expense } from '../../interfaces/expense.interface';
 import MainTableCell from './main-table-cell';
@@ -21,16 +21,6 @@ const useStyles = makeStyles((theme: Theme) =>
     }
   })
 );
-
-const StyledTableRow = withStyles((theme: Theme) =>
-  createStyles({
-    root: {
-      '&:nth-of-type(odd)': {
-        backgroundColor: theme.palette.action.hover,
-      },
-    },
-  }),
-)(TableRow);
 
 type MainTableRowProps = {
   row: Row,
@@ -55,7 +45,7 @@ const MainTableRow: React.FC<MainTableRowProps> = ({
   const classes = useStyles();
 
   return (
-    <StyledTableRow key={id}>
+    <TableRow hover key={id}>
 
       <StyledTableCell key={'date_' + id}>{date}</StyledTableCell>
 
@@ -97,7 +87,7 @@ const MainTableRow: React.FC<MainTableRowProps> = ({
       >
         {savings}
       </StyledTableCell>
-    </StyledTableRow>
+    </TableRow>
   )
 }
 
