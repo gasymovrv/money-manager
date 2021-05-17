@@ -11,6 +11,7 @@ import { HomeState, Row } from '../../interfaces/main-table.interface';
 import ErrorNotification from '../notification/error.notification';
 import { expenseTypeSort, incomeTypeSort } from '../../helpers/sort.helper';
 import { createStyles, Theme } from '@material-ui/core/styles';
+import WelcomeBox from '../welcome-box/welcome-box';
 
 async function getTable(page: number, rowsPerPage: number): Promise<HomeState> {
   const expenseTypes = await getExpenseTypes();
@@ -57,6 +58,7 @@ async function getTable(page: number, rowsPerPage: number): Promise<HomeState> {
 
   return {incomeTypes, expenseTypes, rows, totalElements: searchResult.totalElements};
 }
+
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     container: {
@@ -73,6 +75,7 @@ const Home: React.FC = () => {
     rows: [],
     totalElements: 0
   })
+  const [isWelcome, setIsWelcome] = useState<boolean>(false);
   const [error, setError] = useState<boolean>(false);
   const [isLoading, setLoading] = useState<boolean>(true);
   const [page, setPage] = useState<number>(0);
@@ -92,8 +95,13 @@ const Home: React.FC = () => {
   const setTableData = () => {
     setError(false);
     getTable(page, pageSize).then((data) => {
-        setData(data);
-        setLoading(false)
+        if (!data.expenseTypes.length && !data.incomeTypes.length) {
+          setIsWelcome(true);
+        } else {
+          setData(data);
+          setIsWelcome(false);
+        }
+        setLoading(false);
       },
       (err) => {
         console.log(`Getting main table error: ${err}`)
@@ -106,20 +114,24 @@ const Home: React.FC = () => {
   return (
     <Container maxWidth="xl" className={classes.container}>
       <Header
+        isWelcome={isWelcome}
         refreshTable={setTableData}
       />
-      <MainTable
-        refreshTable={setTableData}
-        isLoading={isLoading}
-        incomeTypes={incomeTypes}
-        expenseTypes={expenseTypes}
-        rows={rows}
-        totalElements={totalElements}
-        page={page}
-        pageSize={pageSize}
-        handleChangePage={handleChangePage}
-        handleChangeRowsPerPage={handleChangeRowsPerPage}
-      />
+      {isWelcome ?
+        <WelcomeBox onStart={() => setIsWelcome(false)}/> :
+        <MainTable
+          refreshTable={setTableData}
+          isLoading={isLoading}
+          incomeTypes={incomeTypes}
+          expenseTypes={expenseTypes}
+          rows={rows}
+          totalElements={totalElements}
+          page={page}
+          pageSize={pageSize}
+          handleChangePage={handleChangePage}
+          handleChangeRowsPerPage={handleChangeRowsPerPage}
+        />
+      }
       {error && <ErrorNotification text="Something went wrong"/>}
     </Container>
   )

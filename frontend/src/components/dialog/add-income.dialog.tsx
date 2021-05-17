@@ -8,22 +8,19 @@ import moment from 'moment/moment';
 import ErrorNotification from '../notification/error.notification';
 import SuccessNotification from '../notification/success.notification';
 import { incomeTypeSort } from '../../helpers/sort.helper';
+import { DialogProps } from '../../interfaces/common.interface';
+import CommonModal from '../modal/common.modal';
 
-type AddIncomeDialogProps = {
-  open: boolean,
-  handleClose(): void
-  handleSave(): void
-}
-
-const AddIncomeDialog: React.FC<AddIncomeDialogProps> = ({
-                                                           open,
-                                                           handleSave,
-                                                           handleClose
-                                                         }) => {
+const AddIncomeDialog: React.FC<DialogProps> = ({
+                                                  open,
+                                                  onSave,
+                                                  handleClose
+                                                }) => {
   const [success, setSuccess] = useState<boolean>(false);
   const [error, setError] = useState<boolean>(false);
   const [isLoading, setLoading] = useState<boolean>(true);
   const [incomeTypes, setIncomeTypes] = useState<IncomeType[]>([]);
+  const [noTypes, setNoTypes] = useState<boolean>(true);
 
   const [incValue, setIncValue] = useState<number>(100);
   const [incDescription, setDescription] = useState<string>();
@@ -34,8 +31,13 @@ const AddIncomeDialog: React.FC<AddIncomeDialogProps> = ({
   useEffect(() => {
     getIncomeTypes()
       .then((data) => {
-        setIncomeTypes(data.sort(incomeTypeSort));
-        setIncTypeId(data[0].id)
+        if (data.length) {
+          setIncomeTypes(data.sort(incomeTypeSort));
+          setIncTypeId(data[0].id)
+          setNoTypes(false)
+        } else {
+          setNoTypes(true)
+        }
         setLoading(false)
       });
   }, [])
@@ -67,13 +69,24 @@ const AddIncomeDialog: React.FC<AddIncomeDialogProps> = ({
         description: incDescription,
         value: incValue
       });
-      handleSave();
+      onSave();
       setSuccess(true);
     } catch (error) {
       console.log(error);
       setError(true);
     }
     handleClose();
+  }
+
+  if (noTypes) {
+    return (
+      <CommonModal
+        open={open}
+        handleClose={handleClose}
+        title="Warning"
+        text="Before adding income, you need to add at least one income type"
+      />
+    )
   }
 
   return (
@@ -143,11 +156,11 @@ const AddIncomeDialog: React.FC<AddIncomeDialogProps> = ({
         </DialogContent>
 
         <DialogActions>
-          <Button onClick={handleClose} color="inherit">
-            Cancel
-          </Button>
           <Button disabled={!incValue || !incTypeId || !inputDateValue} onClick={handleSaveIncome} color="inherit">
             Save
+          </Button>
+          <Button onClick={handleClose} color="inherit">
+            Cancel
           </Button>
         </DialogActions>
       </Dialog>

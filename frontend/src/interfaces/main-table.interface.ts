@@ -20,8 +20,6 @@ export interface HomeState {
 }
 
 export interface MainTableProps {
-  refreshTable(): void,
-
   isLoading: boolean,
   incomeTypes: IncomeType[],
   expenseTypes: ExpenseType[],
@@ -29,6 +27,8 @@ export interface MainTableProps {
   totalElements: number,
   page: number,
   pageSize: number,
+
+  refreshTable(): void,
 
   handleChangePage(event: unknown, newPage: number): void
 

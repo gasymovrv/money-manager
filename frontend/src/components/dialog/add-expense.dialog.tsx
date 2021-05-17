@@ -8,22 +8,20 @@ import moment from 'moment/moment';
 import ErrorNotification from '../notification/error.notification';
 import SuccessNotification from '../notification/success.notification';
 import { expenseTypeSort } from '../../helpers/sort.helper';
+import { DialogProps } from '../../interfaces/common.interface';
+import CommonModal from '../modal/common.modal';
 
-type AddExpenseDialogProps = {
-  open: boolean,
-  handleClose(): void
-  handleSave(): void
-}
 
-const AddExpenseDialog: React.FC<AddExpenseDialogProps> = ({
-                                                             open,
-                                                             handleSave,
-                                                             handleClose
-                                                           }) => {
+const AddExpenseDialog: React.FC<DialogProps> = ({
+                                                   open,
+                                                   onSave,
+                                                   handleClose
+                                                 }) => {
   const [success, setSuccess] = useState<boolean>(false);
   const [error, setError] = useState<boolean>(false);
   const [isLoading, setLoading] = useState<boolean>(true);
   const [expenseTypes, setExpenseTypes] = useState<ExpenseType[]>([]);
+  const [noTypes, setNoTypes] = useState<boolean>(true);
 
   const [expValue, setExpValue] = useState<number>(100);
   const [expDescription, setDescription] = useState<string>();
@@ -34,8 +32,13 @@ const AddExpenseDialog: React.FC<AddExpenseDialogProps> = ({
   useEffect(() => {
     getExpenseTypes()
       .then((data) => {
-        setExpenseTypes(data.sort(expenseTypeSort));
-        setExpTypeId(data[0].id)
+        if (data.length) {
+          setExpenseTypes(data.sort(expenseTypeSort));
+          setExpTypeId(data[0].id)
+          setNoTypes(false)
+        } else {
+          setNoTypes(true)
+        }
         setLoading(false)
       });
   }, [])
@@ -67,13 +70,24 @@ const AddExpenseDialog: React.FC<AddExpenseDialogProps> = ({
         description: expDescription,
         value: expValue
       });
-      handleSave();
+      onSave();
       setSuccess(true);
     } catch (error) {
       console.log(error);
       setError(true);
     }
     handleClose();
+  }
+
+  if (noTypes) {
+    return (
+      <CommonModal
+        open={open}
+        handleClose={handleClose}
+        title="Warning"
+        text="Before adding expense, you need to add at least one expense type"
+      />
+    )
   }
 
   return (
@@ -143,11 +157,11 @@ const AddExpenseDialog: React.FC<AddExpenseDialogProps> = ({
         </DialogContent>
 
         <DialogActions>
-          <Button onClick={handleClose} color="inherit">
-            Cancel
-          </Button>
           <Button disabled={!expValue || !expTypeId || !inputDateValue} onClick={handleSaveExpense} color="inherit">
             Save
+          </Button>
+          <Button onClick={handleClose} color="inherit">
+            Cancel
           </Button>
         </DialogActions>
       </Dialog>

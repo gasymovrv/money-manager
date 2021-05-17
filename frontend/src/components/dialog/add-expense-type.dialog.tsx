@@ -3,18 +3,13 @@ import React, { useState } from 'react';
 import { addExpenseType } from '../../services/api.service';
 import ErrorNotification from '../notification/error.notification';
 import SuccessNotification from '../notification/success.notification';
+import { DialogProps } from '../../interfaces/common.interface';
 
-type AddExpenseTypeDialogProps = {
-  open: boolean,
-  handleClose(): void
-  handleSave(): void
-}
-
-const AddExpenseTypeDialog: React.FC<AddExpenseTypeDialogProps> = ({
-                                                                     open,
-                                                                     handleSave,
-                                                                     handleClose
-                                                                   }) => {
+const AddExpenseTypeDialog: React.FC<DialogProps> = ({
+                                                       open,
+                                                       onSave,
+                                                       handleClose
+                                                     }) => {
   const [success, setSuccess] = useState<boolean>(false);
   const [error, setError] = useState<boolean>(false);
 
@@ -31,7 +26,7 @@ const AddExpenseTypeDialog: React.FC<AddExpenseTypeDialogProps> = ({
       await addExpenseType({
         name: name
       });
-      handleSave();
+      onSave();
       setSuccess(true);
     } catch (error) {
       console.log(error);
@@ -60,11 +55,11 @@ const AddExpenseTypeDialog: React.FC<AddExpenseTypeDialogProps> = ({
         </DialogContent>
 
         <DialogActions>
-          <Button onClick={handleClose} color="inherit">
-            Cancel
-          </Button>
           <Button disabled={!name} onClick={handleSaveExpenseType} color="inherit">
             Save
+          </Button>
+          <Button onClick={handleClose} color="inherit">
+            Cancel
           </Button>
         </DialogActions>
       </Dialog>
