@@ -39,7 +39,7 @@ const WelcomeBox: React.FC<{ onStart(): void }> = ({onStart}) => {
         <Grid item><Typography variant="h2">Get started</Typography></Grid>
         <Grid item>
           <Typography variant="h6">
-            You can start by uploading a .xlsx file filled in as <Link className={classes.link}
+            You can start by importing a .xlsx file filled in as <Link className={classes.link}
                                                                        onClick={handleDownloadTemplate}>
             template.xlsx
           </Link>:

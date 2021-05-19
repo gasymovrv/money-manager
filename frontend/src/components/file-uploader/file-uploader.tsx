@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Button, Grid, Input, Typography } from '@material-ui/core';
-import { uploadXlsxFile } from '../../services/api.service';
+import { importFromXlsxFile } from '../../services/api.service';
 import ErrorNotification from '../notification/error.notification';
 import SuccessNotification from '../notification/success.notification';
 
@@ -21,7 +21,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({onSend}) => {
     setSuccess(false);
     setError(false);
     try {
-      await uploadXlsxFile(selectedFile);
+      await importFromXlsxFile(selectedFile);
       setSuccess(true);
       onSend();
     } catch (error) {

@@ -20,18 +20,18 @@ public class FileController {
 
   private final FileService fileService;
 
-  @RequestMapping(value = "/xlsx/upload",
+  @RequestMapping(value = "/xlsx/import",
       method = RequestMethod.POST,
       consumes = "multipart/form-data")
   public void uploadXlsx(@RequestPart("file") MultipartFile file) {
-    log.info("# Upload xlsx file");
-    fileService.uploadXlsx(file);
+    log.info("# Import from xlsx file");
+    fileService.importFromXlsx(file);
   }
 
-  @GetMapping("/xlsx/generate")
-  public ResponseEntity<Resource> generateXlsx() {
-    log.info("# Generate xlsx file");
-    return fileService.generateXlsx();
+  @GetMapping("/xlsx/export")
+  public ResponseEntity<Resource> exportToXlsx() {
+    log.info("# Export to xlsx file");
+    return fileService.exportToXlsx();
   }
 
   @GetMapping("/xlsx/template")

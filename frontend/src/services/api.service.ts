@@ -93,16 +93,30 @@ export async function addExpenseType(request: AddExpenseTypeRequest): Promise<Re
   }));
 }
 
-export async function uploadXlsxFile(file?: File): Promise<Response> {
+export async function importFromXlsxFile(file?: File): Promise<Response> {
   const data = new FormData();
   if (!file) {
     throw Error('File cannot be undefined');
   }
   data.append('file', file);
-  return handleErrors(await fetch(apiUrl + 'files/xlsx/upload', {
+  return handleErrors(await fetch(apiUrl + 'files/xlsx/import', {
     method: 'POST',
     body: data,
   }));
+}
+
+export async function exportToXlsxFile(): Promise<Response> {
+  return fetch(apiUrl + 'files/xlsx/export', {
+    method: 'GET'
+  })
+    .then(handleErrors)
+    .then((res: any) => {
+      return res.blob();
+    })
+    .then(blob => {
+      downloadFile(blob, 'money-manager.xlsx');
+      return blob;
+    });
 }
 
 export async function downloadTemplateXlsxFile(): Promise<Response> {
@@ -114,12 +128,16 @@ export async function downloadTemplateXlsxFile(): Promise<Response> {
       return res.blob();
     })
     .then(blob => {
-      const href = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = href;
-      link.setAttribute('download', 'money-manager-template.xlsx'); //or any other extension
-      document.body.appendChild(link);
-      link.click();
+      downloadFile(blob, 'money-manager-template.xlsx');
       return blob;
     });
+}
+
+function downloadFile(blob: Blob, fileName: string) {
+  const href = window.URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = href;
+  link.setAttribute('download', fileName);
+  document.body.appendChild(link);
+  link.click();
 }

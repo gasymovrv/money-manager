@@ -59,14 +59,14 @@ public class FileServiceImpl implements FileService {
 
   @Transactional(propagation = Propagation.NEVER)
   @Override
-  public void uploadXlsx(MultipartFile file) {
+  public void importFromXlsx(MultipartFile file) {
     var currentUser = userService.getCurrentUser();
     var currentUserId = currentUser.getId();
 
     if (incomeTypeRepository.existsByUserId(currentUserId)
         || expenseTypeRepository.existsByUserId(currentUserId)) {
       throw new UploadFileException(
-          "# Failed to upload .xlsx file because the database is not empty");
+          "# Failed to import .xlsx file because the database is not empty");
     }
 
     XlsxParsingResult result = xlsxFileService.parse(file);
@@ -105,14 +105,14 @@ public class FileServiceImpl implements FileService {
   }
 
   @Override
-  public ResponseEntity<Resource> generateXlsx() {
+  public ResponseEntity<Resource> exportToXlsx() {
     var criteria = new SavingCriteriaDto();
     criteria.setPageSize(MAX_SAVINGS);
     List<SavingResponseDto> savings = savingService.search(criteria).getResult();
     Set<IncomeTypeResponseDto> incTypes = incomeTypeService.findAll();
     Set<ExpenseTypeResponseDto> expTypes = expenseTypeService.findAll();
     if (CollectionUtils.isEmpty(savings)) {
-      throw new EmptyDataGenerationException("There is no data to generate file");
+      throw new EmptyDataGenerationException("There is no data to export");
     }
 
     return xlsxFileService.generate(new XlsxInputData(savings, incTypes, expTypes));
