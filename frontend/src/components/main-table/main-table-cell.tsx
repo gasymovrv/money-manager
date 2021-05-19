@@ -3,8 +3,10 @@ import { Income } from '../../interfaces/income.interface';
 import StyledTableCell from './styled-table-cell';
 import { IconButton, makeStyles, MenuItem } from '@material-ui/core';
 import { Expense } from '../../interfaces/expense.interface';
-import ExpandLessIcon from '@material-ui/icons/ExpandLess';
 import { createStyles, Theme } from '@material-ui/core/styles';
+import { EntityType } from '../../interfaces/common.interface';
+import ExpandLessIcon from '@material-ui/icons/ExpandLess';
+import MainTableEditableItem from './main-table-editable-item';
 
 function calculateSum(list: Array<Income | Expense>): number {
   return list.reduce((acc, value) => (value ? acc + value.value : acc), 0);
@@ -12,11 +14,12 @@ function calculateSum(list: Array<Income | Expense>): number {
 
 type MainTableCellProps = {
   rowId: number,
+  entityType: EntityType,
   entities: Array<Income | Expense> | undefined,
   index: number,
-  className: string | undefined
+  className: string | undefined,
+  refreshTable(): void
 }
-
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     menuItem: {
@@ -29,9 +32,11 @@ const useStyles = makeStyles((theme: Theme) =>
 
 const MainTableCell: React.FC<MainTableCellProps> = ({
                                                        rowId,
+                                                       entityType,
                                                        entities,
                                                        index,
-                                                       className
+                                                       className,
+                                                       refreshTable
                                                      }) => {
   const [expandList, setExpandList] = React.useState(false);
   const classes = useStyles();
@@ -49,9 +54,11 @@ const MainTableCell: React.FC<MainTableCellProps> = ({
     if (entities.length === 1) {
       return (
         <StyledTableCell key={rowId + '_' + index} className={className}>
-          <MenuItem key={firstEl.id} className={classes.menuItem}>
-            {firstEl.value}
-          </MenuItem>
+          <MainTableEditableItem
+            entity={firstEl}
+            entityType={entityType}
+            refreshTable={refreshTable}
+          />
         </StyledTableCell>
       )
     } else {
@@ -60,9 +67,11 @@ const MainTableCell: React.FC<MainTableCellProps> = ({
           {expandList ?
             entities.map((inc, i) => {
                 const menuItem = (
-                  <MenuItem key={inc.id} className={classes.menuItem}>
-                    {inc.value}
-                  </MenuItem>
+                  <MainTableEditableItem
+                    entity={inc}
+                    entityType={entityType}
+                    refreshTable={refreshTable}
+                  />
                 )
                 if (i === entities.length - 1) {
                   return (
@@ -77,7 +86,11 @@ const MainTableCell: React.FC<MainTableCellProps> = ({
                 return menuItem;
               }
             ) :
-            <MenuItem key={firstEl.id} onClick={handleExpandList} className={classes.menuItem}>
+            <MenuItem
+              key={firstEl.id}
+              onClick={handleExpandList}
+              className={classes.menuItem}
+            >
               {calculateSum(entities)}
             </MenuItem>
           }

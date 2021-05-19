@@ -1,6 +1,6 @@
 import { User } from '../interfaces/user.interface';
-import { AddExpenseRequest, AddExpenseTypeRequest, Expense, ExpenseType } from '../interfaces/expense.interface';
-import { AddIncomeRequest, AddIncomeTypeRequest, Income, IncomeType } from '../interfaces/income.interface';
+import { AddExpenseTypeRequest, AddOrEditExpenseRequest, Expense, ExpenseType } from '../interfaces/expense.interface';
+import { AddIncomeTypeRequest, AddOrEditIncomeRequest, Income, IncomeType } from '../interfaces/income.interface';
 import { Saving, SavingResponse, SavingSearchParams, SavingSearchResult } from '../interfaces/saving.interface';
 import { SearchResult } from '../interfaces/common.interface';
 
@@ -53,7 +53,7 @@ export async function getSavings(request: SavingSearchParams): Promise<SearchRes
     });
 }
 
-export async function addIncome(request: AddIncomeRequest): Promise<Response> {
+export async function addIncome(request: AddOrEditIncomeRequest): Promise<Response> {
   return handleErrors(await fetch(apiUrl + 'incomes', {
     method: 'POST',
     headers: {
@@ -63,7 +63,7 @@ export async function addIncome(request: AddIncomeRequest): Promise<Response> {
   }));
 }
 
-export async function addExpense(request: AddExpenseRequest): Promise<Response> {
+export async function addExpense(request: AddOrEditExpenseRequest): Promise<Response> {
   return handleErrors(await fetch(apiUrl + 'expenses', {
     method: 'POST',
     headers: {
@@ -90,6 +90,50 @@ export async function addExpenseType(request: AddExpenseTypeRequest): Promise<Re
       'content-type': 'application/json;charset=UTF-8',
     },
     body: JSON.stringify(request),
+  }));
+}
+
+export async function editIncome(id: number, request: AddOrEditIncomeRequest): Promise<Response> {
+  if (request.description === '') {
+    request.description = undefined;
+  }
+  return handleErrors(await fetch(`${apiUrl}incomes/${id}`, {
+    method: 'PUT',
+    headers: {
+      'content-type': 'application/json;charset=UTF-8',
+    },
+    body: JSON.stringify(request),
+  }));
+}
+
+export async function editExpense(id: number, request: AddOrEditExpenseRequest): Promise<Response> {
+  if (request.description === '') {
+    request.description = undefined;
+  }
+  return handleErrors(await fetch(`${apiUrl}expenses/${id}`, {
+    method: 'PUT',
+    headers: {
+      'content-type': 'application/json;charset=UTF-8',
+    },
+    body: JSON.stringify(request),
+  }));
+}
+
+export async function deleteIncome(id: number): Promise<Response> {
+  return handleErrors(await fetch(`${apiUrl}incomes/${id}`, {
+    method: 'DELETE',
+    headers: {
+      'content-type': 'application/json;charset=UTF-8',
+    }
+  }));
+}
+
+export async function deleteExpense(id: number): Promise<Response> {
+  return handleErrors(await fetch(`${apiUrl}expenses/${id}`, {
+    method: 'DELETE',
+    headers: {
+      'content-type': 'application/json;charset=UTF-8',
+    }
   }));
 }
 

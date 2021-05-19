@@ -7,7 +7,7 @@ import { DialogProps } from '../../interfaces/common.interface';
 
 const AddIncomeTypeDialog: React.FC<DialogProps> = ({
                                                       open,
-                                                      onSave,
+                                                      onAction,
                                                       handleClose
                                                     }) => {
   const [success, setSuccess] = useState<boolean>(false);
@@ -26,7 +26,7 @@ const AddIncomeTypeDialog: React.FC<DialogProps> = ({
       await addIncomeType({
         name: name
       });
-      onSave();
+      onAction();
       setSuccess(true);
     } catch (error) {
       console.log(error);
@@ -55,11 +55,11 @@ const AddIncomeTypeDialog: React.FC<DialogProps> = ({
         </DialogContent>
 
         <DialogActions>
-          <Button disabled={!name} onClick={handleSaveIncomeType} color="inherit">
-            Save
-          </Button>
           <Button onClick={handleClose} color="inherit">
             Cancel
+          </Button>
+          <Button disabled={!name} onClick={handleSaveIncomeType} color="inherit">
+            Save
           </Button>
         </DialogActions>
       </Dialog>

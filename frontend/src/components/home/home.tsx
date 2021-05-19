@@ -9,16 +9,16 @@ import { SearchResult, SortDirection } from '../../interfaces/common.interface';
 import { Saving, SavingSearchParams } from '../../interfaces/saving.interface';
 import { HomeState, Row } from '../../interfaces/main-table.interface';
 import ErrorNotification from '../notification/error.notification';
-import { expenseTypeSort, incomeTypeSort } from '../../helpers/sort.helper';
+import { typesSort } from '../../helpers/sort.helper';
 import { createStyles, Theme } from '@material-ui/core/styles';
 import WelcomeBox from '../welcome-box/welcome-box';
 
 async function getTable(page: number, rowsPerPage: number): Promise<HomeState> {
   const expenseTypes = await getExpenseTypes();
-  expenseTypes.sort(expenseTypeSort);
+  expenseTypes.sort(typesSort);
 
   const incomeTypes = await getIncomeTypes();
-  incomeTypes.sort(incomeTypeSort);
+  incomeTypes.sort(typesSort);
 
   const searchResult: SearchResult<Saving> = await getSavings(
     new SavingSearchParams(SortDirection.DESC, page, rowsPerPage)

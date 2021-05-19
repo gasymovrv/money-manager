@@ -6,6 +6,7 @@ import { createStyles, Theme } from '@material-ui/core/styles';
 import { Expense } from '../../interfaces/expense.interface';
 import MainTableCell from './main-table-cell';
 import { Row } from '../../interfaces/main-table.interface';
+import { EntityType } from '../../interfaces/common.interface';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -25,13 +26,15 @@ const useStyles = makeStyles((theme: Theme) =>
 type MainTableRowProps = {
   row: Row,
   showIncomeTypes: boolean,
-  showExpenseTypes: boolean
+  showExpenseTypes: boolean,
+  refreshTable(): void
 }
 
 const MainTableRow: React.FC<MainTableRowProps> = ({
                                                      row,
                                                      showIncomeTypes,
-                                                     showExpenseTypes
+                                                     showExpenseTypes,
+                                                     refreshTable
                                                    }) => {
   const {
     id,
@@ -54,9 +57,11 @@ const MainTableRow: React.FC<MainTableRowProps> = ({
           <MainTableCell
             key={'inc_cell_' + index}
             rowId={id}
+            entityType={EntityType.INCOME}
             entities={incomes}
             index={index}
             className={classes.green}
+            refreshTable={refreshTable}
           />
         ))
       }
@@ -70,9 +75,11 @@ const MainTableRow: React.FC<MainTableRowProps> = ({
           <MainTableCell
             key={'exp_cell_' + index}
             rowId={id}
+            entityType={EntityType.EXPENSE}
             entities={expenses}
             index={index}
             className={classes.red}
+            refreshTable={refreshTable}
           />
         ))
       }

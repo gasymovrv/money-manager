@@ -1,12 +1,10 @@
 package ru.rgasymov.moneymanager.service.impl;
 
 import static ru.rgasymov.moneymanager.util.ComparingUtils.isChanged;
-import static ru.rgasymov.moneymanager.util.ComparingUtils.valueLessThan;
 
 import java.math.BigDecimal;
 import java.util.List;
 import javax.persistence.EntityNotFoundException;
-import javax.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -97,7 +95,8 @@ public class ExpenseServiceImpl implements ExpenseService {
     var oldValue = expense.getValue();
 
     if (isChanged(oldDate, date)) {
-      throw new ValidationException("Expense date cannot be changed");
+      delete(expense, currentUserId);
+      return create(dto);
     }
 
     if (isChanged(oldTypeId, typeId)) {
@@ -111,14 +110,14 @@ public class ExpenseServiceImpl implements ExpenseService {
 
     if (isChanged(oldValue, value)) {
       BigDecimal subtract = value.subtract(oldValue);
-      if (valueLessThan(BigDecimal.ZERO, subtract)) {
+      if (subtract.signum() > 0) {
         savingService.decrease(subtract, date);
       } else {
         savingService.increase(subtract.abs(), date);
       }
       Saving saving = savingService.findByDate(date);
-      expense.setValue(value);
       expense.setSaving(saving);
+      expense.setValue(value);
     }
 
     expense.setDescription(dto.getDescription());
@@ -138,8 +137,12 @@ public class ExpenseServiceImpl implements ExpenseService {
                 String.format("Could not find expense with id = '%s' in the database",
                     id)));
 
+    delete(expense, currentUserId);
+  }
+
+  private void delete(Expense expense, String currentUserId) {
     savingService.increase(expense.getValue(), expense.getDate());
-    expenseRepository.deleteByIdAndUserId(id, currentUserId);
+    expenseRepository.deleteByIdAndUserId(expense.getId(), currentUserId);
   }
 
   private ExpenseResponseDto saveNewExpense(Expense newExpense) {

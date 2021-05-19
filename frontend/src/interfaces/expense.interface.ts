@@ -11,7 +11,7 @@ export interface Expense {
   expenseType: ExpenseType,
 }
 
-export interface AddExpenseRequest {
+export interface AddOrEditExpenseRequest {
   value: number,
   date: string,
   description?: string,

@@ -13,5 +13,14 @@ export interface DialogProps {
 
   handleClose(): void
 
-  onSave(): void
+  onAction(): void
+}
+
+export interface EditDialogProps<T> extends DialogProps {
+  entity: T
+}
+
+export enum EntityType {
+  INCOME = 'INCOME',
+  EXPENSE = 'EXPENSE'
 }

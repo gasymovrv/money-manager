@@ -112,7 +112,7 @@ const MainTable: React.FC<MainTableProps> = ({
                       <AddIncomeTypeDialog
                         open={openAddIncomeType}
                         handleClose={handleCloseAddIncomeType}
-                        onSave={refreshTable}
+                        onAction={refreshTable}
                       />
                     </Grid>
                   </Grid>
@@ -135,7 +135,7 @@ const MainTable: React.FC<MainTableProps> = ({
                       <AddExpenseTypeDialog
                         open={openAddExpenseType}
                         handleClose={handleCloseAddExpenseType}
-                        onSave={refreshTable}
+                        onAction={refreshTable}
                       />
                     </Grid>
                   </Grid>
@@ -178,6 +178,7 @@ const MainTable: React.FC<MainTableProps> = ({
                 <MainTableRow
                   key={row.id}
                   row={row}
+                  refreshTable={refreshTable}
                   showIncomeTypes={showIncomeTypes}
                   showExpenseTypes={showExpenseTypes}
                 />

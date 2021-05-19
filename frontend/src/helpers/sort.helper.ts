@@ -1,6 +1,3 @@
-import { IncomeType } from '../interfaces/income.interface';
-import { ExpenseType } from '../interfaces/expense.interface';
-
 export function stringSort(s1: string, s2: string): number {
   if (s1 > s2) {
     return 1;
@@ -11,10 +8,10 @@ export function stringSort(s1: string, s2: string): number {
   }
 }
 
-export function incomeTypeSort(t1: IncomeType, t2: IncomeType): number {
-  return stringSort(t1.name, t2.name);
+type Type = {
+  name: string
 }
 
-export function expenseTypeSort(t1: ExpenseType, t2: ExpenseType): number {
+export function typesSort(t1: Type, t2: Type): number {
   return stringSort(t1.name, t2.name);
 }

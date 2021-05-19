@@ -11,7 +11,7 @@ export interface Income {
   incomeType: IncomeType,
 }
 
-export interface AddIncomeRequest {
+export interface AddOrEditIncomeRequest {
   value: number,
   date: string,
   description?: string,

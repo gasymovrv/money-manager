@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react';
-import { createStyles, makeStyles, Theme, withStyles } from '@material-ui/core/styles';
+import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import { AuthContext } from '../../interfaces/auth-context.interface';
 import {
   AppBar,
@@ -52,12 +52,6 @@ const useStyles = makeStyles((theme: Theme) =>
     }
   }),
 );
-
-const StyledHeaderMenu = withStyles((theme) => ({
-  paper: {
-    backgroundColor: theme.palette.primary.main
-  },
-}))(StyledMenu);
 
 const Header: React.FC<HeaderProps> = ({isWelcome, refreshTable}) => {
   const {user} = useContext(AuthContext);
@@ -130,7 +124,7 @@ const Header: React.FC<HeaderProps> = ({isWelcome, refreshTable}) => {
             >
               <MenuIcon/>
             </IconButton>
-            <StyledHeaderMenu
+            <StyledMenu
               id="main-menu"
               anchorEl={mainMenuAnchorEl}
               keepMounted
@@ -138,7 +132,7 @@ const Header: React.FC<HeaderProps> = ({isWelcome, refreshTable}) => {
               onClose={handleCloseMainMenu}
             >
               <MenuItem onClick={handleExportToExcel}>Export to Excel</MenuItem>
-            </StyledHeaderMenu>
+            </StyledMenu>
             <Typography variant="h6">
               Money Manager
             </Typography>
@@ -157,7 +151,7 @@ const Header: React.FC<HeaderProps> = ({isWelcome, refreshTable}) => {
                   <AddIncomeDialog
                       open={openAddIncome}
                       handleClose={handleCloseAddIncome}
-                      onSave={refreshTable}
+                      onAction={refreshTable}
                   />
               </Box>
 
@@ -172,7 +166,7 @@ const Header: React.FC<HeaderProps> = ({isWelcome, refreshTable}) => {
                   <AddExpenseDialog
                       open={openAddExpense}
                       handleClose={handleCloseAddExpense}
-                      onSave={refreshTable}
+                      onAction={refreshTable}
                   />
               </Box>
           </Box>
@@ -181,7 +175,7 @@ const Header: React.FC<HeaderProps> = ({isWelcome, refreshTable}) => {
           <IconButton aria-label="account" onClick={handleClickOnAccountMenu}>
             <AccountCircle fontSize="large"/>
           </IconButton>
-          <StyledHeaderMenu
+          <StyledMenu
             id="account-menu"
             anchorEl={accountMenuAnchorEl}
             keepMounted
@@ -198,7 +192,7 @@ const Header: React.FC<HeaderProps> = ({isWelcome, refreshTable}) => {
               <ListItemText primary={user.name}/>
             </ListItem>
             <MenuItem onClick={handleLogout}>Logout</MenuItem>
-          </StyledHeaderMenu>
+          </StyledMenu>
 
         </Toolbar>
       </AppBar>

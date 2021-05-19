@@ -1,12 +1,10 @@
 package ru.rgasymov.moneymanager.service.impl;
 
 import static ru.rgasymov.moneymanager.util.ComparingUtils.isChanged;
-import static ru.rgasymov.moneymanager.util.ComparingUtils.valueLessThan;
 
 import java.math.BigDecimal;
 import java.util.List;
 import javax.persistence.EntityNotFoundException;
-import javax.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -97,7 +95,8 @@ public class IncomeServiceImpl implements IncomeService {
     var oldValue = income.getValue();
 
     if (isChanged(oldDate, date)) {
-      throw new ValidationException("Income date cannot be changed");
+      delete(income, currentUserId);
+      return create(dto);
     }
 
     if (isChanged(oldTypeId, typeId)) {
@@ -111,14 +110,14 @@ public class IncomeServiceImpl implements IncomeService {
 
     if (isChanged(oldValue, value)) {
       BigDecimal subtract = value.subtract(oldValue);
-      if (valueLessThan(BigDecimal.ZERO, subtract)) {
+      if (subtract.signum() > 0) {
         savingService.increase(subtract, date);
       } else {
         savingService.decrease(subtract.abs(), date);
       }
       Saving saving = savingService.findByDate(date);
-      income.setValue(value);
       income.setSaving(saving);
+      income.setValue(value);
     }
 
     income.setDescription(dto.getDescription());
@@ -138,8 +137,12 @@ public class IncomeServiceImpl implements IncomeService {
                 String.format("Could not find income with id = '%s' in the database",
                     id)));
 
+    delete(income, currentUserId);
+  }
+
+  private void delete(Income income, String currentUserId) {
     savingService.decrease(income.getValue(), income.getDate());
-    incomeRepository.deleteByIdAndUserId(id, currentUserId);
+    incomeRepository.deleteByIdAndUserId(income.getId(), currentUserId);
   }
 
   private IncomeResponseDto saveNewIncome(Income newIncome) {

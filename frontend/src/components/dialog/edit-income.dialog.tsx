@@ -1,41 +1,38 @@
 import { Button, Dialog, DialogActions, DialogTitle } from '@material-ui/core';
 import React, { useEffect, useState } from 'react';
-import { IncomeType } from '../../interfaces/income.interface';
-import { addIncome, getIncomeTypes } from '../../services/api.service';
-import moment from 'moment/moment';
+import { Income, IncomeType } from '../../interfaces/income.interface';
+import { deleteIncome, editIncome, getIncomeTypes } from '../../services/api.service';
 import ErrorNotification from '../notification/error.notification';
 import SuccessNotification from '../notification/success.notification';
 import { typesSort } from '../../helpers/sort.helper';
-import { DialogProps } from '../../interfaces/common.interface';
-import CommonModal from '../modal/common.modal';
+import { EditDialogProps } from '../../interfaces/common.interface';
+import moment from 'moment/moment';
 import CommonContentDialog from './common-content.dialog';
 
-const AddIncomeDialog: React.FC<DialogProps> = ({
-                                                  open,
-                                                  onAction,
-                                                  handleClose
-                                                }) => {
-  const [success, setSuccess] = useState<boolean>(false);
-  const [error, setError] = useState<boolean>(false);
+const EditIncomeDialog: React.FC<EditDialogProps<Income>> = ({
+                                                               entity: income,
+                                                               onAction,
+                                                               open,
+                                                               handleClose
+                                                             }) => {
+  const [successEdit, setSuccessEdit] = useState<boolean>(false);
+  const [successDelete, setSuccessDelete] = useState<boolean>(false);
+  const [errorEdit, setErrorEdit] = useState<boolean>(false);
+  const [errorDelete, setErrorDelete] = useState<boolean>(false);
   const [isLoadingTypes, setLoadingTypes] = useState<boolean>(true);
   const [types, setTypes] = useState<IncomeType[]>([]);
-  const [noTypes, setNoTypes] = useState<boolean>(true);
 
-  const [value, setValue] = useState<number>(100);
-  const [description, setDescription] = useState<string>();
-  const [typeId, setTypeId] = useState<number>(0);
+  const [value, setValue] = useState<number>(income.value);
+  const [description, setDescription] = useState<string>(income.description || '');
+  const [typeId, setTypeId] = useState<number>(income.incomeType.id);
   const [selectedDate, setDate] = useState(moment());
-  const [inputDateValue, setInputDateValue] = useState(moment().format('YYYY-MM-DD'));
+  const [inputDateValue, setInputDateValue] = useState(moment(income.date).format('YYYY-MM-DD'));
 
   useEffect(() => {
     getIncomeTypes()
       .then((data) => {
         if (data.length) {
           setTypes(data.sort(typesSort));
-          setTypeId(data[0].id)
-          setNoTypes(false)
-        } else {
-          setNoTypes(true)
         }
         setLoadingTypes(false)
       });
@@ -59,40 +56,43 @@ const AddIncomeDialog: React.FC<DialogProps> = ({
   }
 
   const handleSaveIncome = async () => {
-    setSuccess(false);
-    setError(false);
+    setSuccessEdit(false);
+    setErrorEdit(false);
     try {
-      await addIncome({
-        incomeTypeId: typeId,
+      await editIncome(income.id, {
+        value: value,
         date: inputDateValue,
         description: description,
-        value: value
+        incomeTypeId: typeId,
       });
-      setSuccess(true);
+      setSuccessEdit(true);
       onAction();
     } catch (error) {
       console.log(error);
-      setError(true);
+      setErrorEdit(true);
     }
     handleClose();
   }
 
-  if (noTypes) {
-    return (
-      <CommonModal
-        open={open}
-        handleClose={handleClose}
-        title="Warning"
-        text="Before adding income, you need to add at least one income type"
-      />
-    )
+  const handleDeleteIncome = async () => {
+    setSuccessDelete(false);
+    setErrorDelete(false);
+    try {
+      await deleteIncome(income.id);
+      onAction();
+      setSuccessDelete(true);
+    } catch (error) {
+      console.log(error);
+      setErrorDelete(true);
+    }
+    handleClose();
   }
 
   return (
     <>
       <Dialog maxWidth="xs" open={open} onClose={handleClose}>
 
-        <DialogTitle>Add income</DialogTitle>
+        <DialogTitle>Edit income</DialogTitle>
 
         <CommonContentDialog
           value={value}
@@ -112,8 +112,11 @@ const AddIncomeDialog: React.FC<DialogProps> = ({
           <Button onClick={handleClose} color="inherit">
             Cancel
           </Button>
+          <Button onClick={handleDeleteIncome} color="inherit">
+            Delete
+          </Button>
           <Button
-            disabled={!value || !typeId || !inputDateValue}
+            disabled={!value || !typeId}
             onClick={handleSaveIncome}
             color="inherit"
           >
@@ -121,9 +124,10 @@ const AddIncomeDialog: React.FC<DialogProps> = ({
           </Button>
         </DialogActions>
       </Dialog>
-      {success && <SuccessNotification text="New income has been successfully added"/>}
-      {error && <ErrorNotification text="Something went wrong"/>}
+      {successEdit && <SuccessNotification text="The income has been successfully edited"/>}
+      {successDelete && <SuccessNotification text="The income has been successfully deleted"/>}
+      {(errorEdit || errorDelete) && <ErrorNotification text="Something went wrong"/>}
     </>
   );
 }
-export default AddIncomeDialog;
+export default EditIncomeDialog;
