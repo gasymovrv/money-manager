@@ -1,5 +1,4 @@
-import { Income } from './income.interface';
-import { Expense } from './expense.interface';
+import { Operation } from './operation.interface';
 import { SearchResult, SortDirection } from './common.interface';
 
 export class Saving implements SavingResponse {
@@ -8,16 +7,16 @@ export class Saving implements SavingResponse {
   value: number;
   incomesSum: number;
   expensesSum: number;
-  incomesByType: Map<string, Income[]>;
-  expensesByType: Map<string, Expense[]>;
+  incomesByType: Map<string, Operation[]>;
+  expensesByType: Map<string, Operation[]>;
 
   constructor(id: number,
               date: string,
               value: number,
               incomesSum: number,
               expensesSum: number,
-              incomesByType: Map<string, Income[]>,
-              expensesByType: Map<string, Expense[]>) {
+              incomesByType: Map<string, Operation[]>,
+              expensesByType: Map<string, Operation[]>) {
     this.id = id;
     this.date = date;
     this.value = value;

@@ -17,13 +17,13 @@ import ru.rgasymov.moneymanager.constant.DateTimeFormats;
 @SuperBuilder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class ExpenseResponseDto {
+public class OperationResponseDto {
 
   private Long id;
 
   private String userId;
 
-  private ExpenseTypeResponseDto expenseType;
+  private OperationTypeResponseDto type;
 
   @JsonFormat(shape = JsonFormat.Shape.STRING,
       pattern = DateTimeFormats.COMMON_DATE_FORMAT)

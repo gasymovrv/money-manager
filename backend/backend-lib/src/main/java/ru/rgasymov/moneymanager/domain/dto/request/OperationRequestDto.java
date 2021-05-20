@@ -15,10 +15,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class IncomeRequestDto {
+public class OperationRequestDto {
 
   @NotNull
-  private Long incomeTypeId;
+  private Long typeId;
 
   @NotNull
   private LocalDate date;

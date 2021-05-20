@@ -17,8 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 import ru.rgasymov.moneymanager.domain.XlsxInputData;
 import ru.rgasymov.moneymanager.domain.XlsxParsingResult;
 import ru.rgasymov.moneymanager.domain.dto.request.SavingCriteriaDto;
-import ru.rgasymov.moneymanager.domain.dto.response.ExpenseTypeResponseDto;
-import ru.rgasymov.moneymanager.domain.dto.response.IncomeTypeResponseDto;
+import ru.rgasymov.moneymanager.domain.dto.response.OperationTypeResponseDto;
 import ru.rgasymov.moneymanager.domain.dto.response.SavingResponseDto;
 import ru.rgasymov.moneymanager.domain.entity.ExpenseType;
 import ru.rgasymov.moneymanager.domain.entity.IncomeType;
@@ -94,14 +93,14 @@ public class FileServiceImpl implements FileService {
         .collect(Collectors.toMap(ExpenseType::getName, expenseType -> expenseType));
 
     result.getIncomes().forEach((income -> {
-      var typeName = income.getIncomeType().getName();
-      income.setIncomeType(incomeTypes.get(typeName));
+      var typeName = income.getType().getName();
+      income.setType(incomeTypes.get(typeName));
       incomeService.create(income);
     }));
 
     result.getExpenses().forEach((expense -> {
-      var typeName = expense.getExpenseType().getName();
-      expense.setExpenseType(expenseTypes.get(typeName));
+      var typeName = expense.getType().getName();
+      expense.setType(expenseTypes.get(typeName));
       expenseService.create(expense);
     }));
   }
@@ -111,8 +110,8 @@ public class FileServiceImpl implements FileService {
     var criteria = new SavingCriteriaDto();
     criteria.setPageSize(MAX_SAVINGS);
     List<SavingResponseDto> savings = savingService.search(criteria).getResult();
-    Set<IncomeTypeResponseDto> incTypes = incomeTypeService.findAll();
-    Set<ExpenseTypeResponseDto> expTypes = expenseTypeService.findAll();
+    Set<OperationTypeResponseDto> incTypes = incomeTypeService.findAll();
+    Set<OperationTypeResponseDto> expTypes = expenseTypeService.findAll();
     if (CollectionUtils.isEmpty(savings)) {
       throw new EmptyDataGenerationException("There is no data to export");
     }

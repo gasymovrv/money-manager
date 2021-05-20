@@ -1,6 +1,10 @@
 import { User } from '../interfaces/user.interface';
-import { AddExpenseTypeRequest, AddOrEditExpenseRequest, Expense, ExpenseType } from '../interfaces/expense.interface';
-import { AddIncomeTypeRequest, AddOrEditIncomeRequest, Income, IncomeType } from '../interfaces/income.interface';
+import {
+  AddOperationTypeRequest,
+  AddOrEditOperationRequest,
+  Operation,
+  OperationType
+} from '../interfaces/operation.interface';
 import { Saving, SavingResponse, SavingSearchParams, SavingSearchResult } from '../interfaces/saving.interface';
 import { SearchResult } from '../interfaces/common.interface';
 
@@ -18,12 +22,12 @@ export async function getCurrentUser(): Promise<User> {
   return await response.json();
 }
 
-export async function getExpenseTypes(): Promise<Array<ExpenseType>> {
+export async function getExpenseTypes(): Promise<Array<OperationType>> {
   const response = handleErrors(await fetch(apiUrl + 'expenses/types'));
   return await response.json();
 }
 
-export async function getIncomeTypes(): Promise<Array<IncomeType>> {
+export async function getIncomeTypes(): Promise<Array<OperationType>> {
   const response = handleErrors(await fetch(apiUrl + 'incomes/types'));
   return await response.json();
 }
@@ -36,8 +40,8 @@ export async function getSavings(request: SavingSearchParams): Promise<SearchRes
     })
     .then((body: SearchResult<SavingResponse>): SearchResult<Saving> => {
       const newResult: Saving[] = body.result.map((saving) => {
-        const expMap: Map<string, Expense[]> = new Map(Object.entries(saving.expensesByType));
-        const incMap: Map<string, Income[]> = new Map(Object.entries(saving.incomesByType));
+        const expMap: Map<string, Operation[]> = new Map(Object.entries(saving.expensesByType));
+        const incMap: Map<string, Operation[]> = new Map(Object.entries(saving.incomesByType));
 
         return {
           id: saving.id,
@@ -53,7 +57,7 @@ export async function getSavings(request: SavingSearchParams): Promise<SearchRes
     });
 }
 
-export async function addIncome(request: AddOrEditIncomeRequest): Promise<Response> {
+export async function addIncome(request: AddOrEditOperationRequest): Promise<Response> {
   return handleErrors(await fetch(apiUrl + 'incomes', {
     method: 'POST',
     headers: {
@@ -63,7 +67,7 @@ export async function addIncome(request: AddOrEditIncomeRequest): Promise<Respon
   }));
 }
 
-export async function addExpense(request: AddOrEditExpenseRequest): Promise<Response> {
+export async function addExpense(request: AddOrEditOperationRequest): Promise<Response> {
   return handleErrors(await fetch(apiUrl + 'expenses', {
     method: 'POST',
     headers: {
@@ -73,7 +77,7 @@ export async function addExpense(request: AddOrEditExpenseRequest): Promise<Resp
   }));
 }
 
-export async function addIncomeType(request: AddIncomeTypeRequest): Promise<Response> {
+export async function addIncomeType(request: AddOperationTypeRequest): Promise<Response> {
   return handleErrors(await fetch(apiUrl + 'incomes/types', {
     method: 'POST',
     headers: {
@@ -83,7 +87,7 @@ export async function addIncomeType(request: AddIncomeTypeRequest): Promise<Resp
   }));
 }
 
-export async function addExpenseType(request: AddExpenseTypeRequest): Promise<Response> {
+export async function addExpenseType(request: AddOperationTypeRequest): Promise<Response> {
   return handleErrors(await fetch(apiUrl + 'expenses/types', {
     method: 'POST',
     headers: {
@@ -93,7 +97,7 @@ export async function addExpenseType(request: AddExpenseTypeRequest): Promise<Re
   }));
 }
 
-export async function editIncome(id: number, request: AddOrEditIncomeRequest): Promise<Response> {
+export async function editIncome(id: number, request: AddOrEditOperationRequest): Promise<Response> {
   if (request.description === '') {
     request.description = undefined;
   }
@@ -106,7 +110,7 @@ export async function editIncome(id: number, request: AddOrEditIncomeRequest): P
   }));
 }
 
-export async function editExpense(id: number, request: AddOrEditExpenseRequest): Promise<Response> {
+export async function editExpense(id: number, request: AddOrEditOperationRequest): Promise<Response> {
   if (request.description === '') {
     request.description = undefined;
   }

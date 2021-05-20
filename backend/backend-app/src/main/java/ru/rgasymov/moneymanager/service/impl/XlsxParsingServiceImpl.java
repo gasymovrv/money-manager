@@ -151,7 +151,7 @@ public class XlsxParsingServiceImpl implements XlsxParsingService {
           var inc = Income.builder()
               .date(date)
               .value(new BigDecimal(cellValue))
-              .incomeType(incomeType)
+              .type(incomeType)
               .description(cellComment)
               .user(currentUser)
               .build();
@@ -161,7 +161,7 @@ public class XlsxParsingServiceImpl implements XlsxParsingService {
           var exp = Expense.builder()
               .date(date)
               .value(new BigDecimal(cellValue))
-              .expenseType(expenseType)
+              .type(expenseType)
               .description(cellComment)
               .user(currentUser)
               .build();

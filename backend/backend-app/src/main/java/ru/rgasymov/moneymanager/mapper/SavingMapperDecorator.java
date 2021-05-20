@@ -5,8 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import ru.rgasymov.moneymanager.domain.dto.response.ExpenseResponseDto;
-import ru.rgasymov.moneymanager.domain.dto.response.IncomeResponseDto;
+import ru.rgasymov.moneymanager.domain.dto.response.OperationResponseDto;
 import ru.rgasymov.moneymanager.domain.dto.response.SavingResponseDto;
 import ru.rgasymov.moneymanager.domain.entity.Saving;
 
@@ -26,28 +25,28 @@ public class SavingMapperDecorator implements SavingMapper {
   public SavingResponseDto toDto(Saving entity) {
     SavingResponseDto dto = delegate.toDto(entity);
 
-    var expenseMap = new HashMap<String, List<ExpenseResponseDto>>();
+    var expenseMap = new HashMap<String, List<OperationResponseDto>>();
 
     entity.getExpenses().forEach((exp) -> {
       dto.setExpensesSum(dto.getExpensesSum().add(exp.getValue()));
 
-      ArrayList<ExpenseResponseDto> value = new ArrayList<>();
+      ArrayList<OperationResponseDto> value = new ArrayList<>();
       value.add(expenseMapper.toDto(exp));
-      expenseMap.merge(exp.getExpenseType().getName(), value,
+      expenseMap.merge(exp.getType().getName(), value,
           ((list1, list2) -> {
             list1.addAll(value);
             return list1;
           }));
     });
 
-    var incomeMap = new HashMap<String, List<IncomeResponseDto>>();
+    var incomeMap = new HashMap<String, List<OperationResponseDto>>();
 
     entity.getIncomes().forEach((inc) -> {
       dto.setIncomesSum(dto.getIncomesSum().add(inc.getValue()));
 
-      ArrayList<IncomeResponseDto> value = new ArrayList<>();
+      ArrayList<OperationResponseDto> value = new ArrayList<>();
       value.add(incomeMapper.toDto(inc));
-      incomeMap.merge(inc.getIncomeType().getName(), value,
+      incomeMap.merge(inc.getType().getName(), value,
           ((list1, list2) -> {
             list1.addAll(value);
             return list1;

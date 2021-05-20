@@ -1,9 +1,8 @@
 import React from 'react';
-import { Income } from '../../interfaces/income.interface';
+import { Operation } from '../../interfaces/operation.interface';
 import StyledTableCell from './styled-table-cell';
 import { makeStyles, TableRow } from '@material-ui/core';
 import { createStyles, Theme } from '@material-ui/core/styles';
-import { Expense } from '../../interfaces/expense.interface';
 import MainTableCell from './main-table-cell';
 import { Row } from '../../interfaces/main-table.interface';
 import { EntityType } from '../../interfaces/common.interface';
@@ -53,7 +52,7 @@ const MainTableRow: React.FC<MainTableRowProps> = ({
       <StyledTableCell key={'date_' + id}>{date}</StyledTableCell>
 
       {
-        showIncomeTypes && incomeLists.map((incomes: Income[] | undefined, index) => (
+        showIncomeTypes && incomeLists.map((incomes: Operation[] | undefined, index) => (
           <MainTableCell
             key={'inc_cell_' + index}
             rowId={id}
@@ -71,7 +70,7 @@ const MainTableRow: React.FC<MainTableRowProps> = ({
       </StyledTableCell>
 
       {
-        showExpenseTypes && expenseLists.map((expenses: Expense[] | undefined, index) => (
+        showExpenseTypes && expenseLists.map((expenses: Operation[] | undefined, index) => (
           <MainTableCell
             key={'exp_cell_' + index}
             rowId={id}

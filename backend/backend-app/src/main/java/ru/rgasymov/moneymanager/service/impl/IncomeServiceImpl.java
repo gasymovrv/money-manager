@@ -1,19 +1,14 @@
 package ru.rgasymov.moneymanager.service.impl;
 
-import static ru.rgasymov.moneymanager.util.ComparingUtils.isChanged;
-
 import java.math.BigDecimal;
-import java.util.List;
-import javax.persistence.EntityNotFoundException;
-import lombok.RequiredArgsConstructor;
+import java.time.LocalDate;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import ru.rgasymov.moneymanager.domain.dto.request.IncomeRequestDto;
-import ru.rgasymov.moneymanager.domain.dto.response.IncomeResponseDto;
+import ru.rgasymov.moneymanager.domain.dto.response.OperationResponseDto;
 import ru.rgasymov.moneymanager.domain.entity.Income;
 import ru.rgasymov.moneymanager.domain.entity.IncomeType;
 import ru.rgasymov.moneymanager.domain.entity.Saving;
+import ru.rgasymov.moneymanager.domain.entity.User;
 import ru.rgasymov.moneymanager.mapper.IncomeMapper;
 import ru.rgasymov.moneymanager.repository.IncomeRepository;
 import ru.rgasymov.moneymanager.repository.IncomeTypeRepository;
@@ -22,137 +17,85 @@ import ru.rgasymov.moneymanager.service.SavingService;
 import ru.rgasymov.moneymanager.service.UserService;
 
 @Service
-@RequiredArgsConstructor
 @Slf4j
-public class IncomeServiceImpl implements IncomeService {
+public class IncomeServiceImpl
+    extends AbstractOperationService<Income, IncomeType>
+    implements IncomeService {
 
   private final IncomeRepository incomeRepository;
 
-  private final IncomeTypeRepository incomeTypeRepository;
-
   private final SavingService savingService;
-
-  private final UserService userService;
 
   private final IncomeMapper incomeMapper;
 
-  @Override
-  public List<IncomeResponseDto> findAll() {
-    var currentUser = userService.getCurrentUser();
-    var currentUserId = currentUser.getId();
-
-    return incomeMapper.toDtos(incomeRepository.findAllByUserId(currentUserId));
+  public IncomeServiceImpl(
+      IncomeRepository incomeRepository,
+      IncomeTypeRepository incomeTypeRepository,
+      IncomeMapper incomeMapper,
+      UserService userService,
+      SavingService savingService) {
+    super(incomeRepository, incomeTypeRepository, incomeMapper, userService);
+    this.incomeRepository = incomeRepository;
+    this.savingService = savingService;
+    this.incomeMapper = incomeMapper;
   }
 
-  @Transactional
   @Override
-  public IncomeResponseDto create(IncomeRequestDto dto) {
-    var currentUser = userService.getCurrentUser();
-    var currentUserId = currentUser.getId();
-    var incomeTypeId = dto.getIncomeTypeId();
-    var date = dto.getDate();
-    var value = dto.getValue();
+  protected OperationResponseDto saveNewOperation(Income operation) {
+    var value = operation.getValue();
+    var date = operation.getDate();
+    savingService.increase(value, date);
+    Saving saving = savingService.findByDate(date);
+    operation.setSaving(saving);
 
-    IncomeType incomeType = incomeTypeRepository.findByIdAndUserId(incomeTypeId, currentUserId)
-        .orElseThrow(() ->
-            new EntityNotFoundException(
-                String.format("Could not find income type with id = '%s' in the database",
-                    incomeTypeId)));
-
-    var newIncome = Income.builder()
-        .date(date)
-        .value(value)
-        .description(dto.getDescription())
-        .incomeType(incomeType)
-        .user(currentUser)
-        .build();
-
-    return saveNewIncome(newIncome);
-  }
-
-  @Transactional
-  @Override
-  public void create(Income income) {
-    saveNewIncome(income);
-  }
-
-  @Transactional
-  @Override
-  public IncomeResponseDto update(Long id, IncomeRequestDto dto) {
-    var currentUser = userService.getCurrentUser();
-    var currentUserId = currentUser.getId();
-    var typeId = dto.getIncomeTypeId();
-    var date = dto.getDate();
-    var value = dto.getValue();
-
-    Income income = incomeRepository.findByIdAndUserId(id, currentUserId)
-        .orElseThrow(() ->
-            new EntityNotFoundException(
-                String.format("Could not find income with id = '%s' in the database",
-                    id)));
-    var oldTypeId = income.getIncomeType().getId();
-    var oldDate = income.getDate();
-    var oldValue = income.getValue();
-
-    if (isChanged(oldDate, date)) {
-      delete(income, currentUserId);
-      return create(dto);
-    }
-
-    if (isChanged(oldTypeId, typeId)) {
-      IncomeType incomeType = incomeTypeRepository.findByIdAndUserId(typeId, currentUserId)
-          .orElseThrow(() ->
-              new EntityNotFoundException(
-                  String.format("Could not find income type with id = '%s' in the database",
-                      typeId)));
-      income.setIncomeType(incomeType);
-    }
-
-    if (isChanged(oldValue, value)) {
-      BigDecimal subtract = value.subtract(oldValue);
-      if (subtract.signum() > 0) {
-        savingService.increase(subtract, date);
-      } else {
-        savingService.decrease(subtract.abs(), date);
-      }
-      Saving saving = savingService.findByDate(date);
-      income.setSaving(saving);
-      income.setValue(value);
-    }
-
-    income.setDescription(dto.getDescription());
-    Income saved = incomeRepository.save(income);
+    Income saved = incomeRepository.save(operation);
     return incomeMapper.toDto(saved);
   }
 
-  @Transactional
   @Override
-  public void delete(Long id) {
-    var currentUser = userService.getCurrentUser();
-    var currentUserId = currentUser.getId();
-
-    Income income = incomeRepository.findByIdAndUserId(id, currentUserId)
-        .orElseThrow(() ->
-            new EntityNotFoundException(
-                String.format("Could not find income with id = '%s' in the database",
-                    id)));
-
-    delete(income, currentUserId);
+  protected Income buildNewOperation(User currentUser,
+                                     String description,
+                                     IncomeType type,
+                                     LocalDate date,
+                                     BigDecimal value) {
+    return Income.builder()
+        .date(date)
+        .value(value)
+        .description(description)
+        .type(type)
+        .user(currentUser)
+        .build();
   }
 
-  private void delete(Income income, String currentUserId) {
+  @Override
+  protected void updateSavings(BigDecimal value,
+                               BigDecimal oldValue,
+                               LocalDate date,
+                               Income operation) {
+    BigDecimal subtract = value.subtract(oldValue);
+    if (subtract.signum() > 0) {
+      savingService.increase(subtract, date);
+    } else {
+      savingService.decrease(subtract.abs(), date);
+    }
+    Saving saving = savingService.findByDate(date);
+    operation.setSaving(saving);
+    operation.setValue(value);
+  }
+
+  @Override
+  protected void deleteOperation(Income income, String currentUserId) {
     savingService.decrease(income.getValue(), income.getDate());
     incomeRepository.deleteByIdAndUserId(income.getId(), currentUserId);
   }
 
-  private IncomeResponseDto saveNewIncome(Income newIncome) {
-    var value = newIncome.getValue();
-    var date = newIncome.getDate();
-    savingService.increase(value, date);
-    Saving saving = savingService.findByDate(date);
-    newIncome.setSaving(saving);
+  @Override
+  protected IncomeType getOperationType(Income operation) {
+    return operation.getType();
+  }
 
-    Income saved = incomeRepository.save(newIncome);
-    return incomeMapper.toDto(saved);
+  @Override
+  protected void setOperationType(Income operation, IncomeType incomeType) {
+    operation.setType(incomeType);
   }
 }

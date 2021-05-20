@@ -1,19 +1,14 @@
 package ru.rgasymov.moneymanager.service.impl;
 
-import static ru.rgasymov.moneymanager.util.ComparingUtils.isChanged;
-
 import java.math.BigDecimal;
-import java.util.List;
-import javax.persistence.EntityNotFoundException;
-import lombok.RequiredArgsConstructor;
+import java.time.LocalDate;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import ru.rgasymov.moneymanager.domain.dto.request.ExpenseRequestDto;
-import ru.rgasymov.moneymanager.domain.dto.response.ExpenseResponseDto;
+import ru.rgasymov.moneymanager.domain.dto.response.OperationResponseDto;
 import ru.rgasymov.moneymanager.domain.entity.Expense;
 import ru.rgasymov.moneymanager.domain.entity.ExpenseType;
 import ru.rgasymov.moneymanager.domain.entity.Saving;
+import ru.rgasymov.moneymanager.domain.entity.User;
 import ru.rgasymov.moneymanager.mapper.ExpenseMapper;
 import ru.rgasymov.moneymanager.repository.ExpenseRepository;
 import ru.rgasymov.moneymanager.repository.ExpenseTypeRepository;
@@ -22,137 +17,85 @@ import ru.rgasymov.moneymanager.service.SavingService;
 import ru.rgasymov.moneymanager.service.UserService;
 
 @Service
-@RequiredArgsConstructor
 @Slf4j
-public class ExpenseServiceImpl implements ExpenseService {
+public class ExpenseServiceImpl
+    extends AbstractOperationService<Expense, ExpenseType>
+    implements ExpenseService {
 
   private final ExpenseRepository expenseRepository;
 
-  private final ExpenseTypeRepository expenseTypeRepository;
-
   private final SavingService savingService;
-
-  private final UserService userService;
 
   private final ExpenseMapper expenseMapper;
 
-  @Override
-  public List<ExpenseResponseDto> findAll() {
-    var currentUser = userService.getCurrentUser();
-    var currentUserId = currentUser.getId();
-
-    return expenseMapper.toDtos(expenseRepository.findAllByUserId(currentUserId));
+  public ExpenseServiceImpl(
+      ExpenseRepository expenseRepository,
+      ExpenseTypeRepository expenseTypeRepository,
+      ExpenseMapper expenseMapper,
+      UserService userService,
+      SavingService savingService) {
+    super(expenseRepository, expenseTypeRepository, expenseMapper, userService);
+    this.expenseRepository = expenseRepository;
+    this.savingService = savingService;
+    this.expenseMapper = expenseMapper;
   }
 
-  @Transactional
   @Override
-  public ExpenseResponseDto create(ExpenseRequestDto dto) {
-    var currentUser = userService.getCurrentUser();
-    var currentUserId = currentUser.getId();
-    var typeId = dto.getExpenseTypeId();
-    var date = dto.getDate();
-    var value = dto.getValue();
+  protected OperationResponseDto saveNewOperation(Expense operation) {
+    var value = operation.getValue();
+    var date = operation.getDate();
+    savingService.decrease(value, date);
+    Saving saving = savingService.findByDate(date);
+    operation.setSaving(saving);
 
-    ExpenseType expenseType = expenseTypeRepository.findByIdAndUserId(typeId, currentUserId)
-        .orElseThrow(() ->
-            new EntityNotFoundException(
-                String.format("Could not find expense type with id = '%s' in the database",
-                    typeId)));
-
-    var newExpense = Expense.builder()
-        .date(date)
-        .value(value)
-        .description(dto.getDescription())
-        .expenseType(expenseType)
-        .user(currentUser)
-        .build();
-
-    return saveNewExpense(newExpense);
-  }
-
-  @Transactional
-  @Override
-  public void create(Expense expense) {
-    saveNewExpense(expense);
-  }
-
-  @Transactional
-  @Override
-  public ExpenseResponseDto update(Long id, ExpenseRequestDto dto) {
-    var currentUser = userService.getCurrentUser();
-    var currentUserId = currentUser.getId();
-    var typeId = dto.getExpenseTypeId();
-    var date = dto.getDate();
-    var value = dto.getValue();
-
-    Expense expense = expenseRepository.findByIdAndUserId(id, currentUserId)
-        .orElseThrow(() ->
-            new EntityNotFoundException(
-                String.format("Could not find expense with id = '%s' in the database",
-                    id)));
-    var oldTypeId = expense.getExpenseType().getId();
-    var oldDate = expense.getDate();
-    var oldValue = expense.getValue();
-
-    if (isChanged(oldDate, date)) {
-      delete(expense, currentUserId);
-      return create(dto);
-    }
-
-    if (isChanged(oldTypeId, typeId)) {
-      ExpenseType expenseType = expenseTypeRepository.findByIdAndUserId(typeId, currentUserId)
-          .orElseThrow(() ->
-              new EntityNotFoundException(
-                  String.format("Could not find expense type with id = '%s' in the database",
-                      typeId)));
-      expense.setExpenseType(expenseType);
-    }
-
-    if (isChanged(oldValue, value)) {
-      BigDecimal subtract = value.subtract(oldValue);
-      if (subtract.signum() > 0) {
-        savingService.decrease(subtract, date);
-      } else {
-        savingService.increase(subtract.abs(), date);
-      }
-      Saving saving = savingService.findByDate(date);
-      expense.setSaving(saving);
-      expense.setValue(value);
-    }
-
-    expense.setDescription(dto.getDescription());
-    Expense saved = expenseRepository.save(expense);
+    Expense saved = expenseRepository.save(operation);
     return expenseMapper.toDto(saved);
   }
 
-  @Transactional
   @Override
-  public void delete(Long id) {
-    var currentUser = userService.getCurrentUser();
-    var currentUserId = currentUser.getId();
-
-    Expense expense = expenseRepository.findByIdAndUserId(id, currentUserId)
-        .orElseThrow(() ->
-            new EntityNotFoundException(
-                String.format("Could not find expense with id = '%s' in the database",
-                    id)));
-
-    delete(expense, currentUserId);
+  protected Expense buildNewOperation(User currentUser,
+                                      String description,
+                                      ExpenseType type,
+                                      LocalDate date,
+                                      BigDecimal value) {
+    return Expense.builder()
+        .date(date)
+        .value(value)
+        .description(description)
+        .type(type)
+        .user(currentUser)
+        .build();
   }
 
-  private void delete(Expense expense, String currentUserId) {
+  @Override
+  protected void updateSavings(BigDecimal value,
+                               BigDecimal oldValue,
+                               LocalDate date,
+                               Expense operation) {
+    BigDecimal subtract = value.subtract(oldValue);
+    if (subtract.signum() > 0) {
+      savingService.decrease(subtract, date);
+    } else {
+      savingService.increase(subtract.abs(), date);
+    }
+    Saving saving = savingService.findByDate(date);
+    operation.setSaving(saving);
+    operation.setValue(value);
+  }
+
+  @Override
+  protected void deleteOperation(Expense expense, String currentUserId) {
     savingService.increase(expense.getValue(), expense.getDate());
     expenseRepository.deleteByIdAndUserId(expense.getId(), currentUserId);
   }
 
-  private ExpenseResponseDto saveNewExpense(Expense newExpense) {
-    var value = newExpense.getValue();
-    var date = newExpense.getDate();
-    savingService.decrease(value, date);
-    Saving saving = savingService.findByDate(date);
-    newExpense.setSaving(saving);
+  @Override
+  protected ExpenseType getOperationType(Expense operation) {
+    return operation.getType();
+  }
 
-    Expense saved = expenseRepository.save(newExpense);
-    return expenseMapper.toDto(saved);
+  @Override
+  protected void setOperationType(Expense operation, ExpenseType expenseType) {
+    operation.setType(expenseType);
   }
 }

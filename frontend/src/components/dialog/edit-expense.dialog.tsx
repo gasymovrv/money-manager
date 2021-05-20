@@ -1,6 +1,6 @@
 import { Button, Dialog, DialogActions, DialogTitle } from '@material-ui/core';
 import React, { useEffect, useState } from 'react';
-import { Expense, ExpenseType } from '../../interfaces/expense.interface';
+import { OperationType } from '../../interfaces/operation.interface';
 import { deleteExpense, editExpense, getExpenseTypes } from '../../services/api.service';
 import ErrorNotification from '../notification/error.notification';
 import SuccessNotification from '../notification/success.notification';
@@ -9,22 +9,22 @@ import { EditDialogProps } from '../../interfaces/common.interface';
 import moment from 'moment/moment';
 import CommonContentDialog from './common-content.dialog';
 
-const EditExpenseDialog: React.FC<EditDialogProps<Expense>> = ({
-                                                                 entity: expense,
-                                                                 onAction,
-                                                                 open,
-                                                                 handleClose
-                                                               }) => {
+const EditExpenseDialog: React.FC<EditDialogProps> = ({
+                                                        entity: expense,
+                                                        onAction,
+                                                        open,
+                                                        handleClose
+                                                      }) => {
   const [successEdit, setSuccessEdit] = useState<boolean>(false);
   const [successDelete, setSuccessDelete] = useState<boolean>(false);
   const [errorEdit, setErrorEdit] = useState<boolean>(false);
   const [errorDelete, setErrorDelete] = useState<boolean>(false);
   const [isLoadingTypes, setLoadingTypes] = useState<boolean>(true);
-  const [types, setTypes] = useState<ExpenseType[]>([]);
+  const [types, setTypes] = useState<OperationType[]>([]);
 
   const [value, setValue] = useState<number>(expense.value);
   const [description, setDescription] = useState<string>(expense.description || '');
-  const [typeId, setTypeId] = useState<number>(expense.expenseType.id);
+  const [typeId, setTypeId] = useState<number>(expense.type.id);
   const [selectedDate, setDate] = useState(moment());
   const [inputDateValue, setInputDateValue] = useState(moment(expense.date).format('YYYY-MM-DD'));
 
@@ -63,7 +63,7 @@ const EditExpenseDialog: React.FC<EditDialogProps<Expense>> = ({
         value: value,
         date: inputDateValue,
         description: description,
-        expenseTypeId: typeId,
+        typeId: typeId,
       });
       setSuccessEdit(true);
       onAction();

@@ -2,8 +2,7 @@ import React, { useEffect, useState } from 'react';
 import MainTable from '../main-table/main-table';
 import Header from '../header/header';
 import { Container, makeStyles } from '@material-ui/core';
-import { Income, IncomeType } from '../../interfaces/income.interface';
-import { Expense, ExpenseType } from '../../interfaces/expense.interface';
+import { Operation, OperationType } from '../../interfaces/operation.interface';
 import { getExpenseTypes, getIncomeTypes, getSavings } from '../../services/api.service';
 import { SearchResult, SortDirection } from '../../interfaces/common.interface';
 import { Saving, SavingSearchParams } from '../../interfaces/saving.interface';
@@ -33,14 +32,14 @@ async function getTable(page: number, rowsPerPage: number): Promise<HomeState> {
                                      expensesByType,
                                      incomesByType
                                    }: Saving) => {
-    const expenseLists: Array<Expense[] | undefined> = [];
-    const incomeLists: Array<Income[] | undefined> = [];
+    const expenseLists: Array<Operation[] | undefined> = [];
+    const incomeLists: Array<Operation[] | undefined> = [];
 
-    expenseTypes.forEach(({name}: ExpenseType) => {
+    expenseTypes.forEach(({name}: OperationType) => {
       const expenses = expensesByType.get(name);
       expenseLists.push(expenses);
     })
-    incomeTypes.forEach(({name}: IncomeType) => {
+    incomeTypes.forEach(({name}: OperationType) => {
       const incomes = incomesByType.get(name);
       incomeLists.push(incomes);
     });

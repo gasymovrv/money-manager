@@ -1,6 +1,6 @@
 import { Button, Dialog, DialogActions, DialogTitle } from '@material-ui/core';
 import React, { useEffect, useState } from 'react';
-import { ExpenseType } from '../../interfaces/expense.interface';
+import { OperationType } from '../../interfaces/operation.interface';
 import { addExpense, getExpenseTypes } from '../../services/api.service';
 import moment from 'moment/moment';
 import ErrorNotification from '../notification/error.notification';
@@ -19,7 +19,7 @@ const AddExpenseDialog: React.FC<DialogProps> = ({
   const [success, setSuccess] = useState<boolean>(false);
   const [error, setError] = useState<boolean>(false);
   const [isLoadingTypes, setLoadingTypes] = useState<boolean>(true);
-  const [types, setTypes] = useState<ExpenseType[]>([]);
+  const [types, setTypes] = useState<OperationType[]>([]);
   const [noTypes, setNoTypes] = useState<boolean>(true);
 
   const [value, setValue] = useState<number>(100);
@@ -64,7 +64,7 @@ const AddExpenseDialog: React.FC<DialogProps> = ({
     setError(false);
     try {
       await addExpense({
-        expenseTypeId: typeId,
+        typeId: typeId,
         date: inputDateValue,
         description: description,
         value: value

@@ -1,14 +1,13 @@
 import React from 'react';
-import { Income } from '../../interfaces/income.interface';
+import { Operation } from '../../interfaces/operation.interface';
 import { makeStyles, MenuItem } from '@material-ui/core';
-import { Expense } from '../../interfaces/expense.interface';
 import { createStyles } from '@material-ui/core/styles';
 import { EntityType } from '../../interfaces/common.interface';
 import EditIncomeDialog from '../dialog/edit-income.dialog';
 import EditExpenseDialog from '../dialog/edit-expense.dialog';
 
 type MainTableEditableItemProps = {
-  entity: Income | Expense,
+  entity: Operation,
   entityType: EntityType,
   refreshTable(): void
 }
@@ -56,7 +55,7 @@ const MainTableEditableItem: React.FC<MainTableEditableItemProps> = ({
         <>
           {clickableMenu}
           <EditIncomeDialog
-            entity={entity as Income}
+            entity={entity}
             open={openEditEntity}
             handleClose={handleCloseEditEntity}
             onAction={refreshTable}
@@ -68,7 +67,7 @@ const MainTableEditableItem: React.FC<MainTableEditableItemProps> = ({
         <>
           {clickableMenu}
           <EditExpenseDialog
-            entity={entity as Expense}
+            entity={entity}
             open={openEditEntity}
             handleClose={handleCloseEditEntity}
             onAction={refreshTable}

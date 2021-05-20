@@ -1,21 +1,20 @@
 import React from 'react';
-import { Income } from '../../interfaces/income.interface';
+import { Operation } from '../../interfaces/operation.interface';
 import StyledTableCell from './styled-table-cell';
 import { IconButton, makeStyles, MenuItem } from '@material-ui/core';
-import { Expense } from '../../interfaces/expense.interface';
 import { createStyles, Theme } from '@material-ui/core/styles';
 import { EntityType } from '../../interfaces/common.interface';
 import ExpandLessIcon from '@material-ui/icons/ExpandLess';
 import MainTableEditableItem from './main-table-editable-item';
 
-function calculateSum(list: Array<Income | Expense>): number {
+function calculateSum(list: Operation[]): number {
   return list.reduce((acc, value) => (value ? acc + value.value : acc), 0);
 }
 
 type MainTableCellProps = {
   rowId: number,
   entityType: EntityType,
-  entities: Array<Income | Expense> | undefined,
+  entities: Operation[] | undefined,
   index: number,
   className: string | undefined,
   refreshTable(): void

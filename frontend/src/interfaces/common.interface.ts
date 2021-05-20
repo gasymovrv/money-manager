@@ -1,3 +1,5 @@
+import { Operation } from './operation.interface';
+
 export interface SearchResult<T> {
   result: T[],
   totalElements: number,
@@ -16,8 +18,8 @@ export interface DialogProps {
   onAction(): void
 }
 
-export interface EditDialogProps<T> extends DialogProps {
-  entity: T
+export interface EditDialogProps extends DialogProps {
+  entity: Operation
 }
 
 export enum EntityType {

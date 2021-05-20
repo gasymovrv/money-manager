@@ -1,43 +1,25 @@
 package ru.rgasymov.moneymanager.domain.entity;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
 @Entity
 @Table(name = "income")
 @Data
+@EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
 @NoArgsConstructor
 @SuperBuilder
-public class Income {
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
+public class Income extends BaseOperation {
 
   @ManyToOne
-  @JoinColumn(name = "user_id")
-  private User user;
-
-  @ManyToOne
-  @JoinColumn(name = "income_type_id")
-  private IncomeType incomeType;
-
-  @ManyToOne
-  @JoinColumn(name = "saving_id")
-  private Saving saving;
-
-  private LocalDate date;
-
-  private String description;
-
-  private BigDecimal value;
+  @JoinColumn(name = "type_id")
+  private IncomeType type;
 }

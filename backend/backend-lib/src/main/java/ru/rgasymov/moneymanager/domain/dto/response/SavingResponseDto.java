@@ -42,9 +42,9 @@ public class SavingResponseDto {
 
   @EqualsAndHashCode.Exclude
   @ToString.Exclude
-  private Map<String, List<IncomeResponseDto>> incomesByType;
+  private Map<String, List<OperationResponseDto>> incomesByType;
 
   @EqualsAndHashCode.Exclude
   @ToString.Exclude
-  private Map<String, List<ExpenseResponseDto>> expensesByType;
+  private Map<String, List<OperationResponseDto>> expensesByType;
 }

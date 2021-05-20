@@ -4,16 +4,16 @@ import java.util.List;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
-import ru.rgasymov.moneymanager.domain.dto.response.IncomeResponseDto;
+import ru.rgasymov.moneymanager.domain.dto.response.OperationResponseDto;
 import ru.rgasymov.moneymanager.domain.entity.Income;
 
 @Mapper(componentModel = "spring",
     uses = {IncomeTypeMapper.class, SavingMapper.class},
     unmappedTargetPolicy = ReportingPolicy.IGNORE)
-public interface IncomeMapper {
+public interface IncomeMapper extends BaseOperationMapper<Income> {
 
   @Mapping(target = "userId", source = "user.id")
-  IncomeResponseDto toDto(Income entity);
+  OperationResponseDto toDto(Income entity);
 
-  List<IncomeResponseDto> toDtos(List<Income> entities);
+  List<OperationResponseDto> toDtos(List<Income> entities);
 }

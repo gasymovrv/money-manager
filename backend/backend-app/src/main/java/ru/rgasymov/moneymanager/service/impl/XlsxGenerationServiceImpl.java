@@ -35,10 +35,8 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import ru.rgasymov.moneymanager.domain.XlsxInputData;
-import ru.rgasymov.moneymanager.domain.dto.response.ExpenseResponseDto;
-import ru.rgasymov.moneymanager.domain.dto.response.ExpenseTypeResponseDto;
-import ru.rgasymov.moneymanager.domain.dto.response.IncomeResponseDto;
-import ru.rgasymov.moneymanager.domain.dto.response.IncomeTypeResponseDto;
+import ru.rgasymov.moneymanager.domain.dto.response.OperationResponseDto;
+import ru.rgasymov.moneymanager.domain.dto.response.OperationTypeResponseDto;
 import ru.rgasymov.moneymanager.domain.dto.response.SavingResponseDto;
 import ru.rgasymov.moneymanager.service.XlsxGenerationService;
 
@@ -120,7 +118,7 @@ public class XlsxGenerationServiceImpl implements XlsxGenerationService {
         START_DATA_COLUMN,
         data.incomeTypes()
             .stream()
-            .map(IncomeTypeResponseDto::getName)
+            .map(OperationTypeResponseDto::getName)
             .sorted()
             .collect(Collectors.toList()),
         firstRow,
@@ -137,7 +135,7 @@ public class XlsxGenerationServiceImpl implements XlsxGenerationService {
         incTypeLastCol + 1,
         data.expenseTypes()
             .stream()
-            .map(ExpenseTypeResponseDto::getName)
+            .map(OperationTypeResponseDto::getName)
             .sorted()
             .collect(Collectors.toList()),
         firstRow,
@@ -256,13 +254,13 @@ public class XlsxGenerationServiceImpl implements XlsxGenerationService {
       cell.setCellValue(dto.getDate());
 
       //Get incomes by types
-      var incomeMap = new HashMap<String, IncomeResponseDto>();
+      var incomeMap = new HashMap<String, OperationResponseDto>();
       dto.getIncomesByType()
           .values()
           .stream()
           .flatMap(Collection::stream)
           .forEach((inc) ->
-              incomeMap.merge(inc.getIncomeType().getName(), inc,
+              incomeMap.merge(inc.getType().getName(), inc,
                   ((dto1, dto2) -> {
                     dto1.setValue(dto1.getValue().add(dto2.getValue()));
                     dto1.setDescription(dto1.getDescription() + "; " + (dto2.getDescription()));
@@ -271,7 +269,7 @@ public class XlsxGenerationServiceImpl implements XlsxGenerationService {
           );
       //Fill income cells
       incomeMap.values().forEach(inc -> {
-        Integer colNumByType = incColumnMap.get(inc.getIncomeType().getName());
+        Integer colNumByType = incColumnMap.get(inc.getType().getName());
         var incCell = row.getCell(colNumByType);
         incCell.setCellValue(inc.getValue().doubleValue());
 
@@ -286,13 +284,13 @@ public class XlsxGenerationServiceImpl implements XlsxGenerationService {
       cell.setCellValue(dto.getIncomesSum().doubleValue());
 
       //Get expenses by types
-      var expenseMap = new HashMap<String, ExpenseResponseDto>();
+      var expenseMap = new HashMap<String, OperationResponseDto>();
       dto.getExpensesByType()
           .values()
           .stream()
           .flatMap(Collection::stream)
           .forEach((exp) ->
-              expenseMap.merge(exp.getExpenseType().getName(), exp,
+              expenseMap.merge(exp.getType().getName(), exp,
                   ((dto1, dto2) -> {
                     dto1.setValue(dto1.getValue().add(dto2.getValue()));
                     dto1.setDescription(dto1.getDescription() + "; " + (dto2.getDescription()));
@@ -301,7 +299,7 @@ public class XlsxGenerationServiceImpl implements XlsxGenerationService {
           );
       //Fill expense cells
       expenseMap.values().forEach(exp -> {
-        Integer colNumByType = expColumnMap.get(exp.getExpenseType().getName());
+        Integer colNumByType = expColumnMap.get(exp.getType().getName());
         var expCell = row.getCell(colNumByType);
         expCell.setCellValue(exp.getValue().doubleValue());
 

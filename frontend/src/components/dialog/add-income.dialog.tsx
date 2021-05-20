@@ -1,6 +1,6 @@
 import { Button, Dialog, DialogActions, DialogTitle } from '@material-ui/core';
 import React, { useEffect, useState } from 'react';
-import { IncomeType } from '../../interfaces/income.interface';
+import { OperationType } from '../../interfaces/operation.interface';
 import { addIncome, getIncomeTypes } from '../../services/api.service';
 import moment from 'moment/moment';
 import ErrorNotification from '../notification/error.notification';
@@ -18,7 +18,7 @@ const AddIncomeDialog: React.FC<DialogProps> = ({
   const [success, setSuccess] = useState<boolean>(false);
   const [error, setError] = useState<boolean>(false);
   const [isLoadingTypes, setLoadingTypes] = useState<boolean>(true);
-  const [types, setTypes] = useState<IncomeType[]>([]);
+  const [types, setTypes] = useState<OperationType[]>([]);
   const [noTypes, setNoTypes] = useState<boolean>(true);
 
   const [value, setValue] = useState<number>(100);
@@ -63,7 +63,7 @@ const AddIncomeDialog: React.FC<DialogProps> = ({
     setError(false);
     try {
       await addIncome({
-        incomeTypeId: typeId,
+        typeId: typeId,
         date: inputDateValue,
         description: description,
         value: value

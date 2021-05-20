@@ -1,5 +1,4 @@
-import { Income, IncomeType } from './income.interface';
-import { Expense, ExpenseType } from './expense.interface';
+import { Operation, OperationType } from './operation.interface';
 import React from 'react';
 
 export interface Row {
@@ -7,22 +6,22 @@ export interface Row {
   date: string,
   incomesSum: number,
   expensesSum: number,
-  incomeLists: Array<Income[] | undefined>,
-  expenseLists: Array<Expense[] | undefined>,
+  incomeLists: Array<Operation[] | undefined>,
+  expenseLists: Array<Operation[] | undefined>,
   savings: number
 }
 
 export interface HomeState {
-  incomeTypes: IncomeType[],
-  expenseTypes: ExpenseType[],
+  incomeTypes: OperationType[],
+  expenseTypes: OperationType[],
   rows: Row[],
   totalElements: number
 }
 
 export interface MainTableProps {
   isLoading: boolean,
-  incomeTypes: IncomeType[],
-  expenseTypes: ExpenseType[],
+  incomeTypes: OperationType[],
+  expenseTypes: OperationType[],
   rows: Row[],
   totalElements: number,
   page: number,

@@ -1,6 +1,5 @@
 package ru.rgasymov.moneymanager.controller.api;
 
-import java.util.List;
 import java.util.Set;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -14,10 +13,10 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import ru.rgasymov.moneymanager.domain.dto.request.IncomeRequestDto;
-import ru.rgasymov.moneymanager.domain.dto.request.IncomeTypeRequestDto;
-import ru.rgasymov.moneymanager.domain.dto.response.IncomeResponseDto;
-import ru.rgasymov.moneymanager.domain.dto.response.IncomeTypeResponseDto;
+import ru.rgasymov.moneymanager.domain.dto.request.OperationRequestDto;
+import ru.rgasymov.moneymanager.domain.dto.request.OperationTypeRequestDto;
+import ru.rgasymov.moneymanager.domain.dto.response.OperationResponseDto;
+import ru.rgasymov.moneymanager.domain.dto.response.OperationTypeResponseDto;
 import ru.rgasymov.moneymanager.service.IncomeService;
 import ru.rgasymov.moneymanager.service.IncomeTypeService;
 import ru.rgasymov.moneymanager.service.UserService;
@@ -34,22 +33,16 @@ public class IncomeController {
 
   private final IncomeTypeService incomeTypeService;
 
-  @GetMapping
-  public List<IncomeResponseDto> findAll() {
-    log.info("# Find all incomes, current user: {}", userService.getCurrentUser());
-    return incomeService.findAll();
-  }
-
   @PostMapping
-  public IncomeResponseDto create(@RequestBody @Valid IncomeRequestDto dto) {
+  public OperationResponseDto create(@RequestBody @Valid OperationRequestDto dto) {
     log.info("# Create a new income by dto: {}, current user: {}", dto,
         userService.getCurrentUser());
-    return incomeService.create(dto);
+    return incomeService.createFromDto(dto);
   }
 
   @PutMapping("/{id}")
-  public IncomeResponseDto update(@PathVariable Long id,
-                                  @RequestBody @Valid IncomeRequestDto dto) {
+  public OperationResponseDto update(@PathVariable Long id,
+                                     @RequestBody @Valid OperationRequestDto dto) {
     log.info("# Update the income by id: {}, dto: {}, current user: {}", id, dto,
         userService.getCurrentUser());
     return incomeService.update(id, dto);
@@ -62,21 +55,21 @@ public class IncomeController {
   }
 
   @GetMapping("/types")
-  public Set<IncomeTypeResponseDto> findAllTypes() {
+  public Set<OperationTypeResponseDto> findAllTypes() {
     log.info("# Find all income types, current user: {}", userService.getCurrentUser());
     return incomeTypeService.findAll();
   }
 
   @PostMapping("/types")
-  public IncomeTypeResponseDto createType(@RequestBody @Valid IncomeTypeRequestDto dto) {
+  public OperationTypeResponseDto createType(@RequestBody @Valid OperationTypeRequestDto dto) {
     log.info("# Create a new income type by dto: {}, current user: {}", dto,
         userService.getCurrentUser());
     return incomeTypeService.create(dto);
   }
 
   @PutMapping("/types/{id}")
-  public IncomeTypeResponseDto updateType(@PathVariable Long id,
-                                          @RequestBody @Valid IncomeTypeRequestDto dto) {
+  public OperationTypeResponseDto updateType(@PathVariable Long id,
+                                             @RequestBody @Valid OperationTypeRequestDto dto) {
     log.info("# Update the income type by id: {}, dto: {}, current user: {}", id, dto,
         userService.getCurrentUser());
     return incomeTypeService.update(id, dto);
