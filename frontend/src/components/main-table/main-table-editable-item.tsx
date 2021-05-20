@@ -1,14 +1,12 @@
 import React from 'react';
-import { Operation } from '../../interfaces/operation.interface';
+import { Operation, OperationType } from '../../interfaces/operation.interface';
 import { makeStyles, MenuItem } from '@material-ui/core';
 import { createStyles } from '@material-ui/core/styles';
-import { EntityType } from '../../interfaces/common.interface';
-import EditIncomeDialog from '../dialog/edit-income.dialog';
-import EditExpenseDialog from '../dialog/edit-expense.dialog';
+import { EditExpenseDialog, EditIncomeDialog } from '../dialog/edit-operation.dialog';
 
 type MainTableEditableItemProps = {
-  entity: Operation,
-  entityType: EntityType,
+  operation: Operation,
+  operationType: OperationType,
   refreshTable(): void
 }
 
@@ -23,53 +21,53 @@ const useStyles = makeStyles(() =>
 );
 
 const MainTableEditableItem: React.FC<MainTableEditableItemProps> = ({
-                                                                       entity,
-                                                                       entityType,
+                                                                       operation,
+                                                                       operationType,
                                                                        refreshTable
                                                                      }) => {
-  const {id, value} = entity;
-  const [openEditEntity, setOpenEditEntity] = React.useState(false);
+  const {id, value} = operation;
+  const [openEditOperation, setOpenEditOperation] = React.useState(false);
   const classes = useStyles();
 
-  const handleOpenEditEntity = () => {
-    setOpenEditEntity(true);
+  const handleOpenEditOperation = () => {
+    setOpenEditOperation(true);
   };
 
-  const handleCloseEditEntity = () => {
-    setOpenEditEntity(false);
+  const handleCloseEditOperation = () => {
+    setOpenEditOperation(false);
   };
 
   const clickableMenu = (
     <MenuItem
       key={id}
       className={classes.menuItem}
-      onClick={handleOpenEditEntity}
+      onClick={handleOpenEditOperation}
     >
       {value}
     </MenuItem>
   )
 
-  switch (entityType) {
-    case EntityType.INCOME:
+  switch (operationType) {
+    case OperationType.INCOME:
       return (
         <>
           {clickableMenu}
           <EditIncomeDialog
-            entity={entity}
-            open={openEditEntity}
-            handleClose={handleCloseEditEntity}
+            operation={operation}
+            open={openEditOperation}
+            handleClose={handleCloseEditOperation}
             onAction={refreshTable}
           />
         </>
       );
-    case EntityType.EXPENSE:
+    case OperationType.EXPENSE:
       return (
         <>
           {clickableMenu}
           <EditExpenseDialog
-            entity={entity}
-            open={openEditEntity}
-            handleClose={handleCloseEditEntity}
+            operation={operation}
+            open={openEditOperation}
+            handleClose={handleCloseEditOperation}
             onAction={refreshTable}
           />
         </>

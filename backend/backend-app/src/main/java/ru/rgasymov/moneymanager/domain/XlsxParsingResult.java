@@ -7,9 +7,9 @@ import java.util.Set;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import ru.rgasymov.moneymanager.domain.entity.Expense;
-import ru.rgasymov.moneymanager.domain.entity.ExpenseType;
+import ru.rgasymov.moneymanager.domain.entity.ExpenseCategory;
 import ru.rgasymov.moneymanager.domain.entity.Income;
-import ru.rgasymov.moneymanager.domain.entity.IncomeType;
+import ru.rgasymov.moneymanager.domain.entity.IncomeCategory;
 
 @Data
 @RequiredArgsConstructor
@@ -18,13 +18,13 @@ public class XlsxParsingResult {
   private LocalDate previousSavingsDate;
   private final List<Income> incomes;
   private final List<Expense> expenses;
-  private final Set<IncomeType> incomeTypes;
-  private final Set<ExpenseType> expenseTypes;
+  private final Set<IncomeCategory> incomeCategories;
+  private final Set<ExpenseCategory> expenseCategories;
 
   public void add(XlsxParsingResult result) {
     incomes.addAll(result.incomes);
     expenses.addAll(result.expenses);
-    incomeTypes.addAll(result.incomeTypes);
-    expenseTypes.addAll(result.expenseTypes);
+    incomeCategories.addAll(result.incomeCategories);
+    expenseCategories.addAll(result.expenseCategories);
   }
 }

@@ -20,6 +20,6 @@ import lombok.experimental.SuperBuilder;
 public class Income extends BaseOperation {
 
   @ManyToOne
-  @JoinColumn(name = "type_id")
-  private IncomeType type;
+  @JoinColumn(name = "category_id")
+  private IncomeCategory category;
 }

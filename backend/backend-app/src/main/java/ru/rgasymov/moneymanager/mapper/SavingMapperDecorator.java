@@ -32,7 +32,7 @@ public class SavingMapperDecorator implements SavingMapper {
 
       ArrayList<OperationResponseDto> value = new ArrayList<>();
       value.add(expenseMapper.toDto(exp));
-      expenseMap.merge(exp.getType().getName(), value,
+      expenseMap.merge(exp.getCategory().getName(), value,
           ((list1, list2) -> {
             list1.addAll(value);
             return list1;
@@ -46,15 +46,15 @@ public class SavingMapperDecorator implements SavingMapper {
 
       ArrayList<OperationResponseDto> value = new ArrayList<>();
       value.add(incomeMapper.toDto(inc));
-      incomeMap.merge(inc.getType().getName(), value,
+      incomeMap.merge(inc.getCategory().getName(), value,
           ((list1, list2) -> {
             list1.addAll(value);
             return list1;
           }));
     });
 
-    dto.setExpensesByType(expenseMap);
-    dto.setIncomesByType(incomeMap);
+    dto.setExpensesByCategory(expenseMap);
+    dto.setIncomesByCategory(incomeMap);
     return dto;
   }
 

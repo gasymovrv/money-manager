@@ -7,23 +7,23 @@ export class Saving implements SavingResponse {
   value: number;
   incomesSum: number;
   expensesSum: number;
-  incomesByType: Map<string, Operation[]>;
-  expensesByType: Map<string, Operation[]>;
+  incomesByCategory: Map<string, Operation[]>;
+  expensesByCategory: Map<string, Operation[]>;
 
   constructor(id: number,
               date: string,
               value: number,
               incomesSum: number,
               expensesSum: number,
-              incomesByType: Map<string, Operation[]>,
-              expensesByType: Map<string, Operation[]>) {
+              incomesByCategory: Map<string, Operation[]>,
+              expensesByCategory: Map<string, Operation[]>) {
     this.id = id;
     this.date = date;
     this.value = value;
     this.incomesSum = incomesSum;
     this.expensesSum = expensesSum;
-    this.incomesByType = incomesByType;
-    this.expensesByType = expensesByType;
+    this.incomesByCategory = incomesByCategory;
+    this.expensesByCategory = expensesByCategory;
   }
 }
 
@@ -44,8 +44,8 @@ export interface SavingResponse {
   value: number,
   incomesSum: number,
   expensesSum: number,
-  incomesByType: any,
-  expensesByType: any
+  incomesByCategory: any,
+  expensesByCategory: any
 }
 
 export class SavingSearchParams {

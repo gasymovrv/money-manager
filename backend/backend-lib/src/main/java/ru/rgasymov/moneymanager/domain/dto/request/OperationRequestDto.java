@@ -18,7 +18,7 @@ import lombok.NoArgsConstructor;
 public class OperationRequestDto {
 
   @NotNull
-  private Long typeId;
+  private Long categoryId;
 
   @NotNull
   private LocalDate date;

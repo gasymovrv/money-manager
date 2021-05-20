@@ -11,23 +11,23 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.rgasymov.moneymanager.domain.dto.request.OperationRequestDto;
 import ru.rgasymov.moneymanager.domain.dto.response.OperationResponseDto;
 import ru.rgasymov.moneymanager.domain.entity.BaseOperation;
-import ru.rgasymov.moneymanager.domain.entity.BaseOperationType;
+import ru.rgasymov.moneymanager.domain.entity.BaseOperationCategory;
 import ru.rgasymov.moneymanager.domain.entity.User;
 import ru.rgasymov.moneymanager.mapper.BaseOperationMapper;
+import ru.rgasymov.moneymanager.repository.BaseOperationCategoryRepository;
 import ru.rgasymov.moneymanager.repository.BaseOperationRepository;
-import ru.rgasymov.moneymanager.repository.BaseOperationTypeRepository;
 import ru.rgasymov.moneymanager.service.BaseOperationService;
 import ru.rgasymov.moneymanager.service.UserService;
 
 @RequiredArgsConstructor
 public abstract class AbstractOperationService<
     O extends BaseOperation,
-    OT extends BaseOperationType>
+    OT extends BaseOperationCategory>
     implements BaseOperationService<O> {
 
   private final BaseOperationRepository<O> operationRepository;
 
-  private final BaseOperationTypeRepository<OT> operationTypeRepository;
+  private final BaseOperationCategoryRepository<OT> operationCategoryRepository;
 
   private final BaseOperationMapper<O> operationMapper;
 
@@ -38,16 +38,16 @@ public abstract class AbstractOperationService<
   public OperationResponseDto createFromDto(OperationRequestDto dto) {
     var currentUser = userService.getCurrentUser();
     var currentUserId = currentUser.getId();
-    var typeId = dto.getTypeId();
+    var categoryId = dto.getCategoryId();
     var date = dto.getDate();
     var value = dto.getValue();
 
-    OT type = operationTypeRepository.findByIdAndUserId(typeId, currentUserId)
+    OT category = operationCategoryRepository.findByIdAndUserId(categoryId, currentUserId)
         .orElseThrow(() ->
             new EntityNotFoundException(
-                String.format("Could not find operation type with id = '%s' in the database",
-                    typeId)));
-    O operation = buildNewOperation(currentUser, dto.getDescription(), type, date, value);
+                String.format("Could not find operation category with id = '%s' in the database",
+                    categoryId)));
+    O operation = buildNewOperation(currentUser, dto.getDescription(), category, date, value);
 
     return saveNewOperation(operation);
   }
@@ -63,7 +63,7 @@ public abstract class AbstractOperationService<
   public OperationResponseDto update(Long id, OperationRequestDto dto) {
     var currentUser = userService.getCurrentUser();
     var currentUserId = currentUser.getId();
-    var typeId = dto.getTypeId();
+    var categoryId = dto.getCategoryId();
     var date = dto.getDate();
     var value = dto.getValue();
 
@@ -72,7 +72,7 @@ public abstract class AbstractOperationService<
             new EntityNotFoundException(
                 String.format("Could not find operation with id = '%s' in the database",
                     id)));
-    var oldTypeId = getOperationType(operation).getId();
+    var oldCategoryId = getOperationCategory(operation).getId();
     var oldDate = operation.getDate();
     var oldValue = operation.getValue();
 
@@ -81,13 +81,13 @@ public abstract class AbstractOperationService<
       return createFromDto(dto);
     }
 
-    if (isChanged(oldTypeId, typeId)) {
-      OT type = operationTypeRepository.findByIdAndUserId(typeId, currentUserId)
+    if (isChanged(oldCategoryId, categoryId)) {
+      OT category = operationCategoryRepository.findByIdAndUserId(categoryId, currentUserId)
           .orElseThrow(() ->
               new EntityNotFoundException(
-                  String.format("Could not find operation type with id = '%s' in the database",
-                      typeId)));
-      setOperationType(operation, type);
+                  String.format("Could not find operation category with id = '%s' in the database",
+                      categoryId)));
+      setOperationCategory(operation, category);
     }
 
     if (isChanged(oldValue, value)) {
@@ -118,7 +118,7 @@ public abstract class AbstractOperationService<
 
   protected abstract O buildNewOperation(User currentUser,
                                          @Nullable String description,
-                                         OT type,
+                                         OT category,
                                          LocalDate date,
                                          BigDecimal value);
 
@@ -129,7 +129,7 @@ public abstract class AbstractOperationService<
 
   protected abstract void deleteOperation(O operation, String currentUserId);
 
-  protected abstract OT getOperationType(O operation);
+  protected abstract OT getOperationCategory(O operation);
 
-  protected abstract void setOperationType(O operation, OT operType);
+  protected abstract void setOperationCategory(O operation, OT operationCategory);
 }

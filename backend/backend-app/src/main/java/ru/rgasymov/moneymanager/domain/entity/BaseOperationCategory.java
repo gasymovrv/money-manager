@@ -14,7 +14,7 @@ import lombok.experimental.SuperBuilder;
 @MappedSuperclass
 @NoArgsConstructor
 @SuperBuilder
-public abstract class BaseOperationType {
+public abstract class BaseOperationCategory {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)

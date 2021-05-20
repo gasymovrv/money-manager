@@ -8,7 +8,7 @@ import ru.rgasymov.moneymanager.domain.dto.response.OperationResponseDto;
 import ru.rgasymov.moneymanager.domain.entity.Expense;
 
 @Mapper(componentModel = "spring",
-    uses = {ExpenseTypeMapper.class, SavingMapper.class},
+    uses = {ExpenseCategoryMapper.class, SavingMapper.class},
     unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface ExpenseMapper extends BaseOperationMapper<Expense> {
 

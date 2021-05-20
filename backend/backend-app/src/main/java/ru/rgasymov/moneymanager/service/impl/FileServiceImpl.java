@@ -17,19 +17,19 @@ import org.springframework.web.multipart.MultipartFile;
 import ru.rgasymov.moneymanager.domain.XlsxInputData;
 import ru.rgasymov.moneymanager.domain.XlsxParsingResult;
 import ru.rgasymov.moneymanager.domain.dto.request.SavingCriteriaDto;
-import ru.rgasymov.moneymanager.domain.dto.response.OperationTypeResponseDto;
+import ru.rgasymov.moneymanager.domain.dto.response.OperationCategoryResponseDto;
 import ru.rgasymov.moneymanager.domain.dto.response.SavingResponseDto;
-import ru.rgasymov.moneymanager.domain.entity.ExpenseType;
-import ru.rgasymov.moneymanager.domain.entity.IncomeType;
+import ru.rgasymov.moneymanager.domain.entity.ExpenseCategory;
+import ru.rgasymov.moneymanager.domain.entity.IncomeCategory;
 import ru.rgasymov.moneymanager.exception.EmptyDataGenerationException;
 import ru.rgasymov.moneymanager.exception.UploadFileException;
-import ru.rgasymov.moneymanager.repository.ExpenseTypeRepository;
-import ru.rgasymov.moneymanager.repository.IncomeTypeRepository;
+import ru.rgasymov.moneymanager.repository.ExpenseCategoryRepository;
+import ru.rgasymov.moneymanager.repository.IncomeCategoryRepository;
+import ru.rgasymov.moneymanager.service.ExpenseCategoryService;
 import ru.rgasymov.moneymanager.service.ExpenseService;
-import ru.rgasymov.moneymanager.service.ExpenseTypeService;
 import ru.rgasymov.moneymanager.service.FileService;
+import ru.rgasymov.moneymanager.service.IncomeCategoryService;
 import ru.rgasymov.moneymanager.service.IncomeService;
-import ru.rgasymov.moneymanager.service.IncomeTypeService;
 import ru.rgasymov.moneymanager.service.SavingService;
 import ru.rgasymov.moneymanager.service.UserService;
 import ru.rgasymov.moneymanager.service.XlsxFileService;
@@ -44,9 +44,9 @@ public class FileServiceImpl implements FileService {
 
   private final UserService userService;
 
-  private final IncomeTypeRepository incomeTypeRepository;
+  private final IncomeCategoryRepository incomeCategoryRepository;
 
-  private final ExpenseTypeRepository expenseTypeRepository;
+  private final ExpenseCategoryRepository expenseCategoryRepository;
 
   private final SavingService savingService;
 
@@ -54,9 +54,9 @@ public class FileServiceImpl implements FileService {
 
   private final ExpenseService expenseService;
 
-  private final IncomeTypeService incomeTypeService;
+  private final IncomeCategoryService incomeCategoryService;
 
-  private final ExpenseTypeService expenseTypeService;
+  private final ExpenseCategoryService expenseCategoryService;
 
   @Transactional(propagation = Propagation.NEVER)
   @Override
@@ -64,8 +64,8 @@ public class FileServiceImpl implements FileService {
     var currentUser = userService.getCurrentUser();
     var currentUserId = currentUser.getId();
 
-    if (incomeTypeRepository.existsByUserId(currentUserId)
-        || expenseTypeRepository.existsByUserId(currentUserId)) {
+    if (incomeCategoryRepository.existsByUserId(currentUserId)
+        || expenseCategoryRepository.existsByUserId(currentUserId)) {
       throw new UploadFileException(
           "# Failed to import .xlsx file because the database is not empty");
     }
@@ -82,25 +82,25 @@ public class FileServiceImpl implements FileService {
       }
     }
 
-    Map<String, IncomeType> incomeTypes = incomeTypeRepository
-        .saveAll(result.getIncomeTypes())
+    Map<String, IncomeCategory> incomeCategories = incomeCategoryRepository
+        .saveAll(result.getIncomeCategories())
         .stream()
-        .collect(Collectors.toMap(IncomeType::getName, incomeType -> incomeType));
+        .collect(Collectors.toMap(IncomeCategory::getName, incomeCategory -> incomeCategory));
 
-    Map<String, ExpenseType> expenseTypes = expenseTypeRepository
-        .saveAll(result.getExpenseTypes())
+    Map<String, ExpenseCategory> expenseCategories = expenseCategoryRepository
+        .saveAll(result.getExpenseCategories())
         .stream()
-        .collect(Collectors.toMap(ExpenseType::getName, expenseType -> expenseType));
+        .collect(Collectors.toMap(ExpenseCategory::getName, expenseCategory -> expenseCategory));
 
     result.getIncomes().forEach((income -> {
-      var typeName = income.getType().getName();
-      income.setType(incomeTypes.get(typeName));
+      var categoryName = income.getCategory().getName();
+      income.setCategory(incomeCategories.get(categoryName));
       incomeService.create(income);
     }));
 
     result.getExpenses().forEach((expense -> {
-      var typeName = expense.getType().getName();
-      expense.setType(expenseTypes.get(typeName));
+      var categoryName = expense.getCategory().getName();
+      expense.setCategory(expenseCategories.get(categoryName));
       expenseService.create(expense);
     }));
   }
@@ -110,13 +110,13 @@ public class FileServiceImpl implements FileService {
     var criteria = new SavingCriteriaDto();
     criteria.setPageSize(MAX_SAVINGS);
     List<SavingResponseDto> savings = savingService.search(criteria).getResult();
-    Set<OperationTypeResponseDto> incTypes = incomeTypeService.findAll();
-    Set<OperationTypeResponseDto> expTypes = expenseTypeService.findAll();
+    Set<OperationCategoryResponseDto> incCategories = incomeCategoryService.findAll();
+    Set<OperationCategoryResponseDto> expCategories = expenseCategoryService.findAll();
     if (CollectionUtils.isEmpty(savings)) {
       throw new EmptyDataGenerationException("There is no data to export");
     }
 
-    return xlsxFileService.generate(new XlsxInputData(savings, incTypes, expTypes));
+    return xlsxFileService.generate(new XlsxInputData(savings, incCategories, expCategories));
   }
 
   @Override

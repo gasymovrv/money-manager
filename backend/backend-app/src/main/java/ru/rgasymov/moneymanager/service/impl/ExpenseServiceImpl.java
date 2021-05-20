@@ -6,12 +6,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.rgasymov.moneymanager.domain.dto.response.OperationResponseDto;
 import ru.rgasymov.moneymanager.domain.entity.Expense;
-import ru.rgasymov.moneymanager.domain.entity.ExpenseType;
+import ru.rgasymov.moneymanager.domain.entity.ExpenseCategory;
 import ru.rgasymov.moneymanager.domain.entity.Saving;
 import ru.rgasymov.moneymanager.domain.entity.User;
 import ru.rgasymov.moneymanager.mapper.ExpenseMapper;
+import ru.rgasymov.moneymanager.repository.ExpenseCategoryRepository;
 import ru.rgasymov.moneymanager.repository.ExpenseRepository;
-import ru.rgasymov.moneymanager.repository.ExpenseTypeRepository;
 import ru.rgasymov.moneymanager.service.ExpenseService;
 import ru.rgasymov.moneymanager.service.SavingService;
 import ru.rgasymov.moneymanager.service.UserService;
@@ -19,7 +19,7 @@ import ru.rgasymov.moneymanager.service.UserService;
 @Service
 @Slf4j
 public class ExpenseServiceImpl
-    extends AbstractOperationService<Expense, ExpenseType>
+    extends AbstractOperationService<Expense, ExpenseCategory>
     implements ExpenseService {
 
   private final ExpenseRepository expenseRepository;
@@ -30,11 +30,11 @@ public class ExpenseServiceImpl
 
   public ExpenseServiceImpl(
       ExpenseRepository expenseRepository,
-      ExpenseTypeRepository expenseTypeRepository,
+      ExpenseCategoryRepository expenseCategoryRepository,
       ExpenseMapper expenseMapper,
       UserService userService,
       SavingService savingService) {
-    super(expenseRepository, expenseTypeRepository, expenseMapper, userService);
+    super(expenseRepository, expenseCategoryRepository, expenseMapper, userService);
     this.expenseRepository = expenseRepository;
     this.savingService = savingService;
     this.expenseMapper = expenseMapper;
@@ -55,14 +55,14 @@ public class ExpenseServiceImpl
   @Override
   protected Expense buildNewOperation(User currentUser,
                                       String description,
-                                      ExpenseType type,
+                                      ExpenseCategory category,
                                       LocalDate date,
                                       BigDecimal value) {
     return Expense.builder()
         .date(date)
         .value(value)
         .description(description)
-        .type(type)
+        .category(category)
         .user(currentUser)
         .build();
   }
@@ -91,12 +91,12 @@ public class ExpenseServiceImpl
   }
 
   @Override
-  protected ExpenseType getOperationType(Expense operation) {
-    return operation.getType();
+  protected ExpenseCategory getOperationCategory(Expense operation) {
+    return operation.getCategory();
   }
 
   @Override
-  protected void setOperationType(Expense operation, ExpenseType expenseType) {
-    operation.setType(expenseType);
+  protected void setOperationCategory(Expense operation, ExpenseCategory operationCategory) {
+    operation.setCategory(operationCategory);
   }
 }

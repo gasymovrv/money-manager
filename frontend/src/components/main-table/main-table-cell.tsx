@@ -1,9 +1,8 @@
 import React from 'react';
-import { Operation } from '../../interfaces/operation.interface';
+import { Operation, OperationType } from '../../interfaces/operation.interface';
 import StyledTableCell from './styled-table-cell';
 import { IconButton, makeStyles, MenuItem } from '@material-ui/core';
 import { createStyles, Theme } from '@material-ui/core/styles';
-import { EntityType } from '../../interfaces/common.interface';
 import ExpandLessIcon from '@material-ui/icons/ExpandLess';
 import MainTableEditableItem from './main-table-editable-item';
 
@@ -13,8 +12,8 @@ function calculateSum(list: Operation[]): number {
 
 type MainTableCellProps = {
   rowId: number,
-  entityType: EntityType,
-  entities: Operation[] | undefined,
+  itemType: OperationType,
+  items: Operation[] | undefined,
   index: number,
   className: string | undefined,
   refreshTable(): void
@@ -31,8 +30,8 @@ const useStyles = makeStyles((theme: Theme) =>
 
 const MainTableCell: React.FC<MainTableCellProps> = ({
                                                        rowId,
-                                                       entityType,
-                                                       entities,
+                                                       itemType,
+                                                       items,
                                                        index,
                                                        className,
                                                        refreshTable
@@ -48,14 +47,14 @@ const MainTableCell: React.FC<MainTableCellProps> = ({
     setExpandList(false);
   }
 
-  if (entities && entities.length > 0) {
-    const firstEl = entities[0];
-    if (entities.length === 1) {
+  if (items && items.length > 0) {
+    const firstEl = items[0];
+    if (items.length === 1) {
       return (
         <StyledTableCell key={rowId + '_' + index} className={className}>
           <MainTableEditableItem
-            entity={firstEl}
-            entityType={entityType}
+            operation={firstEl}
+            operationType={itemType}
             refreshTable={refreshTable}
           />
         </StyledTableCell>
@@ -64,24 +63,24 @@ const MainTableCell: React.FC<MainTableCellProps> = ({
       return (
         <StyledTableCell key={rowId + '_' + index} className={className}>
           {expandList ?
-            entities.map((inc, i) => {
-                const menuItem = (
-                  <MainTableEditableItem
-                    entity={inc}
-                    entityType={entityType}
-                    refreshTable={refreshTable}
-                  />
+            items.map((inc, i) => {
+              const menuItem = (
+                <MainTableEditableItem
+                  operation={inc}
+                  operationType={itemType}
+                  refreshTable={refreshTable}
+                />
+              )
+              if (i === items.length - 1) {
+                return (
+                  <>
+                    {menuItem}
+                    <IconButton size="small" onClick={handleCollapseList}>
+                      <ExpandLessIcon fontSize="small"/>
+                    </IconButton>
+                  </>
                 )
-                if (i === entities.length - 1) {
-                  return (
-                    <>
-                      {menuItem}
-                      <IconButton size="small" onClick={handleCollapseList}>
-                        <ExpandLessIcon fontSize="small"/>
-                      </IconButton>
-                    </>
-                  )
-                }
+              }
                 return menuItem;
               }
             ) :
@@ -90,7 +89,7 @@ const MainTableCell: React.FC<MainTableCellProps> = ({
               onClick={handleExpandList}
               className={classes.menuItem}
             >
-              {calculateSum(entities)}
+              {calculateSum(items)}
             </MenuItem>
           }
         </StyledTableCell>

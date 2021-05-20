@@ -1,4 +1,4 @@
-export function stringSort(s1: string, s2: string): number {
+export function sortStrings(s1: string, s2: string): number {
   if (s1 > s2) {
     return 1;
   } else if (s1 === s2) {
@@ -8,10 +8,10 @@ export function stringSort(s1: string, s2: string): number {
   }
 }
 
-type Type = {
+type Category = {
   name: string
 }
 
-export function typesSort(t1: Type, t2: Type): number {
-  return stringSort(t1.name, t2.name);
+export function sortCategories(c1: Category, c2: Category): number {
+  return sortStrings(c1.name, c2.name);
 }

@@ -35,8 +35,8 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import ru.rgasymov.moneymanager.domain.XlsxInputData;
+import ru.rgasymov.moneymanager.domain.dto.response.OperationCategoryResponseDto;
 import ru.rgasymov.moneymanager.domain.dto.response.OperationResponseDto;
-import ru.rgasymov.moneymanager.domain.dto.response.OperationTypeResponseDto;
 import ru.rgasymov.moneymanager.domain.dto.response.SavingResponseDto;
 import ru.rgasymov.moneymanager.service.XlsxGenerationService;
 
@@ -57,9 +57,9 @@ public class XlsxGenerationServiceImpl implements XlsxGenerationService {
   private static final int START_SAVING_COL = 5;
 
   /**
-   * Index of row with type names.
+   * Index of row with category names.
    */
-  private static final int TYPES_ROW = 1;
+  private static final int CATEGORIES_ROW = 1;
 
   /**
    * Index of first row with income or expense.
@@ -108,21 +108,21 @@ public class XlsxGenerationServiceImpl implements XlsxGenerationService {
     var sheet = wb.getSheetAt(0);
 
     XSSFRow firstRow = sheet.getRow(FIRST_ROW);
-    XSSFRow typesRow = sheet.getRow(TYPES_ROW);
+    XSSFRow categoriesRow = sheet.getRow(CATEGORIES_ROW);
     CellStyle headerStyle = firstRow.getCell(DATE_COL).getCellStyle();
 
     //------------------------------ Create head rows --------------------------------------------
     //------- Create head columns for Incomes -----------
     var incColumnMap = new HashMap<String, Integer>();
-    int incTypeLastCol = createTypesHeader(
+    int incCategoryLastCol = createCategoriesHeader(
         START_DATA_COLUMN,
-        data.incomeTypes()
+        data.incomeCategories()
             .stream()
-            .map(OperationTypeResponseDto::getName)
+            .map(OperationCategoryResponseDto::getName)
             .sorted()
             .collect(Collectors.toList()),
         firstRow,
-        typesRow,
+        categoriesRow,
         headerStyle,
         incColumnMap,
         INCOMES_COLUMN_NAME,
@@ -131,15 +131,15 @@ public class XlsxGenerationServiceImpl implements XlsxGenerationService {
 
     //------- Create head columns for Expenses -----------
     var expColumnMap = new HashMap<String, Integer>();
-    int expTypeLastCol = createTypesHeader(
-        incTypeLastCol + 1,
-        data.expenseTypes()
+    int expCategoryLastCol = createCategoriesHeader(
+        incCategoryLastCol + 1,
+        data.expenseCategories()
             .stream()
-            .map(OperationTypeResponseDto::getName)
+            .map(OperationCategoryResponseDto::getName)
             .sorted()
             .collect(Collectors.toList()),
         firstRow,
-        typesRow,
+        categoriesRow,
         headerStyle,
         expColumnMap,
         EXPENSES_COLUMN_NAME,
@@ -147,18 +147,18 @@ public class XlsxGenerationServiceImpl implements XlsxGenerationService {
     );
 
     //------- Create head column for Savings -----------
-    int savingsCol = expTypeLastCol + 1;
+    int savingsCol = expCategoryLastCol + 1;
     var headCell = firstRow.createCell(savingsCol, CellType.STRING);
     headCell.setCellValue(SAVINGS_COLUMN_NAME);
     headCell.setCellStyle(headerStyle);
 
     //------- Merge head columns -------
     sheet.addMergedRegion(
-        new CellRangeAddress(FIRST_ROW, FIRST_ROW, START_DATA_COLUMN, incTypeLastCol));
+        new CellRangeAddress(FIRST_ROW, FIRST_ROW, START_DATA_COLUMN, incCategoryLastCol));
     sheet.addMergedRegion(
-        new CellRangeAddress(FIRST_ROW, FIRST_ROW, incTypeLastCol + 1, expTypeLastCol));
+        new CellRangeAddress(FIRST_ROW, FIRST_ROW, incCategoryLastCol + 1, expCategoryLastCol));
     sheet.addMergedRegion(
-        new CellRangeAddress(FIRST_ROW, TYPES_ROW, savingsCol, savingsCol));
+        new CellRangeAddress(FIRST_ROW, CATEGORIES_ROW, savingsCol, savingsCol));
 
     //------------------------------ Create data rows --------------------------------------------
     createDataRows(
@@ -166,8 +166,8 @@ public class XlsxGenerationServiceImpl implements XlsxGenerationService {
         data,
         sheet,
         headerStyle,
-        incTypeLastCol,
-        expTypeLastCol,
+        incCategoryLastCol,
+        expCategoryLastCol,
         savingsCol,
         incColumnMap,
         expColumnMap
@@ -183,8 +183,8 @@ public class XlsxGenerationServiceImpl implements XlsxGenerationService {
                               XlsxInputData data,
                               XSSFSheet sheet,
                               CellStyle headerStyle,
-                              int incTypeLastCol,
-                              int expTypeLastCol,
+                              int incCategoryLastCol,
+                              int expCategoryLastCol,
                               int savingsCol,
                               HashMap<String, Integer> incColumnMap,
                               HashMap<String, Integer> expColumnMap) {
@@ -201,8 +201,8 @@ public class XlsxGenerationServiceImpl implements XlsxGenerationService {
     createStyledCells(
         prevSavingRow,
         savingsCol,
-        incTypeLastCol,
-        expTypeLastCol,
+        incCategoryLastCol,
+        expCategoryLastCol,
         dateStyle,
         savingsStyle,
         incSumStyle,
@@ -237,8 +237,8 @@ public class XlsxGenerationServiceImpl implements XlsxGenerationService {
       createStyledCells(
           row,
           savingsCol,
-          incTypeLastCol,
-          expTypeLastCol,
+          incCategoryLastCol,
+          expCategoryLastCol,
           dateStyle,
           savingsStyle,
           incSumStyle,
@@ -253,14 +253,14 @@ public class XlsxGenerationServiceImpl implements XlsxGenerationService {
       cell = row.getCell(DATE_COL);
       cell.setCellValue(dto.getDate());
 
-      //Get incomes by types
+      //Get incomes by categories
       var incomeMap = new HashMap<String, OperationResponseDto>();
-      dto.getIncomesByType()
+      dto.getIncomesByCategory()
           .values()
           .stream()
           .flatMap(Collection::stream)
           .forEach((inc) ->
-              incomeMap.merge(inc.getType().getName(), inc,
+              incomeMap.merge(inc.getCategory().getName(), inc,
                   ((dto1, dto2) -> {
                     dto1.setValue(dto1.getValue().add(dto2.getValue()));
                     dto1.setDescription(dto1.getDescription() + "; " + (dto2.getDescription()));
@@ -269,8 +269,8 @@ public class XlsxGenerationServiceImpl implements XlsxGenerationService {
           );
       //Fill income cells
       incomeMap.values().forEach(inc -> {
-        Integer colNumByType = incColumnMap.get(inc.getType().getName());
-        var incCell = row.getCell(colNumByType);
+        Integer colNumByCategory = incColumnMap.get(inc.getCategory().getName());
+        var incCell = row.getCell(colNumByCategory);
         incCell.setCellValue(inc.getValue().doubleValue());
 
         String description = inc.getDescription();
@@ -280,17 +280,17 @@ public class XlsxGenerationServiceImpl implements XlsxGenerationService {
       });
 
       //Fill incomes sum cell
-      cell = row.getCell(incTypeLastCol);
+      cell = row.getCell(incCategoryLastCol);
       cell.setCellValue(dto.getIncomesSum().doubleValue());
 
-      //Get expenses by types
+      //Get expenses by categories
       var expenseMap = new HashMap<String, OperationResponseDto>();
-      dto.getExpensesByType()
+      dto.getExpensesByCategory()
           .values()
           .stream()
           .flatMap(Collection::stream)
           .forEach((exp) ->
-              expenseMap.merge(exp.getType().getName(), exp,
+              expenseMap.merge(exp.getCategory().getName(), exp,
                   ((dto1, dto2) -> {
                     dto1.setValue(dto1.getValue().add(dto2.getValue()));
                     dto1.setDescription(dto1.getDescription() + "; " + (dto2.getDescription()));
@@ -299,8 +299,8 @@ public class XlsxGenerationServiceImpl implements XlsxGenerationService {
           );
       //Fill expense cells
       expenseMap.values().forEach(exp -> {
-        Integer colNumByType = expColumnMap.get(exp.getType().getName());
-        var expCell = row.getCell(colNumByType);
+        Integer colNumByCategory = expColumnMap.get(exp.getCategory().getName());
+        var expCell = row.getCell(colNumByCategory);
         expCell.setCellValue(exp.getValue().doubleValue());
 
         String description = exp.getDescription();
@@ -310,7 +310,7 @@ public class XlsxGenerationServiceImpl implements XlsxGenerationService {
       });
 
       //Fill expenses sum cell
-      cell = row.getCell(expTypeLastCol);
+      cell = row.getCell(expCategoryLastCol);
       cell.setCellValue(dto.getExpensesSum().doubleValue());
 
       //Fill saving cell
@@ -330,8 +330,8 @@ public class XlsxGenerationServiceImpl implements XlsxGenerationService {
   }
 
   private boolean isPreviuosSaving(SavingResponseDto saving) {
-    return MapUtils.isEmpty(saving.getIncomesByType())
-        && MapUtils.isEmpty(saving.getExpensesByType());
+    return MapUtils.isEmpty(saving.getIncomesByCategory())
+        && MapUtils.isEmpty(saving.getExpensesByCategory());
   }
 
   public void addComment(Workbook workbook,
@@ -355,25 +355,25 @@ public class XlsxGenerationServiceImpl implements XlsxGenerationService {
     cell.setCellComment(comment);
   }
 
-  private int createTypesHeader(int startCol,
-                                List<String> types,
-                                XSSFRow firstRow,
-                                XSSFRow typesRow,
-                                CellStyle headerStyle,
-                                HashMap<String, Integer> expColumnMap,
-                                String headerColName,
-                                String headerSumColName) {
+  private int createCategoriesHeader(int startCol,
+                                     List<String> categories,
+                                     XSSFRow firstRow,
+                                     XSSFRow categoriesRow,
+                                     CellStyle headerStyle,
+                                     HashMap<String, Integer> expColumnMap,
+                                     String headerColName,
+                                     String headerSumColName) {
     var headCell = firstRow.createCell(startCol, CellType.STRING);
     headCell.setCellValue(headerColName);
     headCell.setCellStyle(headerStyle);
-    for (String typeName : types) {
-      headCell = typesRow.createCell(startCol, CellType.STRING);
-      headCell.setCellValue(typeName);
+    for (String categoryName : categories) {
+      headCell = categoriesRow.createCell(startCol, CellType.STRING);
+      headCell.setCellValue(categoryName);
       headCell.setCellStyle(headerStyle);
-      expColumnMap.put(typeName, startCol);
+      expColumnMap.put(categoryName, startCol);
       startCol++;
     }
-    headCell = typesRow.createCell(startCol, CellType.STRING);
+    headCell = categoriesRow.createCell(startCol, CellType.STRING);
     headCell.setCellValue(headerSumColName);
     headCell.setCellStyle(headerStyle);
     return startCol;
@@ -381,8 +381,8 @@ public class XlsxGenerationServiceImpl implements XlsxGenerationService {
 
   private void createStyledCells(XSSFRow row,
                                  int savingsCol,
-                                 int incTypeCol,
-                                 int expTypeCol,
+                                 int incCategoryCol,
+                                 int expCategoryCol,
                                  CellStyle dateStyle,
                                  CellStyle savingsStyle,
                                  CellStyle incSumStyle,
@@ -411,11 +411,11 @@ public class XlsxGenerationServiceImpl implements XlsxGenerationService {
     }
 
     //Create incomes sum cell
-    cell = row.createCell(incTypeCol, CellType.NUMERIC);
+    cell = row.createCell(incCategoryCol, CellType.NUMERIC);
     cell.setCellStyle(incSumStyle);
 
     //Create expenses sum cell
-    cell = row.createCell(expTypeCol, CellType.NUMERIC);
+    cell = row.createCell(expCategoryCol, CellType.NUMERIC);
     cell.setCellStyle(expSumStyle);
 
     //Create saving cell

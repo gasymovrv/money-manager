@@ -29,7 +29,7 @@ const SuccessNotification: React.FC<{ text: string }> = ({text}) => {
 
   return (
     <div className={classes.root}>
-      <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
+      <Snackbar open={open} autoHideDuration={5000} onClose={handleClose}>
         <Alert onClose={handleClose} variant="standard" severity="success">
           {text}
         </Alert>

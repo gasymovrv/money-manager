@@ -16,8 +16,7 @@ import {
 } from '@material-ui/core';
 import MenuIcon from '@material-ui/icons/Menu';
 import { AccountCircle } from '@material-ui/icons';
-import AddExpenseDialog from '../dialog/add-expense.dialog';
-import AddIncomeDialog from '../dialog/add-income.dialog';
+import { AddExpenseDialog, AddIncomeDialog } from '../dialog/add-operation.dialog';
 import { exportToXlsxFile } from '../../services/api.service';
 import ErrorNotification from '../notification/error.notification';
 import StyledMenu from '../menu/styled-menu';

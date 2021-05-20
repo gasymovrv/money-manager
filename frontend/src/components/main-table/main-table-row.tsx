@@ -1,11 +1,10 @@
 import React from 'react';
-import { Operation } from '../../interfaces/operation.interface';
+import { Operation, OperationType } from '../../interfaces/operation.interface';
 import StyledTableCell from './styled-table-cell';
 import { makeStyles, TableRow } from '@material-ui/core';
 import { createStyles, Theme } from '@material-ui/core/styles';
 import MainTableCell from './main-table-cell';
 import { Row } from '../../interfaces/main-table.interface';
-import { EntityType } from '../../interfaces/common.interface';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -56,8 +55,8 @@ const MainTableRow: React.FC<MainTableRowProps> = ({
           <MainTableCell
             key={'inc_cell_' + index}
             rowId={id}
-            entityType={EntityType.INCOME}
-            entities={incomes}
+            itemType={OperationType.INCOME}
+            items={incomes}
             index={index}
             className={classes.green}
             refreshTable={refreshTable}
@@ -74,8 +73,8 @@ const MainTableRow: React.FC<MainTableRowProps> = ({
           <MainTableCell
             key={'exp_cell_' + index}
             rowId={id}
-            entityType={EntityType.EXPENSE}
-            entities={expenses}
+            itemType={OperationType.EXPENSE}
+            items={expenses}
             index={index}
             className={classes.red}
             refreshTable={refreshTable}

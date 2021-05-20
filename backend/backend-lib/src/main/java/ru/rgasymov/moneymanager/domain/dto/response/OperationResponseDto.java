@@ -23,7 +23,7 @@ public class OperationResponseDto {
 
   private String userId;
 
-  private OperationTypeResponseDto type;
+  private OperationCategoryResponseDto category;
 
   @JsonFormat(shape = JsonFormat.Shape.STRING,
       pattern = DateTimeFormats.COMMON_DATE_FORMAT)

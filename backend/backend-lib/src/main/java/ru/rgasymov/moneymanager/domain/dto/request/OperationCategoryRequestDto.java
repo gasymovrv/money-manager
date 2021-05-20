@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class OperationTypeRequestDto {
+public class OperationCategoryRequestDto {
   @NotBlank
   private String name;
 }

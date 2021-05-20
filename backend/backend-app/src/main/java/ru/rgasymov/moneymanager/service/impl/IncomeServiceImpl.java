@@ -6,12 +6,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.rgasymov.moneymanager.domain.dto.response.OperationResponseDto;
 import ru.rgasymov.moneymanager.domain.entity.Income;
-import ru.rgasymov.moneymanager.domain.entity.IncomeType;
+import ru.rgasymov.moneymanager.domain.entity.IncomeCategory;
 import ru.rgasymov.moneymanager.domain.entity.Saving;
 import ru.rgasymov.moneymanager.domain.entity.User;
 import ru.rgasymov.moneymanager.mapper.IncomeMapper;
+import ru.rgasymov.moneymanager.repository.IncomeCategoryRepository;
 import ru.rgasymov.moneymanager.repository.IncomeRepository;
-import ru.rgasymov.moneymanager.repository.IncomeTypeRepository;
 import ru.rgasymov.moneymanager.service.IncomeService;
 import ru.rgasymov.moneymanager.service.SavingService;
 import ru.rgasymov.moneymanager.service.UserService;
@@ -19,7 +19,7 @@ import ru.rgasymov.moneymanager.service.UserService;
 @Service
 @Slf4j
 public class IncomeServiceImpl
-    extends AbstractOperationService<Income, IncomeType>
+    extends AbstractOperationService<Income, IncomeCategory>
     implements IncomeService {
 
   private final IncomeRepository incomeRepository;
@@ -30,11 +30,11 @@ public class IncomeServiceImpl
 
   public IncomeServiceImpl(
       IncomeRepository incomeRepository,
-      IncomeTypeRepository incomeTypeRepository,
+      IncomeCategoryRepository incomeCategoryRepository,
       IncomeMapper incomeMapper,
       UserService userService,
       SavingService savingService) {
-    super(incomeRepository, incomeTypeRepository, incomeMapper, userService);
+    super(incomeRepository, incomeCategoryRepository, incomeMapper, userService);
     this.incomeRepository = incomeRepository;
     this.savingService = savingService;
     this.incomeMapper = incomeMapper;
@@ -55,14 +55,14 @@ public class IncomeServiceImpl
   @Override
   protected Income buildNewOperation(User currentUser,
                                      String description,
-                                     IncomeType type,
+                                     IncomeCategory category,
                                      LocalDate date,
                                      BigDecimal value) {
     return Income.builder()
         .date(date)
         .value(value)
         .description(description)
-        .type(type)
+        .category(category)
         .user(currentUser)
         .build();
   }
@@ -91,12 +91,12 @@ public class IncomeServiceImpl
   }
 
   @Override
-  protected IncomeType getOperationType(Income operation) {
-    return operation.getType();
+  protected IncomeCategory getOperationCategory(Income operation) {
+    return operation.getCategory();
   }
 
   @Override
-  protected void setOperationType(Income operation, IncomeType incomeType) {
-    operation.setType(incomeType);
+  protected void setOperationCategory(Income operation, IncomeCategory incomeCategory) {
+    operation.setCategory(incomeCategory);
   }
 }

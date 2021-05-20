@@ -1,4 +1,4 @@
-export interface OperationType {
+export interface OperationCategory {
   id: number,
   name: string
 }
@@ -8,16 +8,21 @@ export interface Operation {
   value: number,
   date: string,
   description?: string,
-  type: OperationType,
+  category: OperationCategory,
 }
 
 export interface AddOrEditOperationRequest {
   value: number,
   date: string,
   description?: string,
-  typeId: number,
+  categoryId: number,
 }
 
-export interface AddOperationTypeRequest {
+export interface AddOperationCategoryRequest {
   name: string,
+}
+
+export enum OperationType {
+  INCOME = 'INCOME',
+  EXPENSE = 'EXPENSE'
 }

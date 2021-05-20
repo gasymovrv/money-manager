@@ -13,5 +13,5 @@ public interface BaseOperationRepository<T extends BaseOperation>
 
   void deleteByIdAndUserId(Long id, String userId);
 
-  boolean existsByTypeId(Long typeId);
+  boolean existsByCategoryId(Long categoryId);
 }

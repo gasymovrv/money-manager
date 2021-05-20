@@ -1,4 +1,9 @@
-import { Operation } from './operation.interface';
+import {
+  AddOperationCategoryRequest,
+  AddOrEditOperationRequest,
+  Operation,
+  OperationCategory
+} from './operation.interface';
 
 export interface SearchResult<T> {
   result: T[],
@@ -18,11 +23,24 @@ export interface DialogProps {
   onAction(): void
 }
 
-export interface EditDialogProps extends DialogProps {
-  entity: Operation
+export interface EditOperationDialogProps extends DialogProps {
+  operation: Operation
 }
 
-export enum EntityType {
-  INCOME = 'INCOME',
-  EXPENSE = 'EXPENSE'
+export interface EditOperationProps {
+  getCategories(): Promise<OperationCategory[]>
+
+  editOperation(id: number, request: AddOrEditOperationRequest): void,
+
+  deleteOperation(id: number): void
+}
+
+export interface AddOperationProps {
+  getCategories(): Promise<OperationCategory[]>
+
+  addOperation(request: AddOrEditOperationRequest): void
+}
+
+export interface AddOperationCategoryProps {
+  addOperationCategory(request: AddOperationCategoryRequest): void
 }

@@ -1,39 +1,39 @@
 databaseChangeLog:
 
   - changeSet:
-      id: 000000-create-table-income_type
+      id: 000000-create-table-income_category
       author: Gasymov Ruslan
       changes:
         - createTable:
-            tableName: income_type
+            tableName: income_category
             columns:
               - column: { name: id, type: bigint }
               - column: { name: user_id, type: varchar(255) }
               - column: { name: name, type: varchar(255) }
 
   - changeSet:
-      id: 000000-create-constraint-income_type
+      id: 000000-create-constraint-income_category
       author: Gasymov Ruslan
       changes:
         - addNotNullConstraint:
-            tableName: income_type
+            tableName: income_category
             columnName: id
             columnDataType: bigint
         - addPrimaryKey:
             columnNames: id
             columnDataType: bigint
-            tableName: income_type
+            tableName: income_category
         - addAutoIncrement:
             columnName: id
             columnDataType: bigint
-            tableName: income_type
+            tableName: income_category
         - addForeignKeyConstraint:
             baseColumnNames: user_id
-            baseTableName: income_type
-            constraintName: fk_income_type_user
+            baseTableName: income_category
+            constraintName: fk_income_category_user
             referencedColumnNames: id
             referencedTableName: users
         - addUniqueConstraint:
-            tableName: income_type
+            tableName: income_category
             columnNames: name, user_id
-            constraintName: income_type_name_unique
+            constraintName: income_category_name_unique

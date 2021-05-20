@@ -27,9 +27,9 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
 import ru.rgasymov.moneymanager.domain.XlsxParsingResult;
 import ru.rgasymov.moneymanager.domain.entity.Expense;
-import ru.rgasymov.moneymanager.domain.entity.ExpenseType;
+import ru.rgasymov.moneymanager.domain.entity.ExpenseCategory;
 import ru.rgasymov.moneymanager.domain.entity.Income;
-import ru.rgasymov.moneymanager.domain.entity.IncomeType;
+import ru.rgasymov.moneymanager.domain.entity.IncomeCategory;
 import ru.rgasymov.moneymanager.service.UserService;
 import ru.rgasymov.moneymanager.service.XlsxParsingService;
 
@@ -39,9 +39,9 @@ import ru.rgasymov.moneymanager.service.XlsxParsingService;
 public class XlsxParsingServiceImpl implements XlsxParsingService {
 
   /**
-   * Index of row with type names.
+   * Index of row with category names.
    */
-  private static final int TYPES_ROW = 1;
+  private static final int CATEGORIES_ROW = 1;
 
   /**
    * Index of first row with income or expense.
@@ -84,10 +84,10 @@ public class XlsxParsingServiceImpl implements XlsxParsingService {
       var sheet = (XSSFSheet) sheetIterator.next();
       sortedSheets.add(sheet);
 
-      var incTypesRow = sheet.getRow(TYPES_ROW);
-      var expTypesRow = sheet.getRow(TYPES_ROW);
+      var incCategoriesRow = sheet.getRow(CATEGORIES_ROW);
+      var expCategoriesRow = sheet.getRow(CATEGORIES_ROW);
 
-      XlsxParsingResult tempResult = extractData(sheet, incTypesRow, expTypesRow);
+      XlsxParsingResult tempResult = extractData(sheet, incCategoriesRow, expCategoriesRow);
       if (result != null) {
         result.add(tempResult);
       } else {
@@ -100,17 +100,17 @@ public class XlsxParsingServiceImpl implements XlsxParsingService {
   }
 
   private XlsxParsingResult extractData(XSSFSheet sheet,
-                                        XSSFRow incTypesRow,
-                                        XSSFRow expTypesRow) {
+                                        XSSFRow incCategoriesRow,
+                                        XSSFRow expCategoriesRow) {
     var currentUser = userService.getCurrentUser();
     var incomes = new ArrayList<Income>();
     var expenses = new ArrayList<Expense>();
-    var incomeTypes = new HashMap<Integer, IncomeType>();
-    var expenseTypes = new HashMap<Integer, ExpenseType>();
+    var incomeCategories = new HashMap<Integer, IncomeCategory>();
+    var expenseCategories = new HashMap<Integer, ExpenseCategory>();
 
-    //Find all types
-    Integer incomeLastCol = findIncomeTypes(incTypesRow, incomeTypes);
-    findExpenseTypes(expTypesRow, expenseTypes, incomeLastCol);
+    //Find all categories
+    Integer incomeLastCol = findIncomeCategories(incCategoriesRow, incomeCategories);
+    findExpenseCategories(expCategoriesRow, expenseCategories, incomeLastCol);
 
     //Iterate by data rows
     for (int i = START_ROW; i <= sheet.getLastRowNum(); i++) {
@@ -144,24 +144,24 @@ public class XlsxParsingServiceImpl implements XlsxParsingService {
           cellComment = cell.getCellComment().getString().toString();
         }
 
-        var incomeType = incomeTypes.get(columnIndex);
-        var expenseType = expenseTypes.get(columnIndex);
+        var incomeCategory = incomeCategories.get(columnIndex);
+        var expenseCategory = expenseCategories.get(columnIndex);
 
-        if (incomeType != null && cellValue != 0) {
+        if (incomeCategory != null && cellValue != 0) {
           var inc = Income.builder()
               .date(date)
               .value(new BigDecimal(cellValue))
-              .type(incomeType)
+              .category(incomeCategory)
               .description(cellComment)
               .user(currentUser)
               .build();
           incomes.add(inc);
 
-        } else if (expenseType != null && cellValue != 0) {
+        } else if (expenseCategory != null && cellValue != 0) {
           var exp = Expense.builder()
               .date(date)
               .value(new BigDecimal(cellValue))
-              .type(expenseType)
+              .category(expenseCategory)
               .description(cellComment)
               .user(currentUser)
               .build();
@@ -173,53 +173,53 @@ public class XlsxParsingServiceImpl implements XlsxParsingService {
     return new XlsxParsingResult(
         incomes,
         expenses,
-        new HashSet<>(incomeTypes.values()),
-        new HashSet<>(expenseTypes.values())
+        new HashSet<>(incomeCategories.values()),
+        new HashSet<>(expenseCategories.values())
     );
   }
 
-  private void findExpenseTypes(XSSFRow expTypesRow,
-                                HashMap<Integer, ExpenseType> expenseTypes,
-                                Integer incomeLastCol) {
+  private void findExpenseCategories(XSSFRow expCategoriesRow,
+                                     HashMap<Integer, ExpenseCategory> expenseCategories,
+                                     Integer incomeLastCol) {
     if (incomeLastCol == null) {
       return;
     }
     var currentUser = userService.getCurrentUser();
 
     for (int i = incomeLastCol + 1;
-         i <= expTypesRow.getLastCellNum();
+         i <= expCategoriesRow.getLastCellNum();
          i++) {
-      var cell = expTypesRow.getCell(i);
+      var cell = expCategoriesRow.getCell(i);
       var cellValue = cell.getStringCellValue();
 
       if (cellValue.equals(EXPENSES_SUM_COLUMN_NAME)) {
         return;
       } else {
-        var expType = ExpenseType.builder()
+        var expenseCategory = ExpenseCategory.builder()
             .name(cellValue)
             .user(currentUser)
             .build();
-        expenseTypes.put(cell.getColumnIndex(), expType);
+        expenseCategories.put(cell.getColumnIndex(), expenseCategory);
       }
     }
   }
 
-  private Integer findIncomeTypes(XSSFRow incTypesRow,
-                                  HashMap<Integer, IncomeType> incomeTypes) {
+  private Integer findIncomeCategories(XSSFRow incCategoriesRow,
+                                       HashMap<Integer, IncomeCategory> incomeCategories) {
     var currentUser = userService.getCurrentUser();
 
-    for (int i = START_COLUMN; i <= incTypesRow.getLastCellNum(); i++) {
-      var cell = incTypesRow.getCell(i);
+    for (int i = START_COLUMN; i <= incCategoriesRow.getLastCellNum(); i++) {
+      var cell = incCategoriesRow.getCell(i);
       var cellValue = cell.getStringCellValue();
 
       if (cellValue.equals(INCOMES_SUM_COLUMN_NAME)) {
         return cell.getColumnIndex();
       } else {
-        var incType = IncomeType.builder()
+        var incomeCategory = IncomeCategory.builder()
             .name(cellValue)
             .user(currentUser)
             .build();
-        incomeTypes.put(cell.getColumnIndex(), incType);
+        incomeCategories.put(cell.getColumnIndex(), incomeCategory);
       }
     }
     return null;

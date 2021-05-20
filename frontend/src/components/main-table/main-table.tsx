@@ -17,8 +17,7 @@ import { MainTableProps, Row } from '../../interfaces/main-table.interface';
 import AddCircleIcon from '@material-ui/icons/AddCircle';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import ExpandLessIcon from '@material-ui/icons/ExpandLess';
-import AddIncomeTypeDialog from '../dialog/add-income-type.dialog';
-import AddExpenseTypeDialog from '../dialog/add-expense-type.dialog';
+import { AddExpenseCategoryDialog, AddIncomeCategoryDialog } from '../dialog/add-operation-category.dialog';
 import StyledTableCell from './styled-table-cell';
 import MainTableRow from './main-table-row';
 
@@ -41,8 +40,8 @@ const useStyles = makeStyles((theme: Theme) =>
 const MainTable: React.FC<MainTableProps> = ({
                                                refreshTable,
                                                isLoading,
-                                               incomeTypes,
-                                               expenseTypes,
+                                               incomeCategories,
+                                               expenseCategories,
                                                rows,
                                                totalElements,
                                                page,
@@ -96,7 +95,7 @@ const MainTable: React.FC<MainTableProps> = ({
                 </StyledTableCell>
 
                 <StyledTableCell className={classes.boldFont}
-                                 colSpan={showIncomeTypes ? incomeTypes.length + 1 : 1}>
+                                 colSpan={showIncomeTypes ? incomeCategories.length + 1 : 1}>
                   <Grid justify="center" container>
                     <Grid item>Incomes</Grid>
                     <Grid item>
@@ -109,7 +108,7 @@ const MainTable: React.FC<MainTableProps> = ({
                       <IconButton size="small" onClick={handleOpenAddIncomeType}>
                         <AddCircleIcon fontSize="small"/>
                       </IconButton>
-                      <AddIncomeTypeDialog
+                      <AddIncomeCategoryDialog
                         open={openAddIncomeType}
                         handleClose={handleCloseAddIncomeType}
                         onAction={refreshTable}
@@ -119,7 +118,7 @@ const MainTable: React.FC<MainTableProps> = ({
                 </StyledTableCell>
 
                 <StyledTableCell className={classes.boldFont}
-                                 colSpan={showExpenseTypes ? expenseTypes.length + 1 : 1}>
+                                 colSpan={showExpenseTypes ? expenseCategories.length + 1 : 1}>
                   <Grid justify="center" container>
                     <Grid item>Expenses</Grid>
                     <Grid item>
@@ -132,7 +131,7 @@ const MainTable: React.FC<MainTableProps> = ({
                       <IconButton size="small" onClick={handleOpenAddExpenseType}>
                         <AddCircleIcon fontSize="small"/>
                       </IconButton>
-                      <AddExpenseTypeDialog
+                      <AddExpenseCategoryDialog
                         open={openAddExpenseType}
                         handleClose={handleCloseAddExpenseType}
                         onAction={refreshTable}
@@ -149,7 +148,7 @@ const MainTable: React.FC<MainTableProps> = ({
               <TableRow>
                 <StyledTableCell className={classes.top24}/>
 
-                {showIncomeTypes && incomeTypes.map(({id, name}) =>
+                {showIncomeTypes && incomeCategories.map(({id, name}) =>
                   <StyledTableCell key={id} className={classes.top24}>
                     {name}
                   </StyledTableCell>
@@ -159,7 +158,7 @@ const MainTable: React.FC<MainTableProps> = ({
                   {showIncomeTypes && 'Incomes sum'}
                 </StyledTableCell>
 
-                {showExpenseTypes && expenseTypes.map(({id, name}) =>
+                {showExpenseTypes && expenseCategories.map(({id, name}) =>
                   <StyledTableCell key={id} className={classes.top24}>
                     {name}
                   </StyledTableCell>

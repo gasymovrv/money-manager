@@ -2,22 +2,22 @@ import React, { useEffect, useState } from 'react';
 import MainTable from '../main-table/main-table';
 import Header from '../header/header';
 import { Container, makeStyles } from '@material-ui/core';
-import { Operation, OperationType } from '../../interfaces/operation.interface';
-import { getExpenseTypes, getIncomeTypes, getSavings } from '../../services/api.service';
+import { Operation, OperationCategory } from '../../interfaces/operation.interface';
+import { getExpenseCategories, getIncomeCategories, getSavings } from '../../services/api.service';
 import { SearchResult, SortDirection } from '../../interfaces/common.interface';
 import { Saving, SavingSearchParams } from '../../interfaces/saving.interface';
 import { HomeState, Row } from '../../interfaces/main-table.interface';
 import ErrorNotification from '../notification/error.notification';
-import { typesSort } from '../../helpers/sort.helper';
+import { sortCategories } from '../../helpers/sort.helper';
 import { createStyles, Theme } from '@material-ui/core/styles';
 import WelcomeBox from '../welcome-box/welcome-box';
 
 async function getTable(page: number, rowsPerPage: number): Promise<HomeState> {
-  const expenseTypes = await getExpenseTypes();
-  expenseTypes.sort(typesSort);
+  const expenseCategories = await getExpenseCategories();
+  expenseCategories.sort(sortCategories);
 
-  const incomeTypes = await getIncomeTypes();
-  incomeTypes.sort(typesSort);
+  const incomeCategories = await getIncomeCategories();
+  incomeCategories.sort(sortCategories);
 
   const searchResult: SearchResult<Saving> = await getSavings(
     new SavingSearchParams(SortDirection.DESC, page, rowsPerPage)
@@ -29,18 +29,18 @@ async function getTable(page: number, rowsPerPage: number): Promise<HomeState> {
                                      value,
                                      incomesSum,
                                      expensesSum,
-                                     expensesByType,
-                                     incomesByType
+                                     expensesByCategory,
+                                     incomesByCategory
                                    }: Saving) => {
     const expenseLists: Array<Operation[] | undefined> = [];
     const incomeLists: Array<Operation[] | undefined> = [];
 
-    expenseTypes.forEach(({name}: OperationType) => {
-      const expenses = expensesByType.get(name);
+    expenseCategories.forEach(({name}: OperationCategory) => {
+      const expenses = expensesByCategory.get(name);
       expenseLists.push(expenses);
     })
-    incomeTypes.forEach(({name}: OperationType) => {
-      const incomes = incomesByType.get(name);
+    incomeCategories.forEach(({name}: OperationCategory) => {
+      const incomes = incomesByCategory.get(name);
       incomeLists.push(incomes);
     });
 
@@ -55,7 +55,12 @@ async function getTable(page: number, rowsPerPage: number): Promise<HomeState> {
     }
   });
 
-  return {incomeTypes, expenseTypes, rows, totalElements: searchResult.totalElements};
+  return {
+    incomeCategories: incomeCategories,
+    expenseCategories: expenseCategories,
+    rows,
+    totalElements: searchResult.totalElements
+  };
 }
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -68,9 +73,9 @@ const useStyles = makeStyles((theme: Theme) =>
 
 const Home: React.FC = () => {
   const classes = useStyles();
-  const [{incomeTypes, expenseTypes, rows, totalElements}, setData] = useState<HomeState>({
-    incomeTypes: [],
-    expenseTypes: [],
+  const [{incomeCategories, expenseCategories, rows, totalElements}, setData] = useState<HomeState>({
+    incomeCategories: [],
+    expenseCategories: [],
     rows: [],
     totalElements: 0
   })
@@ -79,6 +84,33 @@ const Home: React.FC = () => {
   const [isLoading, setLoading] = useState<boolean>(true);
   const [page, setPage] = useState<number>(0);
   const [pageSize, setPageSize] = useState<number>(100);
+
+  const setTableData = () => {
+    let mounted = true;
+    (async () => {
+      setError(false);
+      try {
+        const data = await getTable(page, pageSize);
+        if (mounted) {
+          if (!data.expenseCategories.length && !data.incomeCategories.length) {
+            setIsWelcome(true);
+          } else {
+            setData(data);
+            setIsWelcome(false);
+          }
+          setLoading(false);
+        }
+      } catch (err) {
+        console.log(`Getting main table error: ${err}`)
+        if (mounted) setError(true);
+      }
+    })()
+    return function cleanup() {
+      mounted = false
+    }
+  }
+
+  useEffect(setTableData, [page, pageSize])
 
   const handleChangePage = (event: unknown, newPage: number) => {
     setLoading(true);
@@ -91,25 +123,6 @@ const Home: React.FC = () => {
     setPage(0);
   };
 
-  const setTableData = () => {
-    setError(false);
-    getTable(page, pageSize).then((data) => {
-        if (!data.expenseTypes.length && !data.incomeTypes.length) {
-          setIsWelcome(true);
-        } else {
-          setData(data);
-          setIsWelcome(false);
-        }
-        setLoading(false);
-      },
-      (err) => {
-        console.log(`Getting main table error: ${err}`)
-        setError(true);
-      })
-  }
-
-  useEffect(setTableData, [page, pageSize])
-
   return (
     <Container maxWidth="xl" className={classes.container}>
       <Header
@@ -121,8 +134,8 @@ const Home: React.FC = () => {
         <MainTable
           refreshTable={setTableData}
           isLoading={isLoading}
-          incomeTypes={incomeTypes}
-          expenseTypes={expenseTypes}
+          incomeCategories={incomeCategories}
+          expenseCategories={expenseCategories}
           rows={rows}
           totalElements={totalElements}
           page={page}

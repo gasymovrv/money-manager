@@ -9,11 +9,11 @@ import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
 @Entity
-@Table(name = "expense_type")
+@Table(name = "income_category")
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 @NoArgsConstructor
 @SuperBuilder
-public class ExpenseType extends BaseOperationType {
+public class IncomeCategory extends BaseOperationCategory {
 }

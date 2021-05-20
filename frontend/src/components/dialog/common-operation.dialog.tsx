@@ -3,35 +3,36 @@ import React from 'react';
 import MomentUtils from '@date-io/moment';
 import { KeyboardDatePicker, MuiPickersUtilsProvider } from '@material-ui/pickers';
 import { Moment } from 'moment';
+import { OperationCategory } from '../../interfaces/operation.interface';
 
 type CommonContentDialogProps = {
   value: number,
   selectedDate: Moment,
   inputDateValue: string,
   description?: string,
-  typeId: number,
-  types: Array<{ id: number, name: string }>,
-  isLoadingTypes: boolean,
+  categoryId: number,
+  categories: OperationCategory[],
+  isLoadingCategories: boolean,
 
   handleChangeValue(event: React.ChangeEvent<HTMLInputElement>): void
   handleChangeDescription(event: React.ChangeEvent<HTMLInputElement>): void
-  handleChangeTypeId(event: React.ChangeEvent<any>): void
+  handleChangeCategoryId(event: React.ChangeEvent<any>): void
   handleChangeDate(date: any, value: any): void
 }
 
-const CommonContentDialog: React.FC<CommonContentDialogProps> = ({
-                                                                   value,
-                                                                   typeId,
-                                                                   description,
-                                                                   selectedDate,
-                                                                   inputDateValue,
-                                                                   types,
-                                                                   isLoadingTypes,
-                                                                   handleChangeValue,
-                                                                   handleChangeDescription,
-                                                                   handleChangeTypeId,
-                                                                   handleChangeDate
-                                                                 }) => {
+const CommonOperationDialog: React.FC<CommonContentDialogProps> = ({
+                                                                     value,
+                                                                     categoryId,
+                                                                     description,
+                                                                     selectedDate,
+                                                                     inputDateValue,
+                                                                     categories,
+                                                                     isLoadingCategories,
+                                                                     handleChangeValue,
+                                                                     handleChangeDescription,
+                                                                     handleChangeCategoryId,
+                                                                     handleChangeDate
+                                                                   }) => {
   return (
     <DialogContent>
       <TextField
@@ -59,19 +60,20 @@ const CommonContentDialog: React.FC<CommonContentDialogProps> = ({
         onChange={handleChangeDescription}
       />
 
-      {isLoadingTypes ||
+      {isLoadingCategories ||
       <TextField
-          error={!typeId}
+          error={!categoryId}
           margin="normal"
+          id="category"
           select
           required
           fullWidth
           color="secondary"
-          label="Type"
-          value={typeId}
-          onChange={handleChangeTypeId}
+          label="Category"
+          value={categoryId}
+          onChange={handleChangeCategoryId}
       >
-        {types.map(({id, name}) =>
+        {categories.map(({id, name}) =>
           <MenuItem key={id} value={id}>{name}</MenuItem>
         )}
       </TextField>}
@@ -80,6 +82,7 @@ const CommonContentDialog: React.FC<CommonContentDialogProps> = ({
         <KeyboardDatePicker
           error={!inputDateValue}
           margin="normal"
+          id="date"
           required
           fullWidth
           showTodayButton={true}
@@ -94,4 +97,4 @@ const CommonContentDialog: React.FC<CommonContentDialogProps> = ({
     </DialogContent>
   );
 }
-export default CommonContentDialog;
+export default CommonOperationDialog;

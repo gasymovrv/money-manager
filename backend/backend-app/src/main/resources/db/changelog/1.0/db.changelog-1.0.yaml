@@ -1,7 +1,7 @@
 databaseChangeLog:
   - include: { relativeToChangelogFile: true, file: users.yaml }
   - include: { relativeToChangelogFile: true, file: saving.yaml }
-  - include: { relativeToChangelogFile: true, file: income_type.yaml }
-  - include: { relativeToChangelogFile: true, file: expense_type.yaml }
+  - include: { relativeToChangelogFile: true, file: income_category.yaml }
+  - include: { relativeToChangelogFile: true, file: expense_category.yaml }
   - include: { relativeToChangelogFile: true, file: income.yaml }
   - include: { relativeToChangelogFile: true, file: expense.yaml }

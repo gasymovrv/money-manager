@@ -1,4 +1,4 @@
-import { Operation, OperationType } from './operation.interface';
+import { Operation, OperationCategory } from './operation.interface';
 import React from 'react';
 
 export interface Row {
@@ -12,16 +12,16 @@ export interface Row {
 }
 
 export interface HomeState {
-  incomeTypes: OperationType[],
-  expenseTypes: OperationType[],
+  incomeCategories: OperationCategory[],
+  expenseCategories: OperationCategory[],
   rows: Row[],
   totalElements: number
 }
 
 export interface MainTableProps {
   isLoading: boolean,
-  incomeTypes: OperationType[],
-  expenseTypes: OperationType[],
+  incomeCategories: OperationCategory[],
+  expenseCategories: OperationCategory[],
   rows: Row[],
   totalElements: number,
   page: number,

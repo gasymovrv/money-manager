@@ -1,9 +1,9 @@
 import { User } from '../interfaces/user.interface';
 import {
-  AddOperationTypeRequest,
+  AddOperationCategoryRequest,
   AddOrEditOperationRequest,
   Operation,
-  OperationType
+  OperationCategory
 } from '../interfaces/operation.interface';
 import { Saving, SavingResponse, SavingSearchParams, SavingSearchResult } from '../interfaces/saving.interface';
 import { SearchResult } from '../interfaces/common.interface';
@@ -12,7 +12,7 @@ const apiUrl = '/api/';
 
 function handleErrors(response: Response) {
   if (!response.ok) {
-    throw Error(response.statusText);
+    throw response;
   }
   return response;
 }
@@ -22,13 +22,13 @@ export async function getCurrentUser(): Promise<User> {
   return await response.json();
 }
 
-export async function getExpenseTypes(): Promise<Array<OperationType>> {
-  const response = handleErrors(await fetch(apiUrl + 'expenses/types'));
+export async function getExpenseCategories(): Promise<Array<OperationCategory>> {
+  const response = handleErrors(await fetch(apiUrl + 'expenses/categories'));
   return await response.json();
 }
 
-export async function getIncomeTypes(): Promise<Array<OperationType>> {
-  const response = handleErrors(await fetch(apiUrl + 'incomes/types'));
+export async function getIncomeCategories(): Promise<Array<OperationCategory>> {
+  const response = handleErrors(await fetch(apiUrl + 'incomes/categories'));
   return await response.json();
 }
 
@@ -40,8 +40,8 @@ export async function getSavings(request: SavingSearchParams): Promise<SearchRes
     })
     .then((body: SearchResult<SavingResponse>): SearchResult<Saving> => {
       const newResult: Saving[] = body.result.map((saving) => {
-        const expMap: Map<string, Operation[]> = new Map(Object.entries(saving.expensesByType));
-        const incMap: Map<string, Operation[]> = new Map(Object.entries(saving.incomesByType));
+        const expMap: Map<string, Operation[]> = new Map(Object.entries(saving.expensesByCategory));
+        const incMap: Map<string, Operation[]> = new Map(Object.entries(saving.incomesByCategory));
 
         return {
           id: saving.id,
@@ -49,8 +49,8 @@ export async function getSavings(request: SavingSearchParams): Promise<SearchRes
           value: saving.value,
           incomesSum: saving.incomesSum,
           expensesSum: saving.expensesSum,
-          incomesByType: incMap,
-          expensesByType: expMap
+          incomesByCategory: incMap,
+          expensesByCategory: expMap
         };
       });
       return new SavingSearchResult(newResult, body.totalElements);
@@ -77,8 +77,8 @@ export async function addExpense(request: AddOrEditOperationRequest): Promise<Re
   }));
 }
 
-export async function addIncomeType(request: AddOperationTypeRequest): Promise<Response> {
-  return handleErrors(await fetch(apiUrl + 'incomes/types', {
+export async function addIncomeCategory(request: AddOperationCategoryRequest): Promise<Response> {
+  return handleErrors(await fetch(apiUrl + 'incomes/categories', {
     method: 'POST',
     headers: {
       'content-type': 'application/json;charset=UTF-8',
@@ -87,8 +87,8 @@ export async function addIncomeType(request: AddOperationTypeRequest): Promise<R
   }));
 }
 
-export async function addExpenseType(request: AddOperationTypeRequest): Promise<Response> {
-  return handleErrors(await fetch(apiUrl + 'expenses/types', {
+export async function addExpenseCategory(request: AddOperationCategoryRequest): Promise<Response> {
+  return handleErrors(await fetch(apiUrl + 'expenses/categories', {
     method: 'POST',
     headers: {
       'content-type': 'application/json;charset=UTF-8',
