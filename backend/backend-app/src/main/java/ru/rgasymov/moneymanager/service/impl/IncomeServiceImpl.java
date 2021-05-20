@@ -85,8 +85,9 @@ public class IncomeServiceImpl
 
   @Override
   protected void deleteOperation(Income income, String currentUserId) {
-    savingService.decrease(income.getValue(), income.getDate());
     incomeRepository.deleteByIdAndUserId(income.getId(), currentUserId);
+    savingService.decrease(income.getValue(), income.getDate());
+    savingService.updateAfterDeletionOperation(income.getDate());
   }
 
   @Override

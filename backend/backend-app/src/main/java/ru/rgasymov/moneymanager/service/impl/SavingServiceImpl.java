@@ -7,6 +7,7 @@ import java.util.Optional;
 import java.util.function.BiFunction;
 import javax.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -76,6 +77,20 @@ public class SavingServiceImpl implements SavingService {
         savingRepository::decreaseValueByDateGreaterThan);
   }
 
+  @Transactional
+  @Override
+  public void updateAfterDeletionOperation(LocalDate date) {
+    var currentUser = userService.getCurrentUser();
+    var currentUserId = currentUser.getId();
+
+    savingRepository.findByDateAndUserId(date, currentUserId).ifPresent(saving -> {
+      if (CollectionUtils.isEmpty(saving.getIncomes())
+          && CollectionUtils.isEmpty(saving.getExpenses())) {
+        savingRepository.delete(saving);
+      }
+    });
+  }
+
   private void recalculate(LocalDate date,
                            BigDecimal value,
                            BiFunction<BigDecimal, BigDecimal, BigDecimal> setValueFunc,
@@ -84,13 +99,13 @@ public class SavingServiceImpl implements SavingService {
     var currentUserId = currentUser.getId();
 
     //Find the saving by date and recalculate its value by the specified value
-    Optional<Saving> accOpt = savingRepository.findByDateAndUserId(date, currentUserId);
-    if (accOpt.isPresent()) {
-      Saving acc = accOpt.get();
-      acc.setValue(setValueFunc.apply(acc.getValue(), value));
-      savingRepository.save(acc);
+    Optional<Saving> savingOpt = savingRepository.findByDateAndUserId(date, currentUserId);
+    if (savingOpt.isPresent()) {
+      Saving saving = savingOpt.get();
+      saving.setValue(setValueFunc.apply(saving.getValue(), value));
+      savingRepository.save(saving);
     } else {
-      accOpt = savingRepository
+      savingOpt = savingRepository
           .findFirstByDateLessThanAndUserIdOrderByDateDesc(date, currentUserId);
 
       var newSaving = Saving.builder()
@@ -98,8 +113,8 @@ public class SavingServiceImpl implements SavingService {
           .user(currentUser)
           .build();
 
-      if (accOpt.isPresent()) {
-        newSaving.setValue(setValueFunc.apply(accOpt.get().getValue(), value));
+      if (savingOpt.isPresent()) {
+        newSaving.setValue(setValueFunc.apply(savingOpt.get().getValue(), value));
       } else {
         newSaving.setValue(setValueFunc.apply(BigDecimal.ZERO, value));
       }

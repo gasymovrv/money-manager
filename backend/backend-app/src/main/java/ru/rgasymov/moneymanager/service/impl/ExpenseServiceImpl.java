@@ -85,8 +85,9 @@ public class ExpenseServiceImpl
 
   @Override
   protected void deleteOperation(Expense expense, String currentUserId) {
-    savingService.increase(expense.getValue(), expense.getDate());
     expenseRepository.deleteByIdAndUserId(expense.getId(), currentUserId);
+    savingService.increase(expense.getValue(), expense.getDate());
+    savingService.updateAfterDeletionOperation(expense.getDate());
   }
 
   @Override

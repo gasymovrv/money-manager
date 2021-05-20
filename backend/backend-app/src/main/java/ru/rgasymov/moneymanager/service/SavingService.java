@@ -8,6 +8,7 @@ import ru.rgasymov.moneymanager.domain.dto.response.SearchResultDto;
 import ru.rgasymov.moneymanager.domain.entity.Saving;
 
 public interface SavingService {
+
   SearchResultDto<SavingResponseDto> search(SavingCriteriaDto criteria);
 
   Saving findByDate(LocalDate date);
@@ -15,4 +16,6 @@ public interface SavingService {
   void increase(BigDecimal value, LocalDate date);
 
   void decrease(BigDecimal value, LocalDate date);
+
+  void updateAfterDeletionOperation(LocalDate date);
 }
