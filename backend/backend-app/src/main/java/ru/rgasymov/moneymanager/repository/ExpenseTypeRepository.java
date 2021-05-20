@@ -14,4 +14,6 @@ public interface ExpenseTypeRepository extends JpaRepository<ExpenseType, Long> 
   Set<ExpenseType> findAllByUserId(String userId);
 
   boolean existsByUserId(String userId);
+
+  boolean existsByNameAndUserId(String name, String userId);
 }

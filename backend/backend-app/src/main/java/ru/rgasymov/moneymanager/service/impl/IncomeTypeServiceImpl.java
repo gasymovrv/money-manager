@@ -1,6 +1,7 @@
 package ru.rgasymov.moneymanager.service.impl;
 
 import java.util.Set;
+import javax.persistence.EntityNotFoundException;
 import javax.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,13 +13,13 @@ import ru.rgasymov.moneymanager.domain.entity.IncomeType;
 import ru.rgasymov.moneymanager.mapper.IncomeTypeMapper;
 import ru.rgasymov.moneymanager.repository.IncomeRepository;
 import ru.rgasymov.moneymanager.repository.IncomeTypeRepository;
-import ru.rgasymov.moneymanager.service.TypeService;
+import ru.rgasymov.moneymanager.service.IncomeTypeService;
 import ru.rgasymov.moneymanager.service.UserService;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class IncomeTypeService implements TypeService<IncomeTypeRequestDto, IncomeTypeResponseDto> {
+public class IncomeTypeServiceImpl implements IncomeTypeService {
 
   private final IncomeTypeRepository incomeTypeRepository;
 
@@ -40,12 +41,39 @@ public class IncomeTypeService implements TypeService<IncomeTypeRequestDto, Inco
   @Override
   public IncomeTypeResponseDto create(IncomeTypeRequestDto dto) {
     var currentUser = userService.getCurrentUser();
+    var currentUserId = currentUser.getId();
+
+    if (incomeTypeRepository.existsByNameAndUserId(dto.getName(), currentUserId)) {
+      throw new ValidationException(
+          "Could not create the type because such name already exists");
+    }
+
     var newIncomeType = IncomeType.builder()
         .name(dto.getName())
         .user(currentUser)
         .build();
     IncomeType saved = incomeTypeRepository.save(newIncomeType);
     return incomeTypeMapper.toDto(saved);
+  }
+
+  @Transactional
+  @Override
+  public IncomeTypeResponseDto update(Long id, IncomeTypeRequestDto dto) {
+    var currentUser = userService.getCurrentUser();
+    var currentUserId = currentUser.getId();
+
+    if (incomeTypeRepository.existsByNameAndUserId(dto.getName(), currentUserId)) {
+      throw new ValidationException(
+          "Could not update the type because such name already exists");
+    }
+
+    IncomeType incomeType = incomeTypeRepository.findByIdAndUserId(id, currentUserId)
+        .orElseThrow(() ->
+            new EntityNotFoundException(
+                String.format("Could not find income type with id = '%s' in the database",
+                    id)));
+    incomeType.setName(dto.getName());
+    return incomeTypeMapper.toDto(incomeTypeRepository.save(incomeType));
   }
 
   @Transactional

@@ -18,8 +18,8 @@ import ru.rgasymov.moneymanager.domain.dto.request.ExpenseTypeRequestDto;
 import ru.rgasymov.moneymanager.domain.dto.response.ExpenseResponseDto;
 import ru.rgasymov.moneymanager.domain.dto.response.ExpenseTypeResponseDto;
 import ru.rgasymov.moneymanager.service.ExpenseService;
+import ru.rgasymov.moneymanager.service.ExpenseTypeService;
 import ru.rgasymov.moneymanager.service.UserService;
-import ru.rgasymov.moneymanager.service.impl.ExpenseTypeService;
 
 @RestController
 @RequiredArgsConstructor
@@ -71,6 +71,14 @@ public class ExpenseController {
     log.info("# Create a new expense type by dto: {}, current user: {}", dto,
         userService.getCurrentUser());
     return expenseTypeService.create(dto);
+  }
+
+  @PutMapping("/types/{id}")
+  public ExpenseTypeResponseDto updateType(@PathVariable Long id,
+                                           @RequestBody @Valid ExpenseTypeRequestDto dto) {
+    log.info("# Update the expense type by id: {}, dto: {}, current user: {}", id, dto,
+        userService.getCurrentUser());
+    return expenseTypeService.update(id, dto);
   }
 
   @DeleteMapping(value = "/types/{id}")

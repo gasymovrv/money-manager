@@ -1,6 +1,7 @@
 package ru.rgasymov.moneymanager.service.impl;
 
 import java.util.Set;
+import javax.persistence.EntityNotFoundException;
 import javax.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,14 +13,13 @@ import ru.rgasymov.moneymanager.domain.entity.ExpenseType;
 import ru.rgasymov.moneymanager.mapper.ExpenseTypeMapper;
 import ru.rgasymov.moneymanager.repository.ExpenseRepository;
 import ru.rgasymov.moneymanager.repository.ExpenseTypeRepository;
-import ru.rgasymov.moneymanager.service.TypeService;
+import ru.rgasymov.moneymanager.service.ExpenseTypeService;
 import ru.rgasymov.moneymanager.service.UserService;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class ExpenseTypeService
-    implements TypeService<ExpenseTypeRequestDto, ExpenseTypeResponseDto> {
+public class ExpenseTypeServiceImpl implements ExpenseTypeService {
 
   private final ExpenseTypeRepository expenseTypeRepository;
 
@@ -41,12 +41,39 @@ public class ExpenseTypeService
   @Override
   public ExpenseTypeResponseDto create(ExpenseTypeRequestDto dto) {
     var currentUser = userService.getCurrentUser();
+    var currentUserId = currentUser.getId();
+
+    if (expenseTypeRepository.existsByNameAndUserId(dto.getName(), currentUserId)) {
+      throw new ValidationException(
+          "Could not create the type because such name already exists");
+    }
+
     var newExpenseType = ExpenseType.builder()
         .name(dto.getName())
         .user(currentUser)
         .build();
     ExpenseType saved = expenseTypeRepository.save(newExpenseType);
     return expenseTypeMapper.toDto(saved);
+  }
+
+  @Transactional
+  @Override
+  public ExpenseTypeResponseDto update(Long id, ExpenseTypeRequestDto dto) {
+    var currentUser = userService.getCurrentUser();
+    var currentUserId = currentUser.getId();
+
+    if (expenseTypeRepository.existsByNameAndUserId(dto.getName(), currentUserId)) {
+      throw new ValidationException(
+          "Could not update the type because such name already exists");
+    }
+
+    ExpenseType expenseType = expenseTypeRepository.findByIdAndUserId(id, currentUserId)
+        .orElseThrow(() ->
+            new EntityNotFoundException(
+                String.format("Could not find expense type with id = '%s' in the database",
+                    id)));
+    expenseType.setName(dto.getName());
+    return expenseTypeMapper.toDto(expenseTypeRepository.save(expenseType));
   }
 
   @Transactional

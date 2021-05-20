@@ -14,4 +14,6 @@ public interface IncomeTypeRepository extends JpaRepository<IncomeType, Long> {
   Set<IncomeType> findAllByUserId(String userId);
 
   boolean existsByUserId(String userId);
+
+  boolean existsByNameAndUserId(String name, String userId);
 }

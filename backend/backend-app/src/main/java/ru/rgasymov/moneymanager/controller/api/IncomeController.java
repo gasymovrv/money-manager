@@ -19,8 +19,8 @@ import ru.rgasymov.moneymanager.domain.dto.request.IncomeTypeRequestDto;
 import ru.rgasymov.moneymanager.domain.dto.response.IncomeResponseDto;
 import ru.rgasymov.moneymanager.domain.dto.response.IncomeTypeResponseDto;
 import ru.rgasymov.moneymanager.service.IncomeService;
+import ru.rgasymov.moneymanager.service.IncomeTypeService;
 import ru.rgasymov.moneymanager.service.UserService;
-import ru.rgasymov.moneymanager.service.impl.IncomeTypeService;
 
 @RestController
 @RequiredArgsConstructor
@@ -72,6 +72,14 @@ public class IncomeController {
     log.info("# Create a new income type by dto: {}, current user: {}", dto,
         userService.getCurrentUser());
     return incomeTypeService.create(dto);
+  }
+
+  @PutMapping("/types/{id}")
+  public IncomeTypeResponseDto updateType(@PathVariable Long id,
+                                          @RequestBody @Valid IncomeTypeRequestDto dto) {
+    log.info("# Update the income type by id: {}, dto: {}, current user: {}", id, dto,
+        userService.getCurrentUser());
+    return incomeTypeService.update(id, dto);
   }
 
   @DeleteMapping("/types/{id}")
