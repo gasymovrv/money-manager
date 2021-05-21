@@ -53,6 +53,7 @@ const AddOperationCategoryDialog: React.FC<DialogProps & AddOperationCategoryPro
         <DialogContent>
           <TextField
             required
+            error={!name}
             color="secondary"
             margin="normal"
             id="categoryName"

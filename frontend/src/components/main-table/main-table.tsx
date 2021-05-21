@@ -20,6 +20,8 @@ import ExpandLessIcon from '@material-ui/icons/ExpandLess';
 import { AddExpenseCategoryDialog, AddIncomeCategoryDialog } from '../dialog/add-operation-category.dialog';
 import StyledTableCell from './styled-table-cell';
 import MainTableRow from './main-table-row';
+import MainTableEditableCategory from './main-table-editable-category';
+import { OperationType } from '../../interfaces/operation.interface';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -148,9 +150,13 @@ const MainTable: React.FC<MainTableProps> = ({
               <TableRow>
                 <StyledTableCell className={classes.top24}/>
 
-                {showIncomeTypes && incomeCategories.map(({id, name}) =>
-                  <StyledTableCell key={id} className={classes.top24}>
-                    {name}
+                {showIncomeTypes && incomeCategories.map((category) =>
+                  <StyledTableCell key={category.id} className={classes.top24}>
+                    <MainTableEditableCategory
+                      category={category}
+                      operationType={OperationType.INCOME}
+                      refreshTable={refreshTable}
+                    />
                   </StyledTableCell>
                 )}
 
@@ -158,9 +164,13 @@ const MainTable: React.FC<MainTableProps> = ({
                   {showIncomeTypes && 'Incomes sum'}
                 </StyledTableCell>
 
-                {showExpenseTypes && expenseCategories.map(({id, name}) =>
-                  <StyledTableCell key={id} className={classes.top24}>
-                    {name}
+                {showExpenseTypes && expenseCategories.map((category) =>
+                  <StyledTableCell key={category.id} className={classes.top24}>
+                    <MainTableEditableCategory
+                      category={category}
+                      operationType={OperationType.EXPENSE}
+                      refreshTable={refreshTable}
+                    />
                   </StyledTableCell>
                 )}
 

@@ -88,10 +88,10 @@ const Home: React.FC = () => {
   const setTableData = () => {
     let mounted = true;
     (async () => {
-      setError(false);
-      try {
-        const data = await getTable(page, pageSize);
-        if (mounted) {
+      if (mounted) {
+        setError(false);
+        try {
+          const data = await getTable(page, pageSize);
           if (!data.expenseCategories.length && !data.incomeCategories.length) {
             setIsWelcome(true);
           } else {
@@ -99,10 +99,10 @@ const Home: React.FC = () => {
             setIsWelcome(false);
           }
           setLoading(false);
+        } catch (err) {
+          console.log(`Getting main table error: ${err}`)
+          setError(true);
         }
-      } catch (err) {
-        console.log(`Getting main table error: ${err}`)
-        if (mounted) setError(true);
       }
     })()
     return function cleanup() {

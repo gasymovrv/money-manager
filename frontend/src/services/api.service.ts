@@ -1,6 +1,6 @@
 import { User } from '../interfaces/user.interface';
 import {
-  AddOperationCategoryRequest,
+  AddOrEditOperationCategoryRequest,
   AddOrEditOperationRequest,
   Operation,
   OperationCategory
@@ -77,7 +77,7 @@ export async function addExpense(request: AddOrEditOperationRequest): Promise<Re
   }));
 }
 
-export async function addIncomeCategory(request: AddOperationCategoryRequest): Promise<Response> {
+export async function addIncomeCategory(request: AddOrEditOperationCategoryRequest): Promise<Response> {
   return handleErrors(await fetch(apiUrl + 'incomes/categories', {
     method: 'POST',
     headers: {
@@ -87,7 +87,7 @@ export async function addIncomeCategory(request: AddOperationCategoryRequest): P
   }));
 }
 
-export async function addExpenseCategory(request: AddOperationCategoryRequest): Promise<Response> {
+export async function addExpenseCategory(request: AddOrEditOperationCategoryRequest): Promise<Response> {
   return handleErrors(await fetch(apiUrl + 'expenses/categories', {
     method: 'POST',
     headers: {
@@ -123,6 +123,26 @@ export async function editExpense(id: number, request: AddOrEditOperationRequest
   }));
 }
 
+export async function editIncomeCategory(id: number, request: AddOrEditOperationCategoryRequest): Promise<Response> {
+  return handleErrors(await fetch(`${apiUrl}incomes/categories/${id}`, {
+    method: 'PUT',
+    headers: {
+      'content-type': 'application/json;charset=UTF-8',
+    },
+    body: JSON.stringify(request),
+  }));
+}
+
+export async function editExpenseCategory(id: number, request: AddOrEditOperationCategoryRequest): Promise<Response> {
+  return handleErrors(await fetch(`${apiUrl}expenses/categories/${id}`, {
+    method: 'PUT',
+    headers: {
+      'content-type': 'application/json;charset=UTF-8',
+    },
+    body: JSON.stringify(request),
+  }));
+}
+
 export async function deleteIncome(id: number): Promise<Response> {
   return handleErrors(await fetch(`${apiUrl}incomes/${id}`, {
     method: 'DELETE',
@@ -134,6 +154,24 @@ export async function deleteIncome(id: number): Promise<Response> {
 
 export async function deleteExpense(id: number): Promise<Response> {
   return handleErrors(await fetch(`${apiUrl}expenses/${id}`, {
+    method: 'DELETE',
+    headers: {
+      'content-type': 'application/json;charset=UTF-8',
+    }
+  }));
+}
+
+export async function deleteIncomeCategory(id: number): Promise<Response> {
+  return handleErrors(await fetch(`${apiUrl}incomes/categories/${id}`, {
+    method: 'DELETE',
+    headers: {
+      'content-type': 'application/json;charset=UTF-8',
+    }
+  }));
+}
+
+export async function deleteExpenseCategory(id: number): Promise<Response> {
+  return handleErrors(await fetch(`${apiUrl}expenses/categories/${id}`, {
     method: 'DELETE',
     headers: {
       'content-type': 'application/json;charset=UTF-8',

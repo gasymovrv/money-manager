@@ -18,7 +18,7 @@ export interface AddOrEditOperationRequest {
   categoryId: number,
 }
 
-export interface AddOperationCategoryRequest {
+export interface AddOrEditOperationCategoryRequest {
   name: string,
 }
 

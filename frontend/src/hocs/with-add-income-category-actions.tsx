@@ -1,13 +1,13 @@
 import React from 'react';
 import { addIncomeCategory } from '../services/api.service';
 import { AddOperationCategoryProps } from '../interfaces/common.interface';
-import { AddOperationCategoryRequest } from '../interfaces/operation.interface';
+import { AddOrEditOperationCategoryRequest } from '../interfaces/operation.interface';
 
 export function WithAddIncomeCategoryActions<P>(
   WrappedComponent: React.ComponentType<P & AddOperationCategoryProps>
 ) {
 
-  const handleAddOperationCategory = async (request: AddOperationCategoryRequest) => {
+  const handleAddOperationCategory = async (request: AddOrEditOperationCategoryRequest) => {
     return await addIncomeCategory(request);
   }
 

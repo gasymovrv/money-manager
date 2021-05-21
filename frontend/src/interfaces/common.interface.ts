@@ -1,5 +1,5 @@
 import {
-  AddOperationCategoryRequest,
+  AddOrEditOperationCategoryRequest,
   AddOrEditOperationRequest,
   Operation,
   OperationCategory
@@ -27,6 +27,10 @@ export interface EditOperationDialogProps extends DialogProps {
   operation: Operation
 }
 
+export interface EditOperationCategoryDialogProps extends DialogProps {
+  operationCategory: OperationCategory
+}
+
 export interface EditOperationProps {
   getCategories(): Promise<OperationCategory[]>
 
@@ -42,5 +46,11 @@ export interface AddOperationProps {
 }
 
 export interface AddOperationCategoryProps {
-  addOperationCategory(request: AddOperationCategoryRequest): void
+  addOperationCategory(request: AddOrEditOperationCategoryRequest): void
+}
+
+export interface EditOperationCategoryProps {
+  editOperationCategory(id: number, request: AddOrEditOperationCategoryRequest): void,
+
+  deleteOperationCategory(id: number): void
 }

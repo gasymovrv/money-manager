@@ -34,13 +34,12 @@ const EditOperationDialog: React.FC<EditOperationDialogProps & EditOperationProp
 
   useEffect(() => {
     let mounted = true;
-    (async () => {
-      const data = await getCategories();
+    getCategories().then(data => {
       if (mounted) {
         setCategories(data.sort(sortCategories));
         setLoadingCategories(false);
       }
-    })()
+    });
     return function cleanup() {
       mounted = false
     }
