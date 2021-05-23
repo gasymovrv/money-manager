@@ -17,21 +17,28 @@ const useStyles = makeStyles((theme: Theme) =>
     boldFont: {
       fontSize: 14,
       fontWeight: 'bold'
+    },
+    stickyDateCell: {
+      minWidth: 100,
+      position: 'sticky',
+      left: 0,
+      backgroundColor: theme.palette.primary.dark,
+      zIndex: 1
     }
   })
 );
 
 type MainTableRowProps = {
   row: Row,
-  showIncomeTypes: boolean,
-  showExpenseTypes: boolean,
+  showIncomeCategories: boolean,
+  showExpenseCategories: boolean,
   refreshTable(): void
 }
 
 const MainTableRow: React.FC<MainTableRowProps> = ({
                                                      row,
-                                                     showIncomeTypes,
-                                                     showExpenseTypes,
+                                                     showIncomeCategories,
+                                                     showExpenseCategories,
                                                      refreshTable
                                                    }) => {
   const {
@@ -48,10 +55,10 @@ const MainTableRow: React.FC<MainTableRowProps> = ({
   return (
     <TableRow hover key={id}>
 
-      <StyledTableCell key={'date_' + id}>{date}</StyledTableCell>
+      <StyledTableCell className={classes.stickyDateCell} key={'date_' + id}>{date}</StyledTableCell>
 
       {
-        showIncomeTypes && incomeLists.map((incomes: Operation[] | undefined, index) => (
+        showIncomeCategories && incomeLists.map((incomes: Operation[] | undefined, index) => (
           <MainTableCell
             key={'inc_cell_' + index}
             rowId={id}
@@ -69,7 +76,7 @@ const MainTableRow: React.FC<MainTableRowProps> = ({
       </StyledTableCell>
 
       {
-        showExpenseTypes && expenseLists.map((expenses: Operation[] | undefined, index) => (
+        showExpenseCategories && expenseLists.map((expenses: Operation[] | undefined, index) => (
           <MainTableCell
             key={'exp_cell_' + index}
             rowId={id}

@@ -33,7 +33,7 @@ const useStyles = makeStyles((theme: Theme) =>
       display: 'flex',
       justifyContent: 'space-between',
       alignItems: 'center',
-      maxHeight: '10vh',
+      height: 50,
     },
     buttonsBox: {
       minWidth: 400,

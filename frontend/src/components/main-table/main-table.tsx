@@ -10,7 +10,8 @@ import {
   TableContainer,
   TableHead,
   TablePagination,
-  TableRow
+  TableRow,
+  Tooltip
 } from '@material-ui/core';
 import { createStyles, Theme } from '@material-ui/core/styles';
 import { MainTableProps, Row } from '../../interfaces/main-table.interface';
@@ -26,15 +27,44 @@ import { OperationType } from '../../interfaces/operation.interface';
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     container: {
-      height: '80vh',
-      maxHeight: 650,
+      maxHeight: '80vh'
     },
-    top24: {
-      top: 24
+    paddings: {
+      paddingLeft: 5,
+      paddingRight: 5
     },
-    boldFont: {
-      fontSize: 14,
-      fontWeight: 'bold'
+    stickyFirstCell: {
+      width: 100,
+      position: 'sticky',
+      top: 0,
+      left: 0,
+      backgroundColor: theme.palette.primary.dark,
+      zIndex: 3
+    },
+    stickyFirstHeadRow: {
+      height: 30,
+      minWidth: 150,
+      position: 'sticky',
+      top: 0,
+      backgroundColor: theme.palette.primary.dark,
+      zIndex: 2
+    },
+    stickyDateCell: {
+      width: 100,
+      position: 'sticky',
+      top: 29,
+      left: 0,
+      backgroundColor: theme.palette.primary.dark,
+      zIndex: 3
+    },
+    stickySecondHeadRow: {
+      position: 'sticky',
+      top: 29,
+      backgroundColor: theme.palette.primary.dark,
+      zIndex: 1
+    },
+    sumColumnsWidth: {
+      minWidth: 100,
     }
   })
 );
@@ -53,33 +83,33 @@ const MainTable: React.FC<MainTableProps> = ({
                                              }) => {
   const classes = useStyles();
 
-  const [showIncomeTypes, setShowIncomeTypes] = React.useState(true);
-  const [showExpenseTypes, setShowExpenseTypes] = React.useState(true);
-  const [openAddIncomeType, setOpenAddIncomeType] = React.useState(false);
-  const [openAddExpenseType, setOpenAddExpenseType] = React.useState(false);
+  const [showIncomeCategories, setShowIncomeCategories] = React.useState(true);
+  const [showExpenseCategories, setShowExpenseCategories] = React.useState(true);
+  const [openAddIncomeCategory, setOpenAddIncomeCategory] = React.useState(false);
+  const [openAddExpenseCategory, setOpenAddExpenseCategory] = React.useState(false);
 
-  const handleHideIncomeTypes = () => {
-    setShowIncomeTypes(!showIncomeTypes);
+  const handleHideIncomeCategories = () => {
+    setShowIncomeCategories(!showIncomeCategories);
   }
 
-  const handleHideExpenseTypes = () => {
-    setShowExpenseTypes(!showExpenseTypes);
+  const handleHideExpenseCategories = () => {
+    setShowExpenseCategories(!showExpenseCategories);
   }
 
-  const handleOpenAddIncomeType = () => {
-    setOpenAddIncomeType(true);
+  const handleOpenAddIncomeCategory = () => {
+    setOpenAddIncomeCategory(true);
   }
 
-  const handleOpenAddExpenseType = () => {
-    setOpenAddExpenseType(true);
+  const handleOpenAddExpenseCategory = () => {
+    setOpenAddExpenseCategory(true);
   }
 
-  const handleCloseAddIncomeType = () => {
-    setOpenAddIncomeType(false);
+  const handleCloseAddIncomeCategory = () => {
+    setOpenAddIncomeCategory(false);
   }
 
-  const handleCloseAddExpenseType = () => {
-    setOpenAddExpenseType(false);
+  const handleCloseAddExpenseCategory = () => {
+    setOpenAddExpenseCategory(false);
   }
 
   console.log('Main Table rendering')
@@ -88,70 +118,76 @@ const MainTable: React.FC<MainTableProps> = ({
       <LinearProgress/> :
       <Paper>
         <TableContainer className={classes.container}>
-          <Table stickyHeader aria-label="sticky table">
+          <Table aria-label="sticky table">
 
             <TableHead>
               <TableRow>
-                <StyledTableCell className={classes.boldFont}>
-                  Date
-                </StyledTableCell>
+                <StyledTableCell variant="head" className={classes.stickyFirstCell}/>
 
-                <StyledTableCell className={classes.boldFont}
-                                 colSpan={showIncomeTypes ? incomeCategories.length + 1 : 1}>
+                <StyledTableCell className={classes.stickyFirstHeadRow} variant="head"
+                                 colSpan={showIncomeCategories ? incomeCategories.length + 1 : 1}>
                   <Grid justify="center" container>
                     <Grid item>Incomes</Grid>
                     <Grid item>
-                      <IconButton size="small" onClick={handleHideIncomeTypes}>
-                        {showIncomeTypes ?
+                      <IconButton size="small" onClick={handleHideIncomeCategories}>
+                        {showIncomeCategories ?
                           <ExpandLessIcon fontSize="small"/> :
                           <ExpandMoreIcon fontSize="small"/>
                         }
                       </IconButton>
-                      <IconButton size="small" onClick={handleOpenAddIncomeType}>
-                        <AddCircleIcon fontSize="small"/>
-                      </IconButton>
+                      <Tooltip title="Add income category">
+                        <IconButton size="small" onClick={handleOpenAddIncomeCategory}>
+                          <AddCircleIcon fontSize="small"/>
+                        </IconButton>
+                      </Tooltip>
                       <AddIncomeCategoryDialog
-                        open={openAddIncomeType}
-                        handleClose={handleCloseAddIncomeType}
+                        open={openAddIncomeCategory}
+                        handleClose={handleCloseAddIncomeCategory}
                         onAction={refreshTable}
                       />
                     </Grid>
                   </Grid>
                 </StyledTableCell>
 
-                <StyledTableCell className={classes.boldFont}
-                                 colSpan={showExpenseTypes ? expenseCategories.length + 1 : 1}>
+                <StyledTableCell className={classes.stickyFirstHeadRow} variant="head"
+                                 colSpan={showExpenseCategories ? expenseCategories.length + 1 : 1}>
                   <Grid justify="center" container>
                     <Grid item>Expenses</Grid>
                     <Grid item>
-                      <IconButton size="small" onClick={handleHideExpenseTypes}>
-                        {showExpenseTypes ?
+                      <IconButton size="small" onClick={handleHideExpenseCategories}>
+                        {showExpenseCategories ?
                           <ExpandLessIcon fontSize="small"/> :
                           <ExpandMoreIcon fontSize="small"/>
                         }
                       </IconButton>
-                      <IconButton size="small" onClick={handleOpenAddExpenseType}>
-                        <AddCircleIcon fontSize="small"/>
-                      </IconButton>
+                      <Tooltip title="Add expense category">
+                        <IconButton size="small" onClick={handleOpenAddExpenseCategory}>
+                          <AddCircleIcon fontSize="small"/>
+                        </IconButton>
+                      </Tooltip>
                       <AddExpenseCategoryDialog
-                        open={openAddExpenseType}
-                        handleClose={handleCloseAddExpenseType}
+                        open={openAddExpenseCategory}
+                        handleClose={handleCloseAddExpenseCategory}
                         onAction={refreshTable}
                       />
                     </Grid>
                   </Grid>
                 </StyledTableCell>
 
-                <StyledTableCell className={classes.boldFont}>
-                  Savings
-                </StyledTableCell>
+                <StyledTableCell className={classes.stickyFirstHeadRow} variant="head"/>
               </TableRow>
 
               <TableRow>
-                <StyledTableCell className={classes.top24}/>
+                <StyledTableCell className={classes.stickyDateCell} variant="head">
+                  Date
+                </StyledTableCell>
 
-                {showIncomeTypes && incomeCategories.map((category) =>
-                  <StyledTableCell key={category.id} className={classes.top24}>
+                {showIncomeCategories && incomeCategories.map((category) =>
+                  <StyledTableCell
+                    variant="head"
+                    key={category.id}
+                    className={`${classes.paddings} ${classes.stickySecondHeadRow}`}
+                  >
                     <MainTableEditableCategory
                       category={category}
                       operationType={OperationType.INCOME}
@@ -160,12 +196,19 @@ const MainTable: React.FC<MainTableProps> = ({
                   </StyledTableCell>
                 )}
 
-                <StyledTableCell className={`${classes.top24} ${classes.boldFont}`}>
-                  {showIncomeTypes && 'Incomes sum'}
+                <StyledTableCell
+                  variant="head"
+                  className={`${classes.paddings} ${classes.stickySecondHeadRow} ${classes.sumColumnsWidth}`}
+                >
+                  {showIncomeCategories && 'Incomes sum'}
                 </StyledTableCell>
 
-                {showExpenseTypes && expenseCategories.map((category) =>
-                  <StyledTableCell key={category.id} className={classes.top24}>
+                {showExpenseCategories && expenseCategories.map((category) =>
+                  <StyledTableCell
+                    variant="head"
+                    key={category.id}
+                    className={`${classes.paddings} ${classes.stickySecondHeadRow}`}
+                  >
                     <MainTableEditableCategory
                       category={category}
                       operationType={OperationType.EXPENSE}
@@ -174,11 +217,19 @@ const MainTable: React.FC<MainTableProps> = ({
                   </StyledTableCell>
                 )}
 
-                <StyledTableCell className={`${classes.top24} ${classes.boldFont}`}>
-                  {showExpenseTypes && 'Expenses sum'}
+                <StyledTableCell
+                  variant="head"
+                  className={`${classes.paddings} ${classes.stickySecondHeadRow} ${classes.sumColumnsWidth}`}
+                >
+                  {showExpenseCategories && 'Expenses sum'}
                 </StyledTableCell>
 
-                <StyledTableCell className={classes.top24}/>
+                <StyledTableCell
+                  variant="head"
+                  className={`${classes.paddings} ${classes.stickySecondHeadRow}`}
+                >
+                  Savings
+                </StyledTableCell>
               </TableRow>
             </TableHead>
 
@@ -188,8 +239,8 @@ const MainTable: React.FC<MainTableProps> = ({
                   key={row.id}
                   row={row}
                   refreshTable={refreshTable}
-                  showIncomeTypes={showIncomeTypes}
-                  showExpenseTypes={showExpenseTypes}
+                  showIncomeCategories={showIncomeCategories}
+                  showExpenseCategories={showExpenseCategories}
                 />
               )}
             </TableBody>

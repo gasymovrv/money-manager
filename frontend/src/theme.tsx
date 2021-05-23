@@ -16,6 +16,11 @@ declare module '@material-ui/core/styles/createPalette' {
 
 export const darkTheme: Theme = createMuiTheme({
   overrides: {
+    MuiTooltip: {
+      tooltip: {
+        fontSize: 15
+      }
+    },
     MuiButton: {
       textPrimary: {
         color: common.white
@@ -49,6 +54,11 @@ export const darkTheme: Theme = createMuiTheme({
 
 export const lightTheme: Theme = createMuiTheme({
   overrides: {
+    MuiTooltip: {
+      tooltip: {
+        fontSize: 15
+      }
+    },
     MuiButton: {
       textPrimary: {
         color: common.black
