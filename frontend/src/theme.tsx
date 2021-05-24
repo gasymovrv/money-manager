@@ -1,5 +1,5 @@
 import { createMuiTheme } from '@material-ui/core';
-import { blueGrey, common, green, red } from '@material-ui/core/colors';
+import { blueGrey, common, green, grey, red } from '@material-ui/core/colors';
 import { Theme } from '@material-ui/core/styles';
 
 declare module '@material-ui/core/styles/createPalette' {
@@ -26,14 +26,6 @@ export const darkTheme: Theme = createMuiTheme({
         color: common.white
       }
     },
-    MuiIconButton: {
-      label: {
-        color: common.white
-      },
-      root: {
-        color: common.white
-      },
-    }
   },
   palette: {
     type: 'dark',
@@ -41,13 +33,15 @@ export const darkTheme: Theme = createMuiTheme({
       main: blueGrey['800']
     },
     secondary: {
-      main: common.white
+      main: grey['400']
     },
     redText: {
       main: red['200'],
+      contrastText: red['900']
     },
     greenText: {
       main: green['200'],
+      contrastText: green['900']
     },
   },
 });
@@ -63,14 +57,6 @@ export const lightTheme: Theme = createMuiTheme({
       textPrimary: {
         color: common.black
       }
-    },
-    MuiIconButton: {
-      label: {
-        color: common.black
-      },
-      root: {
-        color: common.black
-      },
     }
   },
   palette: {
@@ -79,13 +65,15 @@ export const lightTheme: Theme = createMuiTheme({
       main: blueGrey['200']
     },
     secondary: {
-      main: common.black
+      main: grey['600']
     },
     redText: {
       main: red['800'],
+      contrastText: red['100']
     },
     greenText: {
       main: green['800'],
+      contrastText: green['100']
     },
   },
 });

@@ -1,10 +1,11 @@
 import React from 'react';
-import { Operation, OperationType } from '../../interfaces/operation.interface';
+import { Operation, OperationCategory, OperationType } from '../../interfaces/operation.interface';
 import StyledTableCell from './styled-table-cell';
 import { makeStyles, TableRow } from '@material-ui/core';
 import { createStyles, Theme } from '@material-ui/core/styles';
 import MainTableCell from './main-table-cell';
 import { Row } from '../../interfaces/main-table.interface';
+import { isToday } from '../../helpers/date.helper';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -13,6 +14,15 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     red: {
       color: theme.palette.redText.main
+    },
+    contrastGreen: {
+      color: theme.palette.greenText.contrastText
+    },
+    contrastRed: {
+      color: theme.palette.redText.contrastText
+    },
+    todayRow: {
+      backgroundColor: theme.palette.secondary.main
     },
     boldFont: {
       fontSize: 14,
@@ -30,6 +40,8 @@ const useStyles = makeStyles((theme: Theme) =>
 
 type MainTableRowProps = {
   row: Row,
+  incomeCategories: OperationCategory[],
+  expenseCategories: OperationCategory[],
   showIncomeCategories: boolean,
   showExpenseCategories: boolean,
   refreshTable(): void
@@ -37,6 +49,8 @@ type MainTableRowProps = {
 
 const MainTableRow: React.FC<MainTableRowProps> = ({
                                                      row,
+                                                     incomeCategories,
+                                                     expenseCategories,
                                                      showIncomeCategories,
                                                      showExpenseCategories,
                                                      refreshTable
@@ -51,9 +65,13 @@ const MainTableRow: React.FC<MainTableRowProps> = ({
     savings
   } = row;
   const classes = useStyles();
+  const today = isToday(date);
+  const rowClass = today ? `${classes.todayRow} ${classes.boldFont}` : '';
+  const incCellClass = today ? `${classes.contrastGreen} ${classes.boldFont}` : classes.green;
+  const expCellClass = today ? classes.contrastRed : classes.red;
 
   return (
-    <TableRow hover key={id}>
+    <TableRow hover={!today} key={id} className={rowClass}>
 
       <StyledTableCell className={classes.stickyDateCell} key={'date_' + id}>{date}</StyledTableCell>
 
@@ -62,16 +80,17 @@ const MainTableRow: React.FC<MainTableRowProps> = ({
           <MainTableCell
             key={'inc_cell_' + index}
             rowId={id}
+            categories={incomeCategories}
             itemType={OperationType.INCOME}
             items={incomes}
             index={index}
-            className={classes.green}
+            className={incCellClass}
             refreshTable={refreshTable}
           />
         ))
       }
 
-      <StyledTableCell key={'inc_sum_' + id} className={`${classes.green} ${classes.boldFont}`}>
+      <StyledTableCell key={'inc_sum_' + id} className={`${incCellClass} ${classes.boldFont}`}>
         {incomesSum}
       </StyledTableCell>
 
@@ -80,22 +99,23 @@ const MainTableRow: React.FC<MainTableRowProps> = ({
           <MainTableCell
             key={'exp_cell_' + index}
             rowId={id}
+            categories={expenseCategories}
             itemType={OperationType.EXPENSE}
             items={expenses}
             index={index}
-            className={classes.red}
+            className={expCellClass}
             refreshTable={refreshTable}
           />
         ))
       }
 
-      <StyledTableCell key={'exp_sum_' + id} className={`${classes.red} ${classes.boldFont}`}>
+      <StyledTableCell key={'exp_sum_' + id} className={`${expCellClass} ${classes.boldFont}`}>
         {expensesSum}
       </StyledTableCell>
 
       <StyledTableCell
         key={'savings_' + id}
-        className={savings >= 0 ? `${classes.green} ${classes.boldFont}` : `${classes.red} ${classes.boldFont}`}
+        className={savings >= 0 ? `${incCellClass} ${classes.boldFont}` : `${expCellClass} ${classes.boldFont}`}
       >
         {savings}
       </StyledTableCell>

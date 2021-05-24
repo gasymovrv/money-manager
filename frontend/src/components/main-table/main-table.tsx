@@ -27,7 +27,7 @@ import { OperationType } from '../../interfaces/operation.interface';
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     container: {
-      maxHeight: '80vh'
+      maxHeight: '75vh'
     },
     paddings: {
       paddingLeft: 5,
@@ -238,6 +238,8 @@ const MainTable: React.FC<MainTableProps> = ({
                 <MainTableRow
                   key={row.id}
                   row={row}
+                  incomeCategories={incomeCategories}
+                  expenseCategories={expenseCategories}
                   refreshTable={refreshTable}
                   showIncomeCategories={showIncomeCategories}
                   showExpenseCategories={showExpenseCategories}

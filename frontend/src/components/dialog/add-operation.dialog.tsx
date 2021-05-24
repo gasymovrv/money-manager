@@ -10,6 +10,7 @@ import { sortCategories } from '../../helpers/sort.helper';
 import { OperationCategory } from '../../interfaces/operation.interface';
 import { WithAddIncomeActions } from '../../hocs/with-add-income-actions';
 import { WithAddExpenseActions } from '../../hocs/with-add-expense-actions';
+import { DATE_FORMAT } from '../../helpers/date.helper';
 
 const AddOperationDialog: React.FC<DialogProps & AddOperationProps> = ({
                                                                          open,
@@ -28,7 +29,7 @@ const AddOperationDialog: React.FC<DialogProps & AddOperationProps> = ({
   const [description, setDescription] = useState<string>();
   const [categoryId, setCategoryId] = useState<number>(0);
   const [selectedDate, setDate] = useState(moment());
-  const [inputDateValue, setInputDateValue] = useState(moment().format('YYYY-MM-DD'));
+  const [inputDateValue, setInputDateValue] = useState(moment().format(DATE_FORMAT));
 
   useEffect(() => {
     let mounted = true;

@@ -6,12 +6,14 @@ import {
   Avatar,
   Box,
   Button,
+  Drawer,
   IconButton,
   ListItem,
   ListItemAvatar,
   ListItemText,
   MenuItem,
   Toolbar,
+  Tooltip,
   Typography
 } from '@material-ui/core';
 import MenuIcon from '@material-ui/icons/Menu';
@@ -20,6 +22,7 @@ import { AddExpenseDialog, AddIncomeDialog } from '../dialog/add-operation.dialo
 import { exportToXlsxFile } from '../../services/api.service';
 import ErrorNotification from '../notification/error.notification';
 import StyledMenu from '../menu/styled-menu';
+import FilterListIcon from '@material-ui/icons/FilterList';
 
 type HeaderProps = {
   isWelcome: boolean,
@@ -48,14 +51,18 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     redText: {
       color: theme.palette.redText.main
+    },
+    appBar: {
+      marginBottom: theme.spacing(1)
     }
   }),
 );
 
-const Header: React.FC<HeaderProps> = ({isWelcome, refreshTable}) => {
+const Header: React.FC<HeaderProps> = ({isWelcome, refreshTable, children}) => {
   const {user} = useContext(AuthContext);
   const classes = useStyles();
   const [error, setError] = useState<boolean>(false);
+  const [openChildren, setOpenChildren] = React.useState(false);
   const [openAddIncome, setOpenAddIncome] = React.useState(false);
   const [openAddExpense, setOpenAddExpense] = React.useState(false);
   const [mainMenuAnchorEl, setMainMenuAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -111,7 +118,7 @@ const Header: React.FC<HeaderProps> = ({isWelcome, refreshTable}) => {
 
   return (
     <>
-      <AppBar position="static">
+      <AppBar position="static" className={classes.appBar}>
         <Toolbar className={classes.root}>
 
           <Box className={classes.root}>
@@ -168,6 +175,14 @@ const Header: React.FC<HeaderProps> = ({isWelcome, refreshTable}) => {
                       onAction={refreshTable}
                   />
               </Box>
+
+              <Box>
+                  <Tooltip title="Show filters">
+                      <IconButton size="small" onClick={() => setOpenChildren(true)}>
+                          <FilterListIcon/>
+                      </IconButton>
+                  </Tooltip>
+              </Box>
           </Box>
           }
 
@@ -194,6 +209,9 @@ const Header: React.FC<HeaderProps> = ({isWelcome, refreshTable}) => {
           </StyledMenu>
 
         </Toolbar>
+        <Drawer anchor="top" open={openChildren} onClose={() => setOpenChildren(false)}>
+          {children}
+        </Drawer>
       </AppBar>
       {error && <ErrorNotification text="Something went wrong"/>}
     </>

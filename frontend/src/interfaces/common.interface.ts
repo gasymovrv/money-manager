@@ -24,6 +24,7 @@ export interface DialogProps {
 }
 
 export interface EditOperationDialogProps extends DialogProps {
+  categories: OperationCategory[]
   operation: Operation
 }
 
@@ -32,8 +33,6 @@ export interface EditOperationCategoryDialogProps extends DialogProps {
 }
 
 export interface EditOperationProps {
-  getCategories(): Promise<OperationCategory[]>
-
   editOperation(id: number, request: AddOrEditOperationRequest): void,
 
   deleteOperation(id: number): void

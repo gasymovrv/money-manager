@@ -1,49 +1,33 @@
 import { Button, Dialog, DialogActions, DialogTitle } from '@material-ui/core';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { EditOperationDialogProps, EditOperationProps } from '../../interfaces/common.interface';
 import moment from 'moment/moment';
 import CommonOperationDialog from './common-operation.dialog';
 import { WithEditIncomeActions } from '../../hocs/with-edit-income-actions';
 import { WithEditExpenseActions } from '../../hocs/with-edit-expense-actions';
-import { OperationCategory } from '../../interfaces/operation.interface';
 import SuccessNotification from '../notification/success.notification';
 import ErrorNotification from '../notification/error.notification';
-import { sortCategories } from '../../helpers/sort.helper';
+import { DATE_FORMAT } from '../../helpers/date.helper';
 
 const EditOperationDialog: React.FC<EditOperationDialogProps & EditOperationProps> = ({
                                                                                         operation,
+                                                                                        categories,
                                                                                         onAction,
                                                                                         open,
                                                                                         handleClose,
                                                                                         editOperation,
-                                                                                        deleteOperation,
-                                                                                        getCategories
+                                                                                        deleteOperation
                                                                                       }) => {
   const [successEdit, setSuccessEdit] = useState<boolean>(false);
   const [successDelete, setSuccessDelete] = useState<boolean>(false);
   const [errorEdit, setErrorEdit] = useState<boolean>(false);
   const [errorDelete, setErrorDelete] = useState<boolean>(false);
-  const [isLoadingCategories, setLoadingCategories] = useState<boolean>(true);
-  const [categories, setCategories] = useState<OperationCategory[]>([]);
 
   const [value, setValue] = useState<number>(operation.value);
   const [description, setDescription] = useState<string>(operation.description || '');
   const [categoryId, setCategoryId] = useState<number>(operation.category.id);
   const [selectedDate, setDate] = useState(moment());
-  const [inputDateValue, setInputDateValue] = useState(moment(operation.date).format('YYYY-MM-DD'));
-
-  useEffect(() => {
-    let mounted = true;
-    getCategories().then(data => {
-      if (mounted) {
-        setCategories(data.sort(sortCategories));
-        setLoadingCategories(false);
-      }
-    });
-    return function cleanup() {
-      mounted = false
-    }
-  }, [getCategories])
+  const [inputDateValue, setInputDateValue] = useState(moment(operation.date).format(DATE_FORMAT));
 
   const handleChangeValue = (event: React.ChangeEvent<HTMLInputElement>) => {
     setValue(+event.target.value)
@@ -108,7 +92,6 @@ const EditOperationDialog: React.FC<EditOperationDialogProps & EditOperationProp
           selectedDate={selectedDate}
           inputDateValue={inputDateValue}
           categories={categories}
-          isLoadingCategories={isLoadingCategories}
           handleChangeValue={handleChangeValue}
           handleChangeDate={handleChangeDate}
           handleChangeDescription={handleChangeDescription}

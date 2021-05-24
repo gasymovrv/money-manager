@@ -4,6 +4,7 @@ import MomentUtils from '@date-io/moment';
 import { KeyboardDatePicker, MuiPickersUtilsProvider } from '@material-ui/pickers';
 import { Moment } from 'moment';
 import { OperationCategory } from '../../interfaces/operation.interface';
+import { DATE_FORMAT } from '../../helpers/date.helper';
 
 type CommonContentDialogProps = {
   value: number,
@@ -12,7 +13,7 @@ type CommonContentDialogProps = {
   description?: string,
   categoryId: number,
   categories: OperationCategory[],
-  isLoadingCategories: boolean,
+  isLoadingCategories?: boolean,
 
   handleChangeValue(event: React.ChangeEvent<HTMLInputElement>): void
   handleChangeDescription(event: React.ChangeEvent<HTMLInputElement>): void
@@ -41,7 +42,6 @@ const CommonOperationDialog: React.FC<CommonContentDialogProps> = ({
         autoFocus
         color="secondary"
         margin="normal"
-        id="value"
         label="Amount"
         type="number"
         fullWidth
@@ -52,7 +52,6 @@ const CommonOperationDialog: React.FC<CommonContentDialogProps> = ({
       <TextField
         color="secondary"
         margin="normal"
-        id="description"
         label="Description"
         type="text"
         fullWidth
@@ -64,7 +63,6 @@ const CommonOperationDialog: React.FC<CommonContentDialogProps> = ({
       <TextField
           error={!categoryId}
           margin="normal"
-          id="category"
           select
           required
           fullWidth
@@ -82,11 +80,9 @@ const CommonOperationDialog: React.FC<CommonContentDialogProps> = ({
         <KeyboardDatePicker
           error={!inputDateValue}
           margin="normal"
-          id="date"
           required
           fullWidth
-          showTodayButton={true}
-          format="YYYY-MM-DD"
+          format={DATE_FORMAT}
           value={selectedDate}
           inputValue={inputDateValue}
           onChange={handleChangeDate}

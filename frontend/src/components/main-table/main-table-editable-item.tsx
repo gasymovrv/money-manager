@@ -1,12 +1,14 @@
 import React from 'react';
-import { Operation, OperationType } from '../../interfaces/operation.interface';
+import { Operation, OperationCategory, OperationType } from '../../interfaces/operation.interface';
 import { makeStyles, MenuItem } from '@material-ui/core';
 import { createStyles } from '@material-ui/core/styles';
 import { EditExpenseDialog, EditIncomeDialog } from '../dialog/edit-operation.dialog';
 
 type MainTableEditableItemProps = {
+  className: string | undefined,
   operation: Operation,
   operationType: OperationType,
+  categories: OperationCategory[],
   refreshTable(): void
 }
 
@@ -21,8 +23,10 @@ const useStyles = makeStyles(() =>
 );
 
 const MainTableEditableItem: React.FC<MainTableEditableItemProps> = ({
+                                                                       className,
                                                                        operation,
                                                                        operationType,
+                                                                       categories,
                                                                        refreshTable
                                                                      }) => {
   const {id, value} = operation;
@@ -40,7 +44,7 @@ const MainTableEditableItem: React.FC<MainTableEditableItemProps> = ({
   const clickableMenu = (
     <MenuItem
       key={id}
-      className={classes.menuItem}
+      className={`${classes.menuItem} ${className}`}
       onClick={handleOpenEditOperation}
     >
       {value}
@@ -54,6 +58,7 @@ const MainTableEditableItem: React.FC<MainTableEditableItemProps> = ({
           {clickableMenu}
           <EditIncomeDialog
             operation={operation}
+            categories={categories}
             open={openEditOperation}
             handleClose={handleCloseEditOperation}
             onAction={refreshTable}
@@ -66,6 +71,7 @@ const MainTableEditableItem: React.FC<MainTableEditableItemProps> = ({
           {clickableMenu}
           <EditExpenseDialog
             operation={operation}
+            categories={categories}
             open={openEditOperation}
             handleClose={handleCloseEditOperation}
             onAction={refreshTable}
@@ -77,7 +83,7 @@ const MainTableEditableItem: React.FC<MainTableEditableItemProps> = ({
         <>
           <MenuItem
             key={id}
-            className={classes.menuItem}
+            className={`${classes.menuItem} ${className}`}
           >
             {value}
           </MenuItem>

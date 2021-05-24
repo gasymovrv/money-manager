@@ -56,15 +56,20 @@ export class SavingSearchParams {
   pageNum: number;
   pageSize: number;
 
-  constructor(sortDirection: SortDirection, pageNum: number, pageSize: number) {
-    this.sortDirection = sortDirection;
+  constructor(
+    pageNum: number,
+    pageSize: number,
+    filter: SavingsFilterParams) {
     this.pageNum = pageNum;
     this.pageSize = pageSize;
+    this.from = filter.from;
+    this.to = filter.to;
+    this.sortDirection = filter.sortDirection;
   }
 
-  public toUrlSearchParams():URLSearchParams {
+  public toUrlSearchParams(): URLSearchParams {
     const url = new URLSearchParams()
-    const params:any = this;
+    const params: any = this;
     Object.keys(params).forEach(key => {
       const param = params[key];
       if (param) {
@@ -77,4 +82,11 @@ export class SavingSearchParams {
 
 export enum SavingFieldToSort {
   DATE = 'DATE',
+}
+
+export interface SavingsFilterParams {
+  from?: string;
+  to?: string;
+  sortBy?: SavingFieldToSort;
+  sortDirection: SortDirection;
 }
