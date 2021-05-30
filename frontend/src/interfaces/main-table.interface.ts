@@ -4,6 +4,7 @@ import React from 'react';
 export interface Row {
   id: number,
   date: string,
+  isOverdue: boolean,
   incomesSum: number,
   expensesSum: number,
   incomeLists: Array<Operation[] | undefined>,

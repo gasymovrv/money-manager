@@ -1,37 +1,10 @@
-import { Operation } from './operation.interface';
 import { SearchResult, SortDirection } from './common.interface';
 
-export class Saving implements SavingResponse {
-  id: number;
-  date: string;
-  value: number;
-  incomesSum: number;
-  expensesSum: number;
-  incomesByCategory: Map<string, Operation[]>;
-  expensesByCategory: Map<string, Operation[]>;
-
-  constructor(id: number,
-              date: string,
-              value: number,
-              incomesSum: number,
-              expensesSum: number,
-              incomesByCategory: Map<string, Operation[]>,
-              expensesByCategory: Map<string, Operation[]>) {
-    this.id = id;
-    this.date = date;
-    this.value = value;
-    this.incomesSum = incomesSum;
-    this.expensesSum = expensesSum;
-    this.incomesByCategory = incomesByCategory;
-    this.expensesByCategory = expensesByCategory;
-  }
-}
-
-export class SavingSearchResult implements SearchResult<Saving> {
-  result: Saving[];
+export class SavingSearchResult implements SearchResult<SavingResponse> {
+  result: SavingResponse[];
   totalElements: number;
 
-  constructor(result: Saving[],
+  constructor(result: SavingResponse[],
               totalElements: number) {
     this.result = result;
     this.totalElements = totalElements;
@@ -42,6 +15,7 @@ export interface SavingResponse {
   id: number,
   date: string,
   value: number,
+  isOverdue: boolean,
   incomesSum: number,
   expensesSum: number,
   incomesByCategory: any,

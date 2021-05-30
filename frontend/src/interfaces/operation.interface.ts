@@ -9,6 +9,7 @@ export interface Operation {
   date: string,
   description?: string,
   category: OperationCategory,
+  isPlanned: boolean
 }
 
 export interface AddOrEditOperationRequest {
@@ -16,6 +17,7 @@ export interface AddOrEditOperationRequest {
   date: string,
   description?: string,
   categoryId: number,
+  isPlanned: boolean
 }
 
 export interface AddOrEditOperationCategoryRequest {

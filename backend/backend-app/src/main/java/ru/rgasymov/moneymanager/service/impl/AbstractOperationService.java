@@ -6,7 +6,6 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import javax.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.lang.Nullable;
 import org.springframework.transaction.annotation.Transactional;
 import ru.rgasymov.moneymanager.domain.dto.request.OperationRequestDto;
 import ru.rgasymov.moneymanager.domain.dto.response.OperationResponseDto;
@@ -39,15 +38,13 @@ public abstract class AbstractOperationService<
     var currentUser = userService.getCurrentUser();
     var currentUserId = currentUser.getId();
     var categoryId = dto.getCategoryId();
-    var date = dto.getDate();
-    var value = dto.getValue();
 
     OT category = operationCategoryRepository.findByIdAndUserId(categoryId, currentUserId)
         .orElseThrow(() ->
             new EntityNotFoundException(
                 String.format("Could not find operation category with id = '%s' in the database",
                     categoryId)));
-    O operation = buildNewOperation(currentUser, dto.getDescription(), category, date, value);
+    O operation = buildNewOperation(currentUser, dto, category);
 
     return saveNewOperation(operation);
   }
@@ -95,6 +92,7 @@ public abstract class AbstractOperationService<
     }
 
     operation.setDescription(dto.getDescription());
+    operation.setIsPlanned(dto.getIsPlanned());
     O saved = operationRepository.save(operation);
     return operationMapper.toDto(saved);
   }
@@ -117,10 +115,8 @@ public abstract class AbstractOperationService<
   protected abstract OperationResponseDto saveNewOperation(O operation);
 
   protected abstract O buildNewOperation(User currentUser,
-                                         @Nullable String description,
-                                         OT category,
-                                         LocalDate date,
-                                         BigDecimal value);
+                                         OperationRequestDto dto,
+                                         OT category);
 
   protected abstract void updateSavings(BigDecimal value,
                                         BigDecimal oldValue,

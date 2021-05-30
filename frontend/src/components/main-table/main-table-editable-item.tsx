@@ -1,6 +1,6 @@
 import React from 'react';
 import { Operation, OperationCategory, OperationType } from '../../interfaces/operation.interface';
-import { makeStyles, MenuItem } from '@material-ui/core';
+import { makeStyles, MenuItem, Tooltip } from '@material-ui/core';
 import { createStyles } from '@material-ui/core/styles';
 import { EditExpenseDialog, EditIncomeDialog } from '../dialog/edit-operation.dialog';
 
@@ -29,7 +29,7 @@ const MainTableEditableItem: React.FC<MainTableEditableItemProps> = ({
                                                                        categories,
                                                                        refreshTable
                                                                      }) => {
-  const {id, value} = operation;
+  const {id, value, description} = operation;
   const [openEditOperation, setOpenEditOperation] = React.useState(false);
   const classes = useStyles();
 
@@ -42,13 +42,15 @@ const MainTableEditableItem: React.FC<MainTableEditableItemProps> = ({
   };
 
   const clickableMenu = (
-    <MenuItem
-      key={id}
-      className={`${classes.menuItem} ${className}`}
-      onClick={handleOpenEditOperation}
-    >
-      {value}
-    </MenuItem>
+    <Tooltip title={description || ''}>
+      <MenuItem
+        key={id}
+        className={`${classes.menuItem} ${className}`}
+        onClick={handleOpenEditOperation}
+      >
+        {value}
+      </MenuItem>
+    </Tooltip>
   )
 
   switch (operationType) {

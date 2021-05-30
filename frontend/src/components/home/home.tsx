@@ -5,15 +5,19 @@ import { Container, makeStyles } from '@material-ui/core';
 import { Operation, OperationCategory } from '../../interfaces/operation.interface';
 import { getExpenseCategories, getIncomeCategories, getSavings } from '../../services/api.service';
 import { SearchResult, SortDirection } from '../../interfaces/common.interface';
-import { Saving, SavingFieldToSort, SavingSearchParams, SavingsFilterParams } from '../../interfaces/saving.interface';
+import {
+  SavingFieldToSort,
+  SavingResponse,
+  SavingSearchParams,
+  SavingsFilterParams
+} from '../../interfaces/saving.interface';
 import { HomeState, Row } from '../../interfaces/main-table.interface';
 import ErrorNotification from '../notification/error.notification';
 import { sortCategories } from '../../helpers/sort.helper';
 import { createStyles, Theme } from '@material-ui/core/styles';
 import WelcomeBox from '../welcome-box/welcome-box';
-import moment from 'moment/moment';
+import moment, { Moment } from 'moment';
 import SavingsFilter from '../filter/savings-filter';
-import { Moment } from 'moment';
 import { DATE_FORMAT } from '../../helpers/date.helper';
 
 async function getTable(page: number, rowsPerPage: number, filter: SavingsFilterParams): Promise<HomeState> {
@@ -23,7 +27,7 @@ async function getTable(page: number, rowsPerPage: number, filter: SavingsFilter
   const incomeCategories = await getIncomeCategories();
   incomeCategories.sort(sortCategories);
 
-  const searchResult: SearchResult<Saving> = await getSavings(
+  const searchResult: SearchResult<SavingResponse> = await getSavings(
     new SavingSearchParams(page, rowsPerPage, filter)
   );
   const savings = searchResult.result;
@@ -31,11 +35,12 @@ async function getTable(page: number, rowsPerPage: number, filter: SavingsFilter
                                      id,
                                      date,
                                      value,
+                                     isOverdue,
                                      incomesSum,
                                      expensesSum,
                                      expensesByCategory,
                                      incomesByCategory
-                                   }: Saving) => {
+                                   }: SavingResponse) => {
     const expenseLists: Array<Operation[] | undefined> = [];
     const incomeLists: Array<Operation[] | undefined> = [];
 
@@ -51,6 +56,7 @@ async function getTable(page: number, rowsPerPage: number, filter: SavingsFilter
     return {
       id,
       date,
+      isOverdue,
       incomesSum,
       expensesSum,
       incomeLists,
@@ -143,7 +149,9 @@ const Home: React.FC = () => {
       selectedFrom,
       selectedTo,
       inputToValue,
-      sortDirection
+      inputFromValue,
+      sortDirection,
+      sortBy
     ])
 
   const handleChangePage = (event: unknown, newPage: number) => {

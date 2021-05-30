@@ -3,6 +3,7 @@ package ru.rgasymov.moneymanager.domain.dto.response;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModel;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -39,6 +40,10 @@ public class SavingResponseDto {
 
   @Builder.Default
   private BigDecimal expensesSum = BigDecimal.ZERO;
+
+  @JsonProperty("isOverdue")
+  @Builder.Default
+  private boolean isOverdue = false;
 
   @EqualsAndHashCode.Exclude
   @ToString.Exclude

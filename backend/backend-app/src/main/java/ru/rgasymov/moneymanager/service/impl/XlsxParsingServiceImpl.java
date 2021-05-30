@@ -147,10 +147,12 @@ public class XlsxParsingServiceImpl implements XlsxParsingService {
         var incomeCategory = incomeCategories.get(columnIndex);
         var expenseCategory = expenseCategories.get(columnIndex);
 
+        var today = LocalDate.now();
         if (incomeCategory != null && cellValue != 0) {
           var inc = Income.builder()
               .date(date)
               .value(new BigDecimal(cellValue))
+              .isPlanned(date.isAfter(today))
               .category(incomeCategory)
               .description(cellComment)
               .user(currentUser)
@@ -161,6 +163,7 @@ public class XlsxParsingServiceImpl implements XlsxParsingService {
           var exp = Expense.builder()
               .date(date)
               .value(new BigDecimal(cellValue))
+              .isPlanned(date.isAfter(today))
               .category(expenseCategory)
               .description(cellComment)
               .user(currentUser)

@@ -1,6 +1,6 @@
 import { Button, Dialog, DialogActions, DialogTitle } from '@material-ui/core';
 import React, { useEffect, useState } from 'react';
-import moment from 'moment/moment';
+import moment from 'moment';
 import ErrorNotification from '../notification/error.notification';
 import SuccessNotification from '../notification/success.notification';
 import { AddOperationProps, DialogProps } from '../../interfaces/common.interface';
@@ -30,6 +30,7 @@ const AddOperationDialog: React.FC<DialogProps & AddOperationProps> = ({
   const [categoryId, setCategoryId] = useState<number>(0);
   const [selectedDate, setDate] = useState(moment());
   const [inputDateValue, setInputDateValue] = useState(moment().format(DATE_FORMAT));
+  const [isPlanned, setIsPlanned] = useState<boolean>(false);
 
   useEffect(() => {
     let mounted = true;
@@ -54,6 +55,10 @@ const AddOperationDialog: React.FC<DialogProps & AddOperationProps> = ({
     setValue(+event.target.value)
   }
 
+  const handleChangeIsPlanned = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setIsPlanned(event.target.checked)
+  }
+
   const handleChangeCategoryId = (event: React.ChangeEvent<any>) => {
     setCategoryId(event.target.value)
   }
@@ -65,6 +70,9 @@ const AddOperationDialog: React.FC<DialogProps & AddOperationProps> = ({
   const handleChangeDate = (date: any, value: any) => {
     setDate(date);
     setInputDateValue(value);
+    if (date && date.isAfter(moment(), 'days')) {
+      setIsPlanned(true);
+    }
   }
 
   const handleSave = async () => {
@@ -75,7 +83,8 @@ const AddOperationDialog: React.FC<DialogProps & AddOperationProps> = ({
         categoryId: categoryId,
         date: inputDateValue,
         description: description,
-        value: value
+        value: value,
+        isPlanned: isPlanned
       });
       setSuccess(true);
       onAction();
@@ -105,6 +114,7 @@ const AddOperationDialog: React.FC<DialogProps & AddOperationProps> = ({
 
         <CommonOperationDialog
           value={value}
+          isPlanned={isPlanned}
           categoryId={categoryId}
           description={description}
           selectedDate={selectedDate}
@@ -112,6 +122,7 @@ const AddOperationDialog: React.FC<DialogProps & AddOperationProps> = ({
           categories={categories}
           isLoadingCategories={isLoadingCategories}
           handleChangeValue={handleChangeValue}
+          handleChangeIsPlanned={handleChangeIsPlanned}
           handleChangeDate={handleChangeDate}
           handleChangeDescription={handleChangeDescription}
           handleChangeCategoryId={handleChangeCategoryId}

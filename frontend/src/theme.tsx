@@ -65,7 +65,7 @@ export const lightTheme: Theme = createMuiTheme({
       main: blueGrey['200']
     },
     secondary: {
-      main: grey['600']
+      main: grey['800']
     },
     redText: {
       main: red['800'],

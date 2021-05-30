@@ -2,6 +2,7 @@ package ru.rgasymov.moneymanager.domain.entity;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -35,4 +36,7 @@ public abstract class BaseOperation {
   private String description;
 
   private BigDecimal value;
+
+  @Column(name = "is_planned")
+  private Boolean isPlanned;
 }

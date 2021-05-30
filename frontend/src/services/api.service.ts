@@ -5,7 +5,7 @@ import {
   Operation,
   OperationCategory
 } from '../interfaces/operation.interface';
-import { Saving, SavingResponse, SavingSearchParams, SavingSearchResult } from '../interfaces/saving.interface';
+import { SavingResponse, SavingSearchParams, SavingSearchResult } from '../interfaces/saving.interface';
 import { SearchResult } from '../interfaces/common.interface';
 
 const apiUrl = '/api/';
@@ -32,14 +32,14 @@ export async function getIncomeCategories(): Promise<Array<OperationCategory>> {
   return await response.json();
 }
 
-export async function getSavings(request: SavingSearchParams): Promise<SearchResult<Saving>> {
+export async function getSavings(request: SavingSearchParams): Promise<SearchResult<SavingResponse>> {
   return fetch(apiUrl + 'savings?' + request.toUrlSearchParams().toString())
     .then(handleErrors)
     .then((response) => {
       return response.json();
     })
-    .then((body: SearchResult<SavingResponse>): SearchResult<Saving> => {
-      const newResult: Saving[] = body.result.map((saving) => {
+    .then((body: SearchResult<SavingResponse>): SearchResult<SavingResponse> => {
+      const result: SavingResponse[] = body.result.map((saving) => {
         const expMap: Map<string, Operation[]> = new Map(Object.entries(saving.expensesByCategory));
         const incMap: Map<string, Operation[]> = new Map(Object.entries(saving.incomesByCategory));
 
@@ -47,13 +47,14 @@ export async function getSavings(request: SavingSearchParams): Promise<SearchRes
           id: saving.id,
           date: saving.date,
           value: saving.value,
+          isOverdue: saving.isOverdue,
           incomesSum: saving.incomesSum,
           expensesSum: saving.expensesSum,
           incomesByCategory: incMap,
           expensesByCategory: expMap
         };
       });
-      return new SavingSearchResult(newResult, body.totalElements);
+      return new SavingSearchResult(result, body.totalElements);
     });
 }
 

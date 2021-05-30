@@ -1,7 +1,7 @@
 import { Button, Dialog, DialogActions, DialogTitle } from '@material-ui/core';
 import React, { useState } from 'react';
 import { EditOperationDialogProps, EditOperationProps } from '../../interfaces/common.interface';
-import moment from 'moment/moment';
+import moment from 'moment';
 import CommonOperationDialog from './common-operation.dialog';
 import { WithEditIncomeActions } from '../../hocs/with-edit-income-actions';
 import { WithEditExpenseActions } from '../../hocs/with-edit-expense-actions';
@@ -26,11 +26,16 @@ const EditOperationDialog: React.FC<EditOperationDialogProps & EditOperationProp
   const [value, setValue] = useState<number>(operation.value);
   const [description, setDescription] = useState<string>(operation.description || '');
   const [categoryId, setCategoryId] = useState<number>(operation.category.id);
-  const [selectedDate, setDate] = useState(moment());
+  const [selectedDate, setDate] = useState(moment(operation.date));
   const [inputDateValue, setInputDateValue] = useState(moment(operation.date).format(DATE_FORMAT));
+  const [isPlanned, setIsPlanned] = useState<boolean>(operation.isPlanned);
 
   const handleChangeValue = (event: React.ChangeEvent<HTMLInputElement>) => {
     setValue(+event.target.value)
+  }
+
+  const handleChangeIsPlanned = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setIsPlanned(event.target.checked)
   }
 
   const handleChangeTypeId = (event: React.ChangeEvent<any>) => {
@@ -44,6 +49,9 @@ const EditOperationDialog: React.FC<EditOperationDialogProps & EditOperationProp
   const handleChangeDate = (date: any, value: any) => {
     setDate(date);
     setInputDateValue(value);
+    if (date && date.isAfter(moment(), 'days')) {
+      setIsPlanned(true);
+    }
   }
 
   const handleSave = async () => {
@@ -55,6 +63,7 @@ const EditOperationDialog: React.FC<EditOperationDialogProps & EditOperationProp
         date: inputDateValue,
         description: description,
         categoryId: categoryId,
+        isPlanned: isPlanned,
       });
       setSuccessEdit(true);
       onAction();
@@ -79,6 +88,16 @@ const EditOperationDialog: React.FC<EditOperationDialogProps & EditOperationProp
     handleClose();
   }
 
+  const handleCancel = async () => {
+    setValue(operation.value);
+    setDescription(operation.description || '');
+    setCategoryId(operation.category.id);
+    setDate(moment(operation.date));
+    setInputDateValue(moment(operation.date).format(DATE_FORMAT));
+    setIsPlanned(operation.isPlanned);
+    handleClose();
+  }
+
   return (
     <>
       <Dialog maxWidth="xs" open={open} onClose={handleClose}>
@@ -87,19 +106,21 @@ const EditOperationDialog: React.FC<EditOperationDialogProps & EditOperationProp
 
         <CommonOperationDialog
           value={value}
+          isPlanned={isPlanned}
           categoryId={categoryId}
           description={description}
           selectedDate={selectedDate}
           inputDateValue={inputDateValue}
           categories={categories}
           handleChangeValue={handleChangeValue}
+          handleChangeIsPlanned={handleChangeIsPlanned}
           handleChangeDate={handleChangeDate}
           handleChangeDescription={handleChangeDescription}
           handleChangeCategoryId={handleChangeTypeId}
         />
 
         <DialogActions>
-          <Button onClick={handleClose} color="inherit">
+          <Button onClick={handleCancel} color="inherit">
             Cancel
           </Button>
           <Button onClick={handleDelete} color="inherit">

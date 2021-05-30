@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.rgasymov.moneymanager.domain.dto.request.OperationRequestDto;
 import ru.rgasymov.moneymanager.domain.dto.response.OperationResponseDto;
 import ru.rgasymov.moneymanager.domain.entity.Income;
 import ru.rgasymov.moneymanager.domain.entity.IncomeCategory;
@@ -54,14 +55,13 @@ public class IncomeServiceImpl
 
   @Override
   protected Income buildNewOperation(User currentUser,
-                                     String description,
-                                     IncomeCategory category,
-                                     LocalDate date,
-                                     BigDecimal value) {
+                                     OperationRequestDto dto,
+                                     IncomeCategory category) {
     return Income.builder()
-        .date(date)
-        .value(value)
-        .description(description)
+        .date(dto.getDate())
+        .value(dto.getValue())
+        .description(dto.getDescription())
+        .isPlanned(dto.getIsPlanned())
         .category(category)
         .user(currentUser)
         .build();

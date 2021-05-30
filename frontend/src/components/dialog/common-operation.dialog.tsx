@@ -1,13 +1,14 @@
-import { DialogContent, MenuItem, TextField } from '@material-ui/core';
+import { Checkbox, DialogContent, FormControlLabel, MenuItem, TextField } from '@material-ui/core';
 import React from 'react';
 import MomentUtils from '@date-io/moment';
 import { KeyboardDatePicker, MuiPickersUtilsProvider } from '@material-ui/pickers';
-import { Moment } from 'moment';
+import moment, { Moment } from 'moment';
 import { OperationCategory } from '../../interfaces/operation.interface';
 import { DATE_FORMAT } from '../../helpers/date.helper';
 
 type CommonContentDialogProps = {
   value: number,
+  isPlanned: boolean,
   selectedDate: Moment,
   inputDateValue: string,
   description?: string,
@@ -16,6 +17,7 @@ type CommonContentDialogProps = {
   isLoadingCategories?: boolean,
 
   handleChangeValue(event: React.ChangeEvent<HTMLInputElement>): void
+  handleChangeIsPlanned(event: React.ChangeEvent<HTMLInputElement>): void
   handleChangeDescription(event: React.ChangeEvent<HTMLInputElement>): void
   handleChangeCategoryId(event: React.ChangeEvent<any>): void
   handleChangeDate(date: any, value: any): void
@@ -23,6 +25,7 @@ type CommonContentDialogProps = {
 
 const CommonOperationDialog: React.FC<CommonContentDialogProps> = ({
                                                                      value,
+                                                                     isPlanned,
                                                                      categoryId,
                                                                      description,
                                                                      selectedDate,
@@ -30,6 +33,7 @@ const CommonOperationDialog: React.FC<CommonContentDialogProps> = ({
                                                                      categories,
                                                                      isLoadingCategories,
                                                                      handleChangeValue,
+                                                                     handleChangeIsPlanned,
                                                                      handleChangeDescription,
                                                                      handleChangeCategoryId,
                                                                      handleChangeDate
@@ -86,10 +90,28 @@ const CommonOperationDialog: React.FC<CommonContentDialogProps> = ({
           value={selectedDate}
           inputValue={inputDateValue}
           onChange={handleChangeDate}
+          minDate={isPlanned ? moment().add(1, "days") : undefined}
           label="Date"
           color="secondary"
         />
       </MuiPickersUtilsProvider>
+
+      <FormControlLabel
+        label="Planned"
+        control={
+          <Checkbox
+            disabled={
+              selectedDate && !isPlanned ?
+                selectedDate.diff(moment().format(DATE_FORMAT), 'days') <= 0 :
+                false
+            }
+            checked={isPlanned}
+            color="secondary"
+            onChange={handleChangeIsPlanned}
+          />
+        }
+      />
+
     </DialogContent>
   );
 }
