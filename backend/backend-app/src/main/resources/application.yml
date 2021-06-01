@@ -65,7 +65,7 @@ logging:
   logback:
     rollingpolicy:
       max-file-size: ${LOGFILE_MAX_SIZE:100MB}
-      max-history: ${LOG_ARCHIVE_MAX_DAYS:60}
+      max-history: ${LOG_ARCHIVE_MAX_DAYS:30}
       total-size-cap: ${LOG_ARCHIVE_MAX_SIZE:500MB}
 
 file-service:

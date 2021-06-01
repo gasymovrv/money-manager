@@ -3,6 +3,7 @@ import { Operation, OperationCategory, OperationType } from '../../interfaces/op
 import { makeStyles, MenuItem, Tooltip } from '@material-ui/core';
 import { createStyles } from '@material-ui/core/styles';
 import { EditExpenseDialog, EditIncomeDialog } from '../dialog/edit-operation.dialog';
+import MoneyFormat from '../money-format/money-format';
 
 type MainTableEditableItemProps = {
   className: string | undefined,
@@ -48,7 +49,7 @@ const MainTableEditableItem: React.FC<MainTableEditableItemProps> = ({
         className={`${classes.menuItem} ${className}`}
         onClick={handleOpenEditOperation}
       >
-        {value}
+        <MoneyFormat value={value}/>
       </MenuItem>
     </Tooltip>
   )
@@ -82,14 +83,12 @@ const MainTableEditableItem: React.FC<MainTableEditableItemProps> = ({
       );
     default:
       return (
-        <>
-          <MenuItem
-            key={id}
-            className={`${classes.menuItem} ${className}`}
-          >
-            {value}
-          </MenuItem>
-        </>
+        <MenuItem
+          key={id}
+          className={`${classes.menuItem} ${className}`}
+        >
+          <MoneyFormat value={value}/>
+        </MenuItem>
       );
   }
 }

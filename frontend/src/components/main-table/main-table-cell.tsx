@@ -5,6 +5,7 @@ import { IconButton, makeStyles, MenuItem } from '@material-ui/core';
 import { createStyles, Theme } from '@material-ui/core/styles';
 import ExpandLessIcon from '@material-ui/icons/ExpandLess';
 import MainTableEditableItem from './main-table-editable-item';
+import MoneyFormat from '../money-format/money-format';
 
 function calculateSum(list: Operation[]): number {
   return list.reduce((acc, value) => (value ? acc + value.value : acc), 0);
@@ -68,25 +69,25 @@ const MainTableCell: React.FC<MainTableCellProps> = ({
         <StyledTableCell key={rowId + '_' + index}>
           {expandList ?
             items.map((inc, i) => {
-              const menuItem = (
-                <MainTableEditableItem
-                  className={className}
-                  operation={inc}
-                  categories={categories}
-                  operationType={itemType}
-                  refreshTable={refreshTable}
-                />
-              )
-              if (i === items.length - 1) {
-                return (
-                  <>
-                    {menuItem}
-                    <IconButton size="small" onClick={handleCollapseList}>
-                      <ExpandLessIcon fontSize="small"/>
-                    </IconButton>
-                  </>
+                const menuItem = (
+                  <MainTableEditableItem
+                    className={className}
+                    operation={inc}
+                    categories={categories}
+                    operationType={itemType}
+                    refreshTable={refreshTable}
+                  />
                 )
-              }
+                if (i === items.length - 1) {
+                  return (
+                    <>
+                      {menuItem}
+                      <IconButton size="small" onClick={handleCollapseList}>
+                        <ExpandLessIcon fontSize="small"/>
+                      </IconButton>
+                    </>
+                  )
+                }
                 return menuItem;
               }
             ) :
@@ -95,7 +96,7 @@ const MainTableCell: React.FC<MainTableCellProps> = ({
               onClick={handleExpandList}
               className={`${classes.menuItem} ${className}`}
             >
-              {calculateSum(items)}
+              <MoneyFormat value={calculateSum(items)}/>
             </MenuItem>
           }
         </StyledTableCell>

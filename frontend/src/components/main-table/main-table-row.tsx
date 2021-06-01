@@ -7,6 +7,7 @@ import MainTableCell from './main-table-cell';
 import { Row } from '../../interfaces/main-table.interface';
 import { isToday } from '../../helpers/date.helper';
 import ErrorOutlineIcon from '@material-ui/icons/ErrorOutline';
+import MoneyFormat from '../money-format/money-format';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -84,18 +85,16 @@ const MainTableRow: React.FC<MainTableRowProps> = ({
   let incCellClass = classes.green;
   let expCellClass = classes.red;
   if (today) {
-    rowClass = `${classes.todayRow} ${classes.boldFont}`;
-    incCellClass = `${classes.contrastGreen} ${classes.boldFont}`;
-    expCellClass = `${classes.contrastRed} ${classes.boldFont}`;
+    rowClass = classes.todayRow;
+    incCellClass = classes.contrastGreen;
+    expCellClass = classes.contrastRed;
   } else if (isOverdue) {
     if (isDarkTheme) {
-      rowClass = `${classes.overdueRow} ${classes.boldFont}`;
-      incCellClass = `${classes.contrastGreen} ${classes.boldFont}`;
-      expCellClass = `${classes.contrastRed} ${classes.boldFont}`;
+      rowClass = classes.overdueRow;
+      incCellClass = classes.contrastGreen;
+      expCellClass = classes.contrastRed;
     } else {
-      rowClass = `${classes.overdueRow} ${classes.boldFont}`;
-      incCellClass = `${classes.green} ${classes.boldFont}`;
-      expCellClass = `${classes.red} ${classes.boldFont}`;
+      rowClass = classes.overdueRow;
     }
   }
 
@@ -131,7 +130,7 @@ const MainTableRow: React.FC<MainTableRowProps> = ({
       }
 
       <StyledTableCell key={'inc_sum_' + id} className={`${incCellClass} ${classes.boldFont}`}>
-        {incomesSum}
+        <MoneyFormat value={incomesSum}/>
       </StyledTableCell>
 
       {
@@ -150,14 +149,14 @@ const MainTableRow: React.FC<MainTableRowProps> = ({
       }
 
       <StyledTableCell key={'exp_sum_' + id} className={`${expCellClass} ${classes.boldFont}`}>
-        {expensesSum}
+        <MoneyFormat value={expensesSum}/>
       </StyledTableCell>
 
       <StyledTableCell
         key={'savings_' + id}
         className={savings >= 0 ? `${incCellClass} ${classes.boldFont}` : `${expCellClass} ${classes.boldFont}`}
       >
-        {savings}
+        <MoneyFormat value={savings}/>
       </StyledTableCell>
     </TableRow>
   )
