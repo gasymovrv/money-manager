@@ -2,6 +2,7 @@ import React from 'react';
 import { addIncome, getIncomeCategories } from '../services/api.service';
 import { AddOperationProps } from '../interfaces/common.interface';
 import { AddOrEditOperationRequest, OperationCategory } from '../interfaces/operation.interface';
+import { getHocDisplayName } from '../helpers/hoc.helper';
 
 export function WithAddIncomeActions<P>(
   WrappedComponent: React.ComponentType<P & AddOperationProps>
@@ -15,11 +16,13 @@ export function WithAddIncomeActions<P>(
     await addIncome(request);
   }
 
-  return (props: P) => {
+  const ResultComponent = (props: P) => {
     return <WrappedComponent
       {...props}
       getCategories={handleGetCategories}
       addOperation={handleAddOperation}
     />;
   };
+  ResultComponent.displayName = getHocDisplayName('WithAddIncomeActions', WrappedComponent);
+  return ResultComponent;
 }

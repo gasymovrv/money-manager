@@ -2,6 +2,7 @@ import React from 'react';
 import { deleteExpense, editExpense } from '../services/api.service';
 import { EditOperationProps } from '../interfaces/common.interface';
 import { AddOrEditOperationRequest } from '../interfaces/operation.interface';
+import { getHocDisplayName } from '../helpers/hoc.helper';
 
 export function WithEditExpenseActions<P>(
   WrappedComponent: React.ComponentType<P & EditOperationProps>
@@ -15,7 +16,7 @@ export function WithEditExpenseActions<P>(
     await deleteExpense(id);
   }
 
-  return (props: P) => {
+  const ResultComponent = (props: P) => {
     return (
       <WrappedComponent
         {...props}
@@ -24,4 +25,6 @@ export function WithEditExpenseActions<P>(
       />
     );
   };
+  ResultComponent.displayName = getHocDisplayName('WithEditExpenseActions', WrappedComponent);
+  return ResultComponent;
 }

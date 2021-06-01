@@ -2,6 +2,7 @@ import React from 'react';
 import { deleteIncomeCategory, editIncomeCategory } from '../services/api.service';
 import { EditOperationCategoryProps } from '../interfaces/common.interface';
 import { AddOrEditOperationCategoryRequest } from '../interfaces/operation.interface';
+import { getHocDisplayName } from '../helpers/hoc.helper';
 
 export function WithEditIncomeCategoryActions<P>(
   WrappedComponent: React.ComponentType<P & EditOperationCategoryProps>
@@ -15,11 +16,13 @@ export function WithEditIncomeCategoryActions<P>(
     await deleteIncomeCategory(id);
   }
 
-  return (props: P) => {
+  const ResultComponent = (props: P) => {
     return <WrappedComponent
       {...props}
       editOperationCategory={handleEditOperationCategory}
       deleteOperationCategory={handleDeleteOperationCategory}
     />;
   };
+  ResultComponent.displayName = getHocDisplayName('WithEditIncomeCategoryActions', WrappedComponent);
+  return ResultComponent;
 }
