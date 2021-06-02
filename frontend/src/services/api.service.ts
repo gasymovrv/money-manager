@@ -1,4 +1,4 @@
-import { User } from '../interfaces/user.interface';
+import { Account, AddOrEditAccountRequest, User } from '../interfaces/user.interface';
 import {
   AddOrEditOperationCategoryRequest,
   AddOrEditOperationRequest,
@@ -20,6 +20,35 @@ function handleErrors(response: Response) {
 export async function getCurrentUser(): Promise<User> {
   const response = handleErrors(await fetch(apiUrl + 'users/current'));
   return await response.json();
+}
+
+export async function getAllCurrencies(): Promise<string[]> {
+  const response = handleErrors(await fetch(apiUrl + 'accounts/currencies'));
+  return await response.json();
+}
+
+export async function findAllAccounts(): Promise<Array<Account>> {
+  const response = handleErrors(await fetch(apiUrl + 'accounts'));
+  return await response.json();
+}
+
+export async function editAccount(id: number, request: AddOrEditAccountRequest): Promise<Response> {
+  return handleErrors(await fetch(`${apiUrl}accounts/${id}`, {
+    method: 'PUT',
+    headers: {
+      'content-type': 'application/json;charset=UTF-8',
+    },
+    body: JSON.stringify(request),
+  }));
+}
+
+export async function changeAccount(id: number): Promise<Response> {
+  return handleErrors(await fetch(`${apiUrl}accounts/change?id=${id}`, {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json;charset=UTF-8',
+    },
+  }));
 }
 
 export async function getExpenseCategories(): Promise<Array<OperationCategory>> {

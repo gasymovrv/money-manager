@@ -46,9 +46,9 @@ const AddOperationDialog: React.FC<DialogProps & AddOperationProps> = ({
         setLoadingCategories(false);
       }
     })
-    return function cleanup() {
+    return () => {
       mounted = false
-    }
+    };
   }, [getCategories])
 
   const handleChangeValue = (event: React.ChangeEvent<HTMLInputElement>) => {

@@ -1,14 +1,16 @@
 import React, { useEffect, useState } from 'react';
-import { BrowserRouter as Router, Redirect, Route, Switch } from 'react-router-dom';
-import Login from './components/login/login';
-import Home from './components/home/home';
+import { BrowserRouter as Router, Redirect, Route, RouteProps, Switch } from 'react-router-dom';
+import LoginPage from './pages/login.page';
+import HomePage from './pages/home.page';
 import { getCurrentUser } from './services/api.service';
-import { User } from './interfaces/user.interface';
+import { defaultUser, User } from './interfaces/user.interface';
 import { AuthContext, IContext } from './interfaces/auth-context.interface';
 import { CssBaseline, LinearProgress, ThemeProvider } from '@material-ui/core';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
 import { darkTheme, lightTheme } from './theme';
 import moment from 'moment-timezone';
+import WelcomePage from './pages/welcome.page';
+import ProfilePage from './pages/profile.page';
 
 moment.tz.setDefault('Etc/UTC')
 
@@ -17,14 +19,12 @@ type AppState = {
 }
 
 interface PrivateRouterProps {
-  component: any,
-  isAuth: boolean
-  path: string,
-  exact: boolean
+  isAuth: boolean,
+  component: React.ComponentType<any>
 }
 
-const PrivateRoute: React.FC<PrivateRouterProps> = (props) => {
-  const {children, component: Component, isAuth} = props;
+const PrivateRoute: React.FC<PrivateRouterProps & RouteProps> = (props) => {
+  const {isAuth, component: Component, children} = props;
 
   return (
     <Route
@@ -38,40 +38,39 @@ const PrivateRoute: React.FC<PrivateRouterProps> = (props) => {
 }
 
 const App: React.FC = () => {
-  const [{user}, setUser] = useState<AppState>(
-    {
-      user: {
-        id: '',
-        name: '',
-        picture: '',
-        email: '',
-      }
-    });
+  const [{user}, setUser] = useState<AppState>({user: defaultUser});
   const [isLoading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    getCurrentUser()
-      .then(
-        (user) => {
-          setUser({user});
+    let mounted = true;
+
+    (async () => {
+      if (mounted) {
+        try {
+          const currentUser = await getCurrentUser();
+          setUser({user: currentUser});
           setLoading(false);
-        },
-        (err) => {
+        } catch (err) {
           console.log(`Getting current user error: ${err.text}`)
           setLoading(false);
         }
-      )
+      }
+    })();
+
+    return () => {
+      mounted = false
+    };
   }, []);
 
   const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
 
   const theme = prefersDarkMode ? darkTheme : lightTheme;
 
-  console.log('App rendering, user:', user)
   if (isLoading) {
     return (<LinearProgress/>);
   }
   const context: IContext = {user};
+  console.log('App rendering, user has been saved to context:', user)
 
   return (
     <ThemeProvider theme={theme}>
@@ -79,8 +78,24 @@ const App: React.FC = () => {
       <AuthContext.Provider value={context}>
         <Router>
           <Switch>
-            <PrivateRoute path="/" exact isAuth={!!user.id} component={Home}/>
-            <Route path="/login" component={Login}/>
+            <PrivateRoute path="/" exact isAuth={!!user.id} component={
+              (props: any) => {
+                if (user.currentAccount.isDraft) {
+                  return <Redirect to="/welcome"/>;
+                } else {
+                  return <HomePage {...props}/>;
+                }
+              }}/>
+            <PrivateRoute path="/welcome" exact isAuth={!!user.id} component={
+              (props: any) => {
+                if (user.currentAccount.isDraft) {
+                  return <WelcomePage {...props}/>;
+                } else {
+                  return <Redirect to="/"/>;
+                }
+              }}/>
+            <PrivateRoute path="/profile" exact isAuth={!!user.id} component={ProfilePage}/>
+            <Route path="/login" component={LoginPage}/>
           </Switch>
         </Router>
       </AuthContext.Provider>

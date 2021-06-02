@@ -24,6 +24,9 @@ export const darkTheme: Theme = createMuiTheme({
     MuiButton: {
       textPrimary: {
         color: common.white
+      },
+      root: {
+        marginRight: 10
       }
     },
   },
@@ -56,6 +59,9 @@ export const lightTheme: Theme = createMuiTheme({
     MuiButton: {
       textPrimary: {
         color: common.black
+      },
+      root: {
+        marginRight: 10
       }
     }
   },
