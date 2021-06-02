@@ -2,9 +2,9 @@ package ru.rgasymov.moneymanager.specs;
 
 import java.time.LocalDate;
 import org.springframework.data.jpa.domain.Specification;
+import ru.rgasymov.moneymanager.domain.entity.Account_;
 import ru.rgasymov.moneymanager.domain.entity.Saving;
 import ru.rgasymov.moneymanager.domain.entity.Saving_;
-import ru.rgasymov.moneymanager.domain.entity.User_;
 
 public class SavingSpec {
   public static Specification<Saving> filterByDate(LocalDate from, LocalDate to) {
@@ -32,8 +32,8 @@ public class SavingSpec {
     return (saving, cq, cb) -> cb.lessThanOrEqualTo(saving.get(Saving_.date), to);
   }
 
-  public static Specification<Saving> userIdEq(String id) {
+  public static Specification<Saving> accountIdEq(Long id) {
     return (saving, cq, cb) ->
-        cb.equal(saving.get(Saving_.user).get(User_.id), id);
+        cb.equal(saving.get(Saving_.account).get(Account_.id), id);
   }
 }

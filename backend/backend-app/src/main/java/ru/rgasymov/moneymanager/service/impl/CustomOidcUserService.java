@@ -11,7 +11,10 @@ import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.rgasymov.moneymanager.domain.OidcUserProxy;
+import ru.rgasymov.moneymanager.domain.entity.Account;
 import ru.rgasymov.moneymanager.domain.entity.User;
+import ru.rgasymov.moneymanager.domain.enums.AccountTheme;
+import ru.rgasymov.moneymanager.domain.enums.Currency;
 import ru.rgasymov.moneymanager.repository.UserRepository;
 
 @Service
@@ -43,12 +46,20 @@ public class CustomOidcUserService extends OidcUserService {
       newUser.setEmail(oidcUser.getClaim("email"));
       newUser.setLocale(oidcUser.getClaim("locale"));
       newUser.setPicture(oidcUser.getClaim("picture"));
+
+      var account = Account.builder()
+          .user(newUser)
+          .name("Default account")
+          .theme(AccountTheme.LIGHT)
+          .currency(Currency.USD)
+          .build();
+      newUser.setCurrentAccount(account);
       return newUser;
     });
     user.setLastVisit(LocalDateTime.now());
-    userRepository.save(user);
+    var saved = userRepository.save(user);
 
-    log.info("# User was successfully logged in: {}", user);
-    return new OidcUserProxy(oidcUser, user);
+    log.info("# User was successfully logged in: {}", saved);
+    return new OidcUserProxy(oidcUser, saved);
   }
 }

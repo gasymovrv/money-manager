@@ -28,7 +28,7 @@ public class ExpenseCategoryServiceImpl
   @Override
   protected ExpenseCategory buildNewOperationCategory(User currentUser, String name) {
     return ExpenseCategory.builder()
-        .user(currentUser)
+        .account(currentUser.getCurrentAccount())
         .name(name)
         .build();
   }

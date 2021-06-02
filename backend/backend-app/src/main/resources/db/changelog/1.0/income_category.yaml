@@ -8,7 +8,7 @@ databaseChangeLog:
             tableName: income_category
             columns:
               - column: { name: id, type: bigint }
-              - column: { name: user_id, type: varchar(255) }
+              - column: { name: account_id, type: bigint }
               - column: { name: name, type: varchar(255) }
 
   - changeSet:
@@ -28,12 +28,12 @@ databaseChangeLog:
             columnDataType: bigint
             tableName: income_category
         - addForeignKeyConstraint:
-            baseColumnNames: user_id
+            baseColumnNames: account_id
             baseTableName: income_category
-            constraintName: fk_income_category_user
+            constraintName: fk_income_category_account
             referencedColumnNames: id
-            referencedTableName: users
+            referencedTableName: account
         - addUniqueConstraint:
             tableName: income_category
-            columnNames: name, user_id
+            columnNames: name, account_id
             constraintName: income_category_name_unique

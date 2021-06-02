@@ -1,16 +1,15 @@
 package ru.rgasymov.moneymanager.domain.dto.response;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModel;
-import java.math.BigDecimal;
-import java.time.LocalDate;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
-import ru.rgasymov.moneymanager.constant.DateTimeFormats;
+import ru.rgasymov.moneymanager.domain.enums.AccountTheme;
+import ru.rgasymov.moneymanager.domain.enums.Currency;
 
 @ApiModel
 @Data
@@ -18,20 +17,17 @@ import ru.rgasymov.moneymanager.constant.DateTimeFormats;
 @SuperBuilder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class OperationResponseDto {
+public class AccountResponseDto {
 
   private Long id;
 
-  private OperationCategoryResponseDto category;
+  private String name;
 
-  @JsonFormat(shape = JsonFormat.Shape.STRING,
-      pattern = DateTimeFormats.COMMON_DATE_FORMAT)
-  private LocalDate date;
+  private AccountTheme theme;
 
-  private String description;
+  private Currency currency;
 
-  private BigDecimal value;
-
-  @JsonProperty("isPlanned")
-  private boolean isPlanned;
+  @Builder.Default
+  @JsonProperty("isDraft")
+  private boolean isDraft = true;
 }

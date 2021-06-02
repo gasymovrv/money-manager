@@ -8,6 +8,8 @@ import ru.rgasymov.moneymanager.domain.OidcUserProxy;
 import ru.rgasymov.moneymanager.domain.dto.response.UserResponseDto;
 import ru.rgasymov.moneymanager.domain.entity.User;
 import ru.rgasymov.moneymanager.mapper.UserMapper;
+import ru.rgasymov.moneymanager.repository.ExpenseCategoryRepository;
+import ru.rgasymov.moneymanager.repository.IncomeCategoryRepository;
 import ru.rgasymov.moneymanager.service.UserService;
 
 @Service
@@ -16,6 +18,10 @@ import ru.rgasymov.moneymanager.service.UserService;
 public class UserServiceImpl implements UserService {
 
   private final UserMapper userMapper;
+
+  private final IncomeCategoryRepository incomeCategoryRepository;
+
+  private final ExpenseCategoryRepository expenseCategoryRepository;
 
   @Override
   public User getCurrentUser() {
@@ -26,7 +32,15 @@ public class UserServiceImpl implements UserService {
 
   @Override
   public UserResponseDto getCurrentUserAsDto() {
-    return userMapper.toDto(getCurrentUser());
+    var currentUser = getCurrentUser();
+    Long currentAccountId = currentUser.getCurrentAccount().getId();
+    var resp = userMapper.toDto(currentUser);
+
+    resp.getCurrentAccount().setDraft(
+        !incomeCategoryRepository.existsByAccountId(currentAccountId)
+            && !expenseCategoryRepository.existsByAccountId(currentAccountId)
+    );
+    return resp;
   }
 
 }

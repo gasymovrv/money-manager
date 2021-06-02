@@ -1,32 +1,27 @@
-package ru.rgasymov.moneymanager.domain.dto.response;
+package ru.rgasymov.moneymanager.domain.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModel;
-import java.time.LocalDateTime;
+import javax.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.experimental.SuperBuilder;
+import ru.rgasymov.moneymanager.domain.enums.AccountTheme;
+import ru.rgasymov.moneymanager.domain.enums.Currency;
 
 @ApiModel
 @Data
 @NoArgsConstructor
-@SuperBuilder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class UserResponseDto {
+public class AccountRequestDto {
 
-  private String id;
-
+  @NotNull
   private String name;
 
-  private String picture;
+  @NotNull
+  private AccountTheme theme;
 
-  private String email;
-
-  private String locale;
-
-  private LocalDateTime lastVisit;
-
-  private AccountResponseDto currentAccount;
+  @NotNull
+  private Currency currency;
 }

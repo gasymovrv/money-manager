@@ -102,7 +102,7 @@ public class XlsxParsingServiceImpl implements XlsxParsingService {
   private XlsxParsingResult extractData(XSSFSheet sheet,
                                         XSSFRow incCategoriesRow,
                                         XSSFRow expCategoriesRow) {
-    var currentUser = userService.getCurrentUser();
+    var currentAccount = userService.getCurrentUser().getCurrentAccount();
     var incomes = new ArrayList<Income>();
     var expenses = new ArrayList<Expense>();
     var incomeCategories = new HashMap<Integer, IncomeCategory>();
@@ -155,7 +155,7 @@ public class XlsxParsingServiceImpl implements XlsxParsingService {
               .isPlanned(date.isAfter(today))
               .category(incomeCategory)
               .description(cellComment)
-              .user(currentUser)
+              .account(currentAccount)
               .build();
           incomes.add(inc);
 
@@ -166,7 +166,7 @@ public class XlsxParsingServiceImpl implements XlsxParsingService {
               .isPlanned(date.isAfter(today))
               .category(expenseCategory)
               .description(cellComment)
-              .user(currentUser)
+              .account(currentAccount)
               .build();
           expenses.add(exp);
         }
@@ -187,7 +187,7 @@ public class XlsxParsingServiceImpl implements XlsxParsingService {
     if (incomeLastCol == null) {
       return;
     }
-    var currentUser = userService.getCurrentUser();
+    var currentAccount = userService.getCurrentUser().getCurrentAccount();
 
     for (int i = incomeLastCol + 1;
          i <= expCategoriesRow.getLastCellNum();
@@ -200,7 +200,7 @@ public class XlsxParsingServiceImpl implements XlsxParsingService {
       } else {
         var expenseCategory = ExpenseCategory.builder()
             .name(cellValue)
-            .user(currentUser)
+            .account(currentAccount)
             .build();
         expenseCategories.put(cell.getColumnIndex(), expenseCategory);
       }
@@ -209,7 +209,7 @@ public class XlsxParsingServiceImpl implements XlsxParsingService {
 
   private Integer findIncomeCategories(XSSFRow incCategoriesRow,
                                        HashMap<Integer, IncomeCategory> incomeCategories) {
-    var currentUser = userService.getCurrentUser();
+    var currentAccount = userService.getCurrentUser().getCurrentAccount();
 
     for (int i = START_COLUMN; i <= incCategoriesRow.getLastCellNum(); i++) {
       var cell = incCategoriesRow.getCell(i);
@@ -220,7 +220,7 @@ public class XlsxParsingServiceImpl implements XlsxParsingService {
       } else {
         var incomeCategory = IncomeCategory.builder()
             .name(cellValue)
-            .user(currentUser)
+            .account(currentAccount)
             .build();
         incomeCategories.put(cell.getColumnIndex(), incomeCategory);
       }

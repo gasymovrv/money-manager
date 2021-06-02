@@ -10,13 +10,15 @@ import ru.rgasymov.moneymanager.domain.entity.BaseOperationCategory;
 public interface BaseOperationCategoryRepository<T extends BaseOperationCategory>
     extends JpaRepository<T, Long> {
 
-  Optional<T> findByIdAndUserId(Long id, String userId);
+  Optional<T> findByIdAndAccountId(Long id, Long accountId);
 
-  void deleteByIdAndUserId(Long id, String userId);
+  void deleteByIdAndAccountId(Long id, Long accountId);
 
-  Set<T> findAllByUserId(String userId);
+  void deleteAllByAccountId(Long accountId);
 
-  boolean existsByUserId(String userId);
+  Set<T> findAllByAccountId(Long accountId);
 
-  boolean existsByNameAndUserId(String name, String userId);
+  boolean existsByAccountId(Long accountId);
+
+  boolean existsByNameAndAccountId(String name, Long accountId);
 }

@@ -33,7 +33,8 @@ public abstract class AbstractOperationCategoryService<
   @Override
   public Set<OperationCategoryResponseDto> findAll() {
     var currentUser = userService.getCurrentUser();
-    Set<OT> result = operationCategoryRepository.findAllByUserId(currentUser.getId());
+    var currentAccountId = currentUser.getCurrentAccount().getId();
+    Set<OT> result = operationCategoryRepository.findAllByAccountId(currentAccountId);
     return operationCategoryMapper.toDtos(result);
   }
 
@@ -41,9 +42,9 @@ public abstract class AbstractOperationCategoryService<
   @Override
   public OperationCategoryResponseDto create(OperationCategoryRequestDto dto) {
     var currentUser = userService.getCurrentUser();
-    var currentUserId = currentUser.getId();
+    var currentAccountId = currentUser.getCurrentAccount().getId();
 
-    if (operationCategoryRepository.existsByNameAndUserId(dto.getName(), currentUserId)) {
+    if (operationCategoryRepository.existsByNameAndAccountId(dto.getName(), currentAccountId)) {
       throw new ValidationException(
           "Could not create operation category because such name already exists");
     }
@@ -57,14 +58,14 @@ public abstract class AbstractOperationCategoryService<
   @Override
   public OperationCategoryResponseDto update(Long id, OperationCategoryRequestDto dto) {
     var currentUser = userService.getCurrentUser();
-    var currentUserId = currentUser.getId();
+    var currentAccountId = currentUser.getCurrentAccount().getId();
 
-    if (operationCategoryRepository.existsByNameAndUserId(dto.getName(), currentUserId)) {
+    if (operationCategoryRepository.existsByNameAndAccountId(dto.getName(), currentAccountId)) {
       throw new ValidationException(
           "Could not update operation category because such name already exists");
     }
 
-    OT operationCategory = operationCategoryRepository.findByIdAndUserId(id, currentUserId)
+    OT operationCategory = operationCategoryRepository.findByIdAndAccountId(id, currentAccountId)
         .orElseThrow(() ->
             new EntityNotFoundException(
                 String.format("Could not find operation category with id = '%s' in the database",
@@ -78,12 +79,13 @@ public abstract class AbstractOperationCategoryService<
   @Override
   public void delete(Long id) {
     var currentUser = userService.getCurrentUser();
+    var currentAccountId = currentUser.getCurrentAccount().getId();
 
     if (operationRepository.existsByCategoryId(id)) {
       throw new ValidationException(
           "Could not delete an operation category while it is being referenced by any expenses");
     }
-    operationCategoryRepository.deleteByIdAndUserId(id, currentUser.getId());
+    operationCategoryRepository.deleteByIdAndAccountId(id, currentAccountId);
   }
 
   protected abstract OT buildNewOperationCategory(User currentUser, String name);

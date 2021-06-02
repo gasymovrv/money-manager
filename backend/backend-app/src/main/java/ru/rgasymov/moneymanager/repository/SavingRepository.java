@@ -13,28 +13,30 @@ import ru.rgasymov.moneymanager.domain.entity.Saving;
 public interface SavingRepository
     extends JpaRepository<Saving, Long>, JpaSpecificationExecutor<Saving> {
 
-  Optional<Saving> findByDateAndUserId(LocalDate date, String userId);
+  Optional<Saving> findByDateAndAccountId(LocalDate date, Long accountId);
 
-  Optional<Saving> findFirstByDateLessThanAndUserIdOrderByDateDesc(LocalDate date,
-                                                                   String userId);
+  Optional<Saving> findFirstByDateLessThanAndAccountIdOrderByDateDesc(LocalDate date,
+                                                                      Long accountId);
 
   @Modifying
   @Query("""
       update Saving a
       set a.value = a.value + :increment
-      where a.date > :date and a.user.id = :userId
+      where a.date > :date and a.account.id = :accountId
       """)
   void increaseValueByDateGreaterThan(@Param("increment") BigDecimal increment,
                                       @Param("date") LocalDate date,
-                                      @Param("userId") String userId);
+                                      @Param("accountId") Long accountId);
 
   @Modifying
   @Query("""
       update Saving a
       set a.value = a.value - :decrement
-      where a.date > :date and a.user.id = :userId
+      where a.date > :date and a.account.id = :accountId
       """)
   void decreaseValueByDateGreaterThan(@Param("decrement") BigDecimal decrement,
                                       @Param("date") LocalDate date,
-                                      @Param("userId") String userId);
+                                      @Param("accountId") Long accountId);
+
+  void deleteAllByAccountId(Long accountId);
 }

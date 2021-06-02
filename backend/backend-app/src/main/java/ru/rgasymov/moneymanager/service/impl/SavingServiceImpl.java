@@ -56,8 +56,8 @@ public class SavingServiceImpl implements SavingService {
   @Override
   public Saving findByDate(LocalDate date) {
     var currentUser = userService.getCurrentUser();
-    var currentUserId = currentUser.getId();
-    return savingRepository.findByDateAndUserId(date, currentUserId).orElseThrow(() ->
+    var currentAccountId = currentUser.getCurrentAccount().getId();
+    return savingRepository.findByDateAndAccountId(date, currentAccountId).orElseThrow(() ->
         new EntityNotFoundException(
             String.format("Could not find saving by date = '%s' in the database",
                 date)));
@@ -81,9 +81,9 @@ public class SavingServiceImpl implements SavingService {
   @Override
   public void updateAfterDeletionOperation(LocalDate date) {
     var currentUser = userService.getCurrentUser();
-    var currentUserId = currentUser.getId();
+    var currentAccountId = currentUser.getCurrentAccount().getId();
 
-    savingRepository.findByDateAndUserId(date, currentUserId).ifPresent(saving -> {
+    savingRepository.findByDateAndAccountId(date, currentAccountId).ifPresent(saving -> {
       if (CollectionUtils.isEmpty(saving.getIncomes())
           && CollectionUtils.isEmpty(saving.getExpenses())) {
         savingRepository.delete(saving);
@@ -96,21 +96,21 @@ public class SavingServiceImpl implements SavingService {
                            BiFunction<BigDecimal, BigDecimal, BigDecimal> setValueFunc,
                            RecalculateFunc recalculateOthersFunc) {
     var currentUser = userService.getCurrentUser();
-    var currentUserId = currentUser.getId();
+    var currentAccountId = currentUser.getCurrentAccount().getId();
 
     //Find the saving by date and recalculate its value by the specified value
-    Optional<Saving> savingOpt = savingRepository.findByDateAndUserId(date, currentUserId);
+    Optional<Saving> savingOpt = savingRepository.findByDateAndAccountId(date, currentAccountId);
     if (savingOpt.isPresent()) {
       Saving saving = savingOpt.get();
       saving.setValue(setValueFunc.apply(saving.getValue(), value));
       savingRepository.save(saving);
     } else {
       savingOpt = savingRepository
-          .findFirstByDateLessThanAndUserIdOrderByDateDesc(date, currentUserId);
+          .findFirstByDateLessThanAndAccountIdOrderByDateDesc(date, currentAccountId);
 
       var newSaving = Saving.builder()
           .date(date)
-          .user(currentUser)
+          .account(currentUser.getCurrentAccount())
           .build();
 
       if (savingOpt.isPresent()) {
@@ -122,14 +122,14 @@ public class SavingServiceImpl implements SavingService {
     }
 
     //Recalculate the value of other savings by the specified value
-    recalculateOthersFunc.recalculate(value, date, currentUserId);
+    recalculateOthersFunc.recalculate(value, date, currentAccountId);
   }
 
   private Specification<Saving> applyCriteria(SavingCriteriaDto criteria) {
     var currentUser = userService.getCurrentUser();
-    var currentUserId = currentUser.getId();
+    var currentAccountId = currentUser.getCurrentAccount().getId();
 
-    Specification<Saving> criteriaAsSpec = SavingSpec.userIdEq(currentUserId);
+    Specification<Saving> criteriaAsSpec = SavingSpec.accountIdEq(currentAccountId);
 
     LocalDate from = criteria.getFrom();
     LocalDate to = criteria.getTo();
@@ -143,6 +143,6 @@ public class SavingServiceImpl implements SavingService {
   interface RecalculateFunc {
     void recalculate(BigDecimal decrement,
                      LocalDate date,
-                     String userId);
+                     Long accountId);
   }
 }

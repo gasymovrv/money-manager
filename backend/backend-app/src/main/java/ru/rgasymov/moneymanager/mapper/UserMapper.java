@@ -6,6 +6,7 @@ import ru.rgasymov.moneymanager.domain.dto.response.UserResponseDto;
 import ru.rgasymov.moneymanager.domain.entity.User;
 
 @Mapper(componentModel = "spring",
+    uses = {AccountMapper.class},
     unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface UserMapper {
 
