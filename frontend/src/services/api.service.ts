@@ -42,6 +42,25 @@ export async function editAccount(id: number, request: AddOrEditAccountRequest):
   }));
 }
 
+export async function addAccount(request: AddOrEditAccountRequest): Promise<Response> {
+  return handleErrors(await fetch(`${apiUrl}accounts`, {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json;charset=UTF-8',
+    },
+    body: JSON.stringify(request),
+  }));
+}
+
+export async function deleteAccount(id: number): Promise<Response> {
+  return handleErrors(await fetch(`${apiUrl}accounts/${id}`, {
+    method: 'DELETE',
+    headers: {
+      'content-type': 'application/json;charset=UTF-8',
+    }
+  }));
+}
+
 export async function changeAccount(id: number): Promise<Response> {
   return handleErrors(await fetch(`${apiUrl}accounts/change?id=${id}`, {
     method: 'POST',

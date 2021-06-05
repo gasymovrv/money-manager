@@ -6,17 +6,21 @@ const LoginPage: React.FC = () => (
   <PageContainer>
     <Grid
       container
-      spacing={0}
+      spacing={3}
       direction="column"
       alignItems="center"
       justify="center"
       style={{minHeight: '100vh'}}
     >
-      <Grid item xs={5}>
-        <Typography variant="h6">
+      <Grid item>
+        <Typography variant="h4">
           You can login with:
         </Typography>
-        <Link color="inherit" href="oauth2/authorization/google">Google</Link>
+      </Grid>
+      <Grid item>
+        <Link color="inherit" href="oauth2/authorization/google">
+          <Typography variant="h4">Google</Typography>
+        </Link>
       </Grid>
     </Grid>
   </PageContainer>

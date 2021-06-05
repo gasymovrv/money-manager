@@ -34,7 +34,7 @@ const EditOperationCategoryDialog:
     try {
       await deleteOperationCategory(operationCategory.id);
       setSuccessDelete(true);
-      onAction();
+      await onAction();
     } catch (error) {
       console.log(error);
       const resp = error as Response;
@@ -55,7 +55,7 @@ const EditOperationCategoryDialog:
         name: name
       });
       setSuccessEdit(true);
-      onAction();
+      await onAction();
     } catch (error) {
       console.log(error);
       setErrorEdit(true);

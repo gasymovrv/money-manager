@@ -3,20 +3,16 @@ import { BrowserRouter as Router, Redirect, Route, RouteProps, Switch } from 're
 import LoginPage from './pages/login.page';
 import HomePage from './pages/home.page';
 import { getCurrentUser } from './services/api.service';
-import { defaultUser, User } from './interfaces/user.interface';
+import { AccountTheme, defaultUser, User } from './interfaces/user.interface';
 import { AuthContext, IContext } from './interfaces/auth-context.interface';
 import { CssBaseline, LinearProgress, ThemeProvider } from '@material-ui/core';
-import useMediaQuery from '@material-ui/core/useMediaQuery';
 import { darkTheme, lightTheme } from './theme';
 import moment from 'moment-timezone';
 import WelcomePage from './pages/welcome.page';
 import ProfilePage from './pages/profile.page';
+import { Theme } from '@material-ui/core/styles';
 
 moment.tz.setDefault('Etc/UTC')
-
-type AppState = {
-  user: User
-}
 
 interface PrivateRouterProps {
   isAuth: boolean,
@@ -38,17 +34,24 @@ const PrivateRoute: React.FC<PrivateRouterProps & RouteProps> = (props) => {
 }
 
 const App: React.FC = () => {
-  const [{user}, setUser] = useState<AppState>({user: defaultUser});
+  const [user, setUser] = useState<User>(defaultUser);
+  const [theme, setTheme] = useState<Theme>(lightTheme);
   const [isLoading, setLoading] = useState<boolean>(true);
 
-  useEffect(() => {
+  const loadUser = () => {
     let mounted = true;
 
     (async () => {
       if (mounted) {
         try {
           const currentUser = await getCurrentUser();
-          setUser({user: currentUser});
+          setUser(currentUser);
+          const accountTheme = currentUser.currentAccount.theme;
+          if (accountTheme === AccountTheme.LIGHT) {
+            setTheme(lightTheme);
+          } else if (accountTheme === AccountTheme.DARK) {
+            setTheme(darkTheme);
+          }
           setLoading(false);
         } catch (err) {
           console.log(`Getting current user error: ${err.text}`)
@@ -60,17 +63,14 @@ const App: React.FC = () => {
     return () => {
       mounted = false
     };
-  }, []);
+  }
 
-  const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
-
-  const theme = prefersDarkMode ? darkTheme : lightTheme;
+  useEffect(loadUser, []);
 
   if (isLoading) {
     return (<LinearProgress/>);
   }
-  const context: IContext = {user};
-  console.log('App rendering, user has been saved to context:', user)
+  const context: IContext = {user, updateUser: loadUser};
 
   return (
     <ThemeProvider theme={theme}>

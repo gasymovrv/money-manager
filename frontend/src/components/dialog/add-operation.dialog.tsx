@@ -87,7 +87,7 @@ const AddOperationDialog: React.FC<DialogProps & AddOperationProps> = ({
         isPlanned: isPlanned
       });
       setSuccess(true);
-      onAction();
+      await onAction();
     } catch (error) {
       console.log(error);
       setError(true);

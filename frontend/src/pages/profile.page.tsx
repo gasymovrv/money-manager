@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Button, Container, Grid, MenuItem, Paper, TextField, Typography } from '@material-ui/core';
+import { Avatar, Button, Container, Grid, MenuItem, Paper, TextField, Typography } from '@material-ui/core';
 import { changeAccount, editAccount, findAllAccounts, getAllCurrencies } from '../services/api.service';
 import ErrorNotification from '../components/notification/error.notification';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
@@ -7,6 +7,8 @@ import Header from '../components/header/header';
 import PageContainer from '../components/page-container/page-container';
 import { AuthContext } from '../interfaces/auth-context.interface';
 import { Account, AccountTheme } from '../interfaces/user.interface';
+import AddAccountDialog from '../components/dialog/add-account.dialog';
+import DeleteAccountDialog from '../components/dialog/delete-account.dialog';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -19,13 +21,17 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     inputField: {
       minWidth: 200
+    },
+    avatar: {
+      width: theme.spacing(10),
+      height: theme.spacing(10),
     }
   }),
 );
 
 const ProfilePage: React.FC = () => {
   const classes = useStyles();
-  const {user} = useContext(AuthContext);
+  const {user, updateUser} = useContext(AuthContext);
   const {currentAccount} = user;
 
   const [error, setError] = useState<boolean>(false);
@@ -37,8 +43,10 @@ const ProfilePage: React.FC = () => {
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [isLoadingCurrencies, setLoadingCurrencies] = useState<boolean>(true);
   const [isLoadingAccounts, setLoadingAccounts] = useState<boolean>(true);
+  const [openAddAccount, setOpenAddAccount] = React.useState(false);
+  const [openDeleteAccount, setOpenDeleteAccount] = React.useState(false);
 
-  useEffect(() => {
+  const loadAccountsData = () => {
     let mounted = true;
     (async () => {
       if (mounted) {
@@ -48,7 +56,7 @@ const ProfilePage: React.FC = () => {
           setCurrencies(data);
           setLoadingCurrencies(false);
         } catch (err) {
-          console.log(`Getting currencies error: ${err}`)
+          console.log(`Getting currencies error: ${err}`);
           setError(true);
         }
         try {
@@ -56,7 +64,7 @@ const ProfilePage: React.FC = () => {
           setAccounts(data);
           setLoadingAccounts(false);
         } catch (err) {
-          console.log(`Getting accounts error: ${err}`)
+          console.log(`Getting accounts error: ${err}`);
           setError(true);
         }
       }
@@ -64,7 +72,9 @@ const ProfilePage: React.FC = () => {
     return () => {
       mounted = false
     };
-  }, []);
+  }
+
+  useEffect(loadAccountsData, []);
 
   const handleChangeAccountName = (event: React.ChangeEvent<HTMLInputElement>) => {
     setAccountName(event.target.value)
@@ -92,8 +102,8 @@ const ProfilePage: React.FC = () => {
   }
 
   const handleSave = async () => {
+    setError(false);
     try {
-      //todo need to update user in context
       await editAccount(account.id, {
         name: accountName,
         currency: accountCurrency,
@@ -102,12 +112,15 @@ const ProfilePage: React.FC = () => {
       if (currentAccount.id !== account.id) {
         await changeAccount(account.id);
       }
+      await loadAccountsData();
+      updateUser();
     } catch (error) {
       console.log(error);
+      setError(true);
     }
   }
 
-  const handleCancel = async () => {
+  const reset = () => {
     setAccount(currentAccount);
     setAccountName(currentAccount.name);
     setAccountTheme(currentAccount.theme);
@@ -119,9 +132,14 @@ const ProfilePage: React.FC = () => {
       <Header isWelcome={true}/>
       <Container maxWidth="sm">
         <Paper className={classes.container}>
-          <Grid container direction="column" alignItems="center" spacing={2}>
+          <Grid container direction="column" alignItems="center" spacing={5}>
 
-            <Grid item><Typography gutterBottom variant="h3">Profile</Typography></Grid>
+            <Grid item>
+              <Grid container direction="row" alignItems="center" spacing={3}>
+                <Grid item><Avatar className={classes.avatar} alt="Avatar" src={user.picture}/></Grid>
+                <Grid item><Typography variant="h4">{user.name}</Typography></Grid>
+              </Grid>
+            </Grid>
 
             <Grid item>
               <Grid container direction="row" spacing={3}>
@@ -213,20 +231,41 @@ const ProfilePage: React.FC = () => {
 
                         <Grid item>
                           <Button
+                            disabled={isLoadingCurrencies}
                             variant="outlined"
                             color="inherit"
+                            onClick={() => setOpenAddAccount(true)}
                           >
                             Add new
                           </Button>
+                          {!isLoadingCurrencies &&
+                          <AddAccountDialog
+                              open={openAddAccount}
+                              handleClose={() => setOpenAddAccount(false)}
+                              onAction={loadAccountsData}
+                              currencies={currencies}
+                          />
+                          }
                         </Grid>
 
                         <Grid item>
                           <Button
+                            disabled={account.id === currentAccount.id}
                             variant="outlined"
                             color="inherit"
+                            onClick={() => setOpenDeleteAccount(true)}
                           >
                             Delete
                           </Button>
+                          <DeleteAccountDialog
+                            open={openDeleteAccount}
+                            handleClose={() => setOpenDeleteAccount(false)}
+                            onAction={async () => {
+                              await loadAccountsData();
+                              reset();
+                            }}
+                            account={account}
+                          />
                         </Grid>
 
                       </Grid>
@@ -242,6 +281,7 @@ const ProfilePage: React.FC = () => {
 
                 <Grid item>
                   <Button
+                    disabled={!accountName}
                     variant="outlined"
                     color="inherit"
                     onClick={handleSave}
@@ -254,7 +294,7 @@ const ProfilePage: React.FC = () => {
                   <Button
                     variant="outlined"
                     color="inherit"
-                    onClick={handleCancel}
+                    onClick={reset}
                   >
                     Cancel
                   </Button>
