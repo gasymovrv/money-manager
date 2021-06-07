@@ -1,5 +1,7 @@
 package ru.rgasymov.moneymanager.domain.entity;
 
+import java.io.Serial;
+import java.io.Serializable;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -15,14 +17,16 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 import ru.rgasymov.moneymanager.domain.enums.AccountTheme;
-import ru.rgasymov.moneymanager.domain.enums.Currency;
 
 @Entity
 @Table(name = "account")
 @Data
 @NoArgsConstructor
 @SuperBuilder
-public class Account {
+public class Account implements Serializable {
+  @Serial
+  private static final long serialVersionUID = 1234567L;
+
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
@@ -32,8 +36,7 @@ public class Account {
   @Enumerated(EnumType.STRING)
   private AccountTheme theme;
 
-  @Enumerated(EnumType.STRING)
-  private Currency currency;
+  private String currency;
 
   @ManyToOne
   @ToString.Exclude

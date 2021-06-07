@@ -12,9 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.rgasymov.moneymanager.domain.dto.request.AccountRequestDto;
 import ru.rgasymov.moneymanager.domain.dto.response.AccountResponseDto;
 import ru.rgasymov.moneymanager.domain.entity.Account;
-import ru.rgasymov.moneymanager.domain.entity.User;
-import ru.rgasymov.moneymanager.domain.enums.AccountTheme;
-import ru.rgasymov.moneymanager.domain.enums.Currency;
 import ru.rgasymov.moneymanager.mapper.AccountMapper;
 import ru.rgasymov.moneymanager.repository.AccountRepository;
 import ru.rgasymov.moneymanager.repository.ExpenseCategoryRepository;
@@ -46,29 +43,29 @@ public class AccountServiceImpl implements AccountService {
   @Transactional(readOnly = true)
   @Override
   public List<AccountResponseDto> findAll() {
-    String userId = userService.getCurrentUser().getId();
+    var userId = userService.getCurrentUser().getId();
     return accountMapper.toDtos(accountRepository.findAllByUserId(userId));
   }
 
   @Transactional
   @Override
   public AccountResponseDto create(AccountRequestDto dto) {
-    Account account = accountMapper.fromDto(dto);
-    User currentUser = userService.getCurrentUser();
+    var account = accountMapper.fromDto(dto);
+    var currentUser = userService.getCurrentUser();
 
     account.setUser(currentUser);
-    Account saved = accountRepository.save(account);
+    var saved = accountRepository.save(account);
     return accountMapper.toDto(saved);
   }
 
   @Transactional
   @Override
   public AccountResponseDto update(Long id, AccountRequestDto dto) {
-    User currentUser = userService.getCurrentUser();
-    String name = dto.getName();
-    Currency currency = dto.getCurrency();
-    AccountTheme theme = dto.getTheme();
-    Account account = getAccount(id);
+    var currentUser = userService.getCurrentUser();
+    var name = dto.getName();
+    var currency = dto.getCurrency();
+    var theme = dto.getTheme();
+    var account = getAccount(id);
 
     if (isChanged(name, account.getName())
         || isChanged(currency, account.getCurrency())
@@ -77,11 +74,11 @@ public class AccountServiceImpl implements AccountService {
       account.setCurrency(currency);
       account.setTheme(theme);
 
-      Account saved = accountRepository.save(account);
-      if (currentUser.getCurrentAccount().getId().equals(saved.getId())) {
-        currentUser.setCurrentAccount(saved);
+      accountRepository.save(account);
+      if (currentUser.getCurrentAccount().getId().equals(id)) {
+        currentUser.setCurrentAccount(account);
+        userService.updateCurrentUser(currentUser);
       }
-      return accountMapper.toDto(saved);
     }
     return accountMapper.toDto(account);
   }
@@ -106,16 +103,17 @@ public class AccountServiceImpl implements AccountService {
   @Transactional
   @Override
   public AccountResponseDto changeCurrent(Long id) {
-    User currentUser = userService.getCurrentUser();
-    Account account = getAccount(id);
+    var currentUser = userService.getCurrentUser();
+    var account = getAccount(id);
 
     currentUser.setCurrentAccount(account);
-    userRepository.save(currentUser);
+    var updatedUser = userRepository.save(currentUser);
+    userService.updateCurrentUser(updatedUser);
     return accountMapper.toDto(account);
   }
 
   private Account getAccount(Long id) {
-    User currentUser = userService.getCurrentUser();
+    var currentUser = userService.getCurrentUser();
     return accountRepository.findByIdAndUserId(id, currentUser.getId())
         .orElseThrow(() ->
             new EntityNotFoundException(

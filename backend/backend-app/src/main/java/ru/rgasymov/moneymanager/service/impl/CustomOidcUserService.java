@@ -1,6 +1,7 @@
 package ru.rgasymov.moneymanager.service.impl;
 
 import java.time.LocalDateTime;
+import java.util.Currency;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
@@ -14,7 +15,6 @@ import ru.rgasymov.moneymanager.domain.OidcUserProxy;
 import ru.rgasymov.moneymanager.domain.entity.Account;
 import ru.rgasymov.moneymanager.domain.entity.User;
 import ru.rgasymov.moneymanager.domain.enums.AccountTheme;
-import ru.rgasymov.moneymanager.domain.enums.Currency;
 import ru.rgasymov.moneymanager.repository.UserRepository;
 
 @Service
@@ -51,7 +51,7 @@ public class CustomOidcUserService extends OidcUserService {
           .user(newUser)
           .name("Default account")
           .theme(AccountTheme.LIGHT)
-          .currency(Currency.USD)
+          .currency(Currency.getInstance("USD").getCurrencyCode())
           .build();
       newUser.setCurrentAccount(account);
       return newUser;

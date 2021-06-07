@@ -2,6 +2,7 @@ server:
   api-base-url: /api
   servlet:
     session:
+      limit: ${MAXIMUM_SESSIONS:5}
       timeout: ${SESSION_TIMEOUT:1h}
   error:
     whitelabel:

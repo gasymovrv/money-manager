@@ -1,5 +1,7 @@
 package ru.rgasymov.moneymanager.domain.entity;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -19,7 +21,10 @@ import lombok.experimental.SuperBuilder;
 @Data
 @NoArgsConstructor
 @SuperBuilder
-public class User {
+public class User implements Serializable {
+  @Serial
+  private static final long serialVersionUID = 1234567L;
+
   @Id
   private String id;
 

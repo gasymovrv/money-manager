@@ -7,5 +7,7 @@ public interface UserService {
 
   User getCurrentUser();
 
+  void updateCurrentUser(User user);
+
   UserResponseDto getCurrentUserAsDto();
 }

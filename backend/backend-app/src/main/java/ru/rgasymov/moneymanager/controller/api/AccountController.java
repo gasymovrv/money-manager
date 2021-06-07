@@ -1,8 +1,8 @@
 package ru.rgasymov.moneymanager.controller.api;
 
-import java.util.EnumSet;
+import java.util.Currency;
 import java.util.List;
-import java.util.Set;
+import java.util.stream.Collectors;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.rgasymov.moneymanager.domain.dto.request.AccountRequestDto;
 import ru.rgasymov.moneymanager.domain.dto.response.AccountResponseDto;
-import ru.rgasymov.moneymanager.domain.enums.Currency;
 import ru.rgasymov.moneymanager.service.AccountService;
 import ru.rgasymov.moneymanager.service.UserService;
 
@@ -66,8 +65,12 @@ public class AccountController {
   }
 
   @GetMapping("/currencies")
-  public Set<Currency> getAllCurrencies() {
+  public List<String> getAllCurrencies() {
     log.info("# Get all currencies, current user: {}", userService.getCurrentUser());
-    return EnumSet.allOf(Currency.class);
+    return Currency.getAvailableCurrencies()
+        .stream()
+        .map(Currency::getCurrencyCode)
+        .sorted()
+        .collect(Collectors.toList());
   }
 }

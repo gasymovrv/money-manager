@@ -9,7 +9,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import ru.rgasymov.moneymanager.domain.enums.AccountTheme;
-import ru.rgasymov.moneymanager.domain.enums.Currency;
 
 @ApiModel
 @Data
@@ -25,7 +24,7 @@ public class AccountResponseDto {
 
   private AccountTheme theme;
 
-  private Currency currency;
+  private String currency;
 
   @Builder.Default
   @JsonProperty("isDraft")
