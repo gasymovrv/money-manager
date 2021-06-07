@@ -1,12 +1,13 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { Button, Grid, Link, Typography } from '@material-ui/core';
 import FileUploader from '../components/file-uploader/file-uploader';
-import { downloadTemplateXlsxFile } from '../services/api.service';
+import { addExpenseCategory, addIncomeCategory, downloadTemplateXlsxFile } from '../services/api.service';
 import ErrorNotification from '../components/notification/error.notification';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import Header from '../components/header/header';
 import PageContainer from '../components/page-container/page-container';
 import { useHistory } from 'react-router-dom';
+import { AuthContext } from '../interfaces/auth-context.interface';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -18,6 +19,7 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 const WelcomePage: React.FC = () => {
+  const {user} = useContext(AuthContext);
   const classes = useStyles();
   const history = useHistory();
   const [error, setError] = useState<boolean>(false);
@@ -26,6 +28,19 @@ const WelcomePage: React.FC = () => {
     setError(false);
     try {
       await downloadTemplateXlsxFile();
+    } catch (error) {
+      console.log(error);
+      setError(true);
+    }
+  };
+
+  const handleStartFromScratch = async () => {
+    setError(false);
+    try {
+      await addIncomeCategory({name: 'New income category'});
+      await addExpenseCategory({name: 'New expense category'});
+      user.currentAccount.isDraft = false;
+      history.push('/');
     } catch (error) {
       console.log(error);
       setError(true);
@@ -55,7 +70,7 @@ const WelcomePage: React.FC = () => {
           </Typography>
         </Grid>
         <Grid item>
-          <Button onClick={() => history.push('/')}>
+          <Button onClick={handleStartFromScratch}>
             <Typography variant="h5">
               Start
             </Typography>

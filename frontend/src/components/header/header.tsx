@@ -112,6 +112,7 @@ const Header: React.FC<HeaderProps> = ({isWelcome, refreshTable, children}) => {
             >
               <MenuItem onClick={handleExportToExcel}>Export to Excel</MenuItem>
             </StyledMenu>
+
             <Typography
               className={classes.cursor}
               variant="h6"
@@ -163,28 +164,38 @@ const Header: React.FC<HeaderProps> = ({isWelcome, refreshTable, children}) => {
           </Box>
           }
 
-          <IconButton aria-label="account" onClick={handleClickOnAccountMenu}>
-            <AccountCircle fontSize="large"/>
-          </IconButton>
-          <StyledMenu
-            id="account-menu"
-            anchorEl={accountMenuAnchorEl}
-            keepMounted
-            open={Boolean(accountMenuAnchorEl)}
-            onClose={() => setAccountMenuAnchorEl(null)}
-          >
-            <ListItem>
-              <ListItemAvatar>
-                <Avatar
-                  alt="Avatar"
-                  src={user.picture}
+          <Box>
+            <IconButton aria-label="account" onClick={handleClickOnAccountMenu}>
+              <AccountCircle fontSize="large"/>
+            </IconButton>
+            <StyledMenu
+              id="account-menu"
+              anchorEl={accountMenuAnchorEl}
+              keepMounted
+              open={Boolean(accountMenuAnchorEl)}
+              onClose={() => setAccountMenuAnchorEl(null)}
+            >
+              <ListItem>
+                <ListItemAvatar>
+                  <Avatar
+                    alt="Avatar"
+                    src={user.picture}
+                  />
+                </ListItemAvatar>
+                <ListItemText primary={user.name}/>
+              </ListItem>
+              <ListItem>
+
+              </ListItem>
+              <MenuItem onClick={() => history.push('/profile')}>
+                <ListItemText
+                  primary={user.currentAccount.name}
+                  secondary={user.currentAccount.currency}
                 />
-              </ListItemAvatar>
-              <ListItemText primary={user.name}/>
-            </ListItem>
-            <MenuItem onClick={() => history.push('/profile')}>Profile</MenuItem>
-            <MenuItem onClick={() => window.location.assign('logout')}>Logout</MenuItem>
-          </StyledMenu>
+              </MenuItem>
+              <MenuItem onClick={() => window.location.assign('logout')}>Logout</MenuItem>
+            </StyledMenu>
+          </Box>
 
         </Toolbar>
         <Drawer anchor="top" open={openChildren} onClose={() => setOpenChildren(false)}>
