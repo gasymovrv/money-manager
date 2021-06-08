@@ -8,7 +8,7 @@ databaseChangeLog:
             tableName: saving
             columns:
               - column: { name: id, type: bigint }
-              - column: { name: user_id, type: varchar(255) }
+              - column: { name: account_id, type: bigint }
               - column: { name: date, type: date }
               - column: { name: value, type: numeric }
 
@@ -28,12 +28,12 @@ databaseChangeLog:
             columnDataType: bigint
             tableName: saving
         - addForeignKeyConstraint:
-            baseColumnNames: user_id
+            baseColumnNames: account_id
             baseTableName: saving
-            constraintName: fk_saving_user
+            constraintName: fk_saving_account
             referencedColumnNames: id
-            referencedTableName: users
+            referencedTableName: account
         - addUniqueConstraint:
             tableName: saving
-            columnNames: date, user_id
+            columnNames: date, account_id
             constraintName: saving_date_unique

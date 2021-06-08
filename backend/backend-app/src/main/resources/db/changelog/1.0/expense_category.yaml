@@ -8,7 +8,7 @@ databaseChangeLog:
             tableName: expense_category
             columns:
               - column: { name: id, type: bigint }
-              - column: { name: user_id, type: varchar(255) }
+              - column: { name: account_id, type: bigint }
               - column: { name: name, type: varchar(255) }
 
   - changeSet:
@@ -28,12 +28,12 @@ databaseChangeLog:
             columnDataType: bigint
             tableName: expense_category
         - addForeignKeyConstraint:
-            baseColumnNames: user_id
+            baseColumnNames: account_id
             baseTableName: expense_category
-            constraintName: fk_expense_category_user
+            constraintName: fk_expense_category_account
             referencedColumnNames: id
-            referencedTableName: users
+            referencedTableName: account
         - addUniqueConstraint:
             tableName: expense_category
-            columnNames: name, user_id
+            columnNames: name, account_id
             constraintName: expense_category_name_unique

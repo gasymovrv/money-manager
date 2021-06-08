@@ -62,12 +62,12 @@ public class FileServiceImpl implements FileService {
   @Override
   public void importFromXlsx(MultipartFile file) {
     var currentUser = userService.getCurrentUser();
-    var currentUserId = currentUser.getId();
+    var currentAccountId = currentUser.getCurrentAccount().getId();
 
-    if (incomeCategoryRepository.existsByUserId(currentUserId)
-        || expenseCategoryRepository.existsByUserId(currentUserId)) {
+    if (incomeCategoryRepository.existsByAccountId(currentAccountId)
+        || expenseCategoryRepository.existsByAccountId(currentAccountId)) {
       throw new UploadFileException(
-          "# Failed to import .xlsx file because the database is not empty");
+          "# Failed to import .xlsx file because current account is not empty");
     }
 
     XlsxParsingResult result = xlsxFileService.parse(file);
@@ -113,7 +113,7 @@ public class FileServiceImpl implements FileService {
     Set<OperationCategoryResponseDto> incCategories = incomeCategoryService.findAll();
     Set<OperationCategoryResponseDto> expCategories = expenseCategoryService.findAll();
     if (CollectionUtils.isEmpty(savings)) {
-      throw new EmptyDataGenerationException("There is no data to export");
+      throw new EmptyDataGenerationException("There is no data in current account to export");
     }
 
     return xlsxFileService.generate(new XlsxInputData(savings, incCategories, expCategories));

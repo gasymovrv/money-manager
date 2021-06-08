@@ -48,8 +48,8 @@ public class XlsxFileServiceImpl implements XlsxFileService {
   @Value("${file-service.root}")
   private String root;
 
-  @Value("${file-service.delete-parsed-files}")
-  private Boolean deleteUploadedFiles;
+  @Value("${file-service.delete-import-files}")
+  private Boolean deleteImportFiles;
 
   @Override
   public XlsxParsingResult parse(MultipartFile multipartFile) {
@@ -70,7 +70,7 @@ public class XlsxFileServiceImpl implements XlsxFileService {
 
     try {
       XlsxParsingResult result = xlsxParsingService.parse(destination);
-      if (deleteUploadedFiles) {
+      if (deleteImportFiles) {
         destination.delete();
       }
       log.info("# XlsxFileService: file parsing has successfully completed");

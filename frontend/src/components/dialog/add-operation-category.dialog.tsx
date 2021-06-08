@@ -31,7 +31,7 @@ const AddOperationCategoryDialog: React.FC<DialogProps & AddOperationCategoryPro
         name: name
       });
       setSuccess(true);
-      onAction();
+      await onAction();
     } catch (error) {
       console.log(error);
       const resp = error as Response;

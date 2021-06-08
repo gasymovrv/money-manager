@@ -46,9 +46,9 @@ const AddOperationDialog: React.FC<DialogProps & AddOperationProps> = ({
         setLoadingCategories(false);
       }
     })
-    return function cleanup() {
+    return () => {
       mounted = false
-    }
+    };
   }, [getCategories])
 
   const handleChangeValue = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -87,7 +87,7 @@ const AddOperationDialog: React.FC<DialogProps & AddOperationProps> = ({
         isPlanned: isPlanned
       });
       setSuccess(true);
-      onAction();
+      await onAction();
     } catch (error) {
       console.log(error);
       setError(true);

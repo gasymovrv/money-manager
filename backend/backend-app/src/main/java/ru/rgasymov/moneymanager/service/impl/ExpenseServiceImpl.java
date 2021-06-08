@@ -63,7 +63,7 @@ public class ExpenseServiceImpl
         .description(dto.getDescription())
         .isPlanned(dto.getIsPlanned())
         .category(category)
-        .user(currentUser)
+        .account(currentUser.getCurrentAccount())
         .build();
   }
 
@@ -84,8 +84,8 @@ public class ExpenseServiceImpl
   }
 
   @Override
-  protected void deleteOperation(Expense expense, String currentUserId) {
-    expenseRepository.deleteByIdAndUserId(expense.getId(), currentUserId);
+  protected void deleteOperation(Expense expense, Long currentAccountId) {
+    expenseRepository.deleteByIdAndAccountId(expense.getId(), currentAccountId);
     savingService.increase(expense.getValue(), expense.getDate());
     savingService.updateAfterDeletionOperation(expense.getDate());
   }

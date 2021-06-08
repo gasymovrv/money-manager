@@ -1,17 +1,32 @@
 package ru.rgasymov.moneymanager.domain;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Map;
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.core.oidc.OidcIdToken;
 import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import ru.rgasymov.moneymanager.domain.entity.User;
 
-public record OidcUserProxy(
-    OidcUser oidcUser,
-    User currentUser
-) implements OidcUser {
+@AllArgsConstructor
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+public class OidcUserProxy implements OidcUser, Serializable {
+  @Serial
+  private static final long serialVersionUID = 1234567L;
+
+  @Getter
+  private final OidcUser oidcUser;
+
+  @EqualsAndHashCode.Include
+  @Setter
+  @Getter
+  private User currentUser;
 
   @Override
   public Map<String, Object> getClaims() {

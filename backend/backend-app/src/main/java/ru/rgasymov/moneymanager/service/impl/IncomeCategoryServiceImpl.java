@@ -28,7 +28,7 @@ public class IncomeCategoryServiceImpl
   @Override
   protected IncomeCategory buildNewOperationCategory(User currentUser, String name) {
     return IncomeCategory.builder()
-        .user(currentUser)
+        .account(currentUser.getCurrentAccount())
         .name(name)
         .build();
   }

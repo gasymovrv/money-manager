@@ -1,9 +1,13 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { Button, Grid, Link, Typography } from '@material-ui/core';
-import FileUploader from '../file-uploader/file-uploader';
-import { downloadTemplateXlsxFile } from '../../services/api.service';
-import ErrorNotification from '../notification/error.notification';
+import FileUploader from '../components/file-uploader/file-uploader';
+import { addExpenseCategory, addIncomeCategory, downloadTemplateXlsxFile } from '../services/api.service';
+import ErrorNotification from '../components/notification/error.notification';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
+import Header from '../components/header/header';
+import PageContainer from '../components/page-container/page-container';
+import { useHistory } from 'react-router-dom';
+import { AuthContext } from '../interfaces/auth-context.interface';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -14,10 +18,11 @@ const useStyles = makeStyles((theme: Theme) =>
   }),
 );
 
-const WelcomeBox: React.FC<{ onStart(): void }> = ({onStart}) => {
+const WelcomePage: React.FC = () => {
+  const {user} = useContext(AuthContext);
   const classes = useStyles();
+  const history = useHistory();
   const [error, setError] = useState<boolean>(false);
-  console.log('Welcome Box rendering')
 
   const handleDownloadTemplate = async () => {
     setError(false);
@@ -29,12 +34,23 @@ const WelcomeBox: React.FC<{ onStart(): void }> = ({onStart}) => {
     }
   };
 
-  const handleImportXlsx = async () => {
-    window.location.assign('/');
+  const handleStartFromScratch = async () => {
+    setError(false);
+    try {
+      await addIncomeCategory({name: 'New income category'});
+      await addExpenseCategory({name: 'New expense category'});
+      user.currentAccount.isDraft = false;
+      history.push('/');
+    } catch (error) {
+      console.log(error);
+      setError(true);
+    }
   };
 
+  console.log('Welcome Page rendering');
   return (
-    <>
+    <PageContainer>
+      <Header isWelcome={true}/>
       <Grid container alignItems="center" direction="column" spacing={4}>
         <Grid item><Typography variant="h2">Get started</Typography></Grid>
         <Grid item>
@@ -46,7 +62,7 @@ const WelcomeBox: React.FC<{ onStart(): void }> = ({onStart}) => {
           </Typography>
         </Grid>
         <Grid item>
-          <FileUploader onSend={handleImportXlsx}/>
+          <FileUploader onSend={() => window.location.assign('/')}/>
         </Grid>
         <Grid item>
           <Typography variant="h6">
@@ -54,7 +70,7 @@ const WelcomeBox: React.FC<{ onStart(): void }> = ({onStart}) => {
           </Typography>
         </Grid>
         <Grid item>
-          <Button onClick={onStart}>
+          <Button onClick={handleStartFromScratch}>
             <Typography variant="h5">
               Start
             </Typography>
@@ -62,8 +78,8 @@ const WelcomeBox: React.FC<{ onStart(): void }> = ({onStart}) => {
         </Grid>
       </Grid>
       {error && <ErrorNotification text="Something went wrong"/>}
-    </>
+    </PageContainer>
   );
 }
 
-export default WelcomeBox;
+export default WelcomePage;

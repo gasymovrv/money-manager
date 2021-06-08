@@ -2,6 +2,7 @@ server:
   api-base-url: /api
   servlet:
     session:
+      limit: ${MAXIMUM_SESSIONS:5}
       timeout: ${SESSION_TIMEOUT:1h}
   error:
     whitelabel:
@@ -70,4 +71,4 @@ logging:
 
 file-service:
   root: ${FILE_STORAGE_ROOT:uploaded-files}
-  delete-parsed-files: ${DELETE_PARSED_FILES:true}
+  delete-import-files: ${DELETE_IMPORT_FILES:true}

@@ -1,24 +1,22 @@
 import React, { useEffect, useState } from 'react';
-import MainTable from '../main-table/main-table';
-import Header from '../header/header';
-import { Container, makeStyles } from '@material-ui/core';
-import { Operation, OperationCategory } from '../../interfaces/operation.interface';
-import { getExpenseCategories, getIncomeCategories, getSavings } from '../../services/api.service';
-import { SearchResult, SortDirection } from '../../interfaces/common.interface';
+import MainTable from '../components/main-table/main-table';
+import Header from '../components/header/header';
+import { Operation, OperationCategory } from '../interfaces/operation.interface';
+import { getExpenseCategories, getIncomeCategories, getSavings } from '../services/api.service';
+import { SearchResult, SortDirection } from '../interfaces/common.interface';
 import {
   SavingFieldToSort,
   SavingResponse,
   SavingSearchParams,
   SavingsFilterParams
-} from '../../interfaces/saving.interface';
-import { HomeState, Row } from '../../interfaces/main-table.interface';
-import ErrorNotification from '../notification/error.notification';
-import { sortCategories } from '../../helpers/sort.helper';
-import { createStyles, Theme } from '@material-ui/core/styles';
-import WelcomeBox from '../welcome-box/welcome-box';
+} from '../interfaces/saving.interface';
+import { HomeState, Row } from '../interfaces/main-table.interface';
+import ErrorNotification from '../components/notification/error.notification';
+import { sortCategories } from '../helpers/sort.helper';
 import moment, { Moment } from 'moment';
-import SavingsFilter from '../filter/savings-filter';
-import { DATE_FORMAT } from '../../helpers/date.helper';
+import SavingsFilter from '../components/filter/savings-filter';
+import { DATE_FORMAT } from '../helpers/date.helper';
+import PageContainer from '../components/page-container/page-container';
 
 async function getTable(page: number, rowsPerPage: number, filter: SavingsFilterParams): Promise<HomeState> {
   const expenseCategories = await getExpenseCategories();
@@ -73,24 +71,13 @@ async function getTable(page: number, rowsPerPage: number, filter: SavingsFilter
   };
 }
 
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    container: {
-      minWidth: 700,
-      maxWidth: 1500
-    }
-  })
-);
-
-const Home: React.FC = () => {
-  const classes = useStyles();
+const HomePage: React.FC = () => {
   const [{incomeCategories, expenseCategories, rows, totalElements}, setData] = useState<HomeState>({
     incomeCategories: [],
     expenseCategories: [],
     rows: [],
     totalElements: 0
   })
-  const [isWelcome, setIsWelcome] = useState<boolean>(false);
   const [error, setError] = useState<boolean>(false);
   const [isLoading, setLoading] = useState<boolean>(true);
   const [page, setPage] = useState<number>(0);
@@ -104,6 +91,8 @@ const Home: React.FC = () => {
   const [sortBy, setSortBy] = useState<SavingFieldToSort>(SavingFieldToSort.DATE);
 
   const setTableData = () => {
+    let mounted = true;
+
     if (selectedFrom && selectedFrom.isValid && !selectedFrom.isValid()) {
       return;
     }
@@ -117,28 +106,23 @@ const Home: React.FC = () => {
       sortBy: sortBy
     };
 
-    let mounted = true;
     (async () => {
       if (mounted) {
         setError(false);
         try {
           const data = await getTable(page, pageSize, filter);
-          if (!data.expenseCategories.length && !data.incomeCategories.length) {
-            setIsWelcome(true);
-          } else {
-            setData(data);
-            setIsWelcome(false);
-          }
+          setData(data);
           setLoading(false);
         } catch (err) {
           console.log(`Getting main table error: ${err}`)
           setError(true);
         }
       }
-    })()
-    return function cleanup() {
+    })();
+
+    return () => {
       mounted = false
-    }
+    };
   }
 
   useEffect(
@@ -183,10 +167,11 @@ const Home: React.FC = () => {
     setSortBy(event.target.value);
   }
 
+  console.log('Home Page rendering');
   return (
-    <Container maxWidth="xl" className={classes.container}>
+    <PageContainer>
       <Header
-        isWelcome={isWelcome}
+        isWelcome={false}
         refreshTable={setTableData}
       >
         <SavingsFilter
@@ -202,24 +187,21 @@ const Home: React.FC = () => {
           handleChangeSortBy={handleSortBy}
         />
       </Header>
-      {isWelcome ?
-        <WelcomeBox onStart={() => setIsWelcome(false)}/> :
-        <MainTable
-          refreshTable={setTableData}
-          isLoading={isLoading}
-          incomeCategories={incomeCategories}
-          expenseCategories={expenseCategories}
-          rows={rows}
-          totalElements={totalElements}
-          page={page}
-          pageSize={pageSize}
-          handleChangePage={handleChangePage}
-          handleChangeRowsPerPage={handleChangeRowsPerPage}
-        />
-      }
+      <MainTable
+        refreshTable={setTableData}
+        isLoading={isLoading}
+        incomeCategories={incomeCategories}
+        expenseCategories={expenseCategories}
+        rows={rows}
+        totalElements={totalElements}
+        page={page}
+        pageSize={pageSize}
+        handleChangePage={handleChangePage}
+        handleChangeRowsPerPage={handleChangeRowsPerPage}
+      />
       {error && <ErrorNotification text="Something went wrong"/>}
-    </Container>
+    </PageContainer>
   )
 }
 
-export default Home;
+export default HomePage;

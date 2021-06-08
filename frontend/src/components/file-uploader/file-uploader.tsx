@@ -53,7 +53,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({onSend}) => {
         </Grid>
       </Grid>
       {success && <SuccessNotification text="Excel file has been successfully imported"/>}
-      {error && <ErrorNotification text="Invalid template file"/>}
+      {error && <ErrorNotification text="Error occurred while importing file"/>}
     </>
   );
 }

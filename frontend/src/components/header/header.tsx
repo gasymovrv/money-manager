@@ -23,11 +23,12 @@ import { exportToXlsxFile } from '../../services/api.service';
 import ErrorNotification from '../notification/error.notification';
 import StyledMenu from '../menu/styled-menu';
 import FilterListIcon from '@material-ui/icons/FilterList';
+import { useHistory } from 'react-router-dom';
 
 type HeaderProps = {
   isWelcome: boolean,
 
-  refreshTable(): void
+  refreshTable?(): void
 }
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -43,9 +44,6 @@ const useStyles = makeStyles((theme: Theme) =>
       display: 'flex',
       justifyContent: 'center',
     },
-    menuButton: {
-      marginRight: theme.spacing(3),
-    },
     greenText: {
       color: theme.palette.greenText.main
     },
@@ -54,11 +52,15 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     appBar: {
       marginBottom: theme.spacing(1)
-    }
+    },
+    cursor: {
+      cursor: 'pointer'
+    },
   }),
 );
 
 const Header: React.FC<HeaderProps> = ({isWelcome, refreshTable, children}) => {
+  const history = useHistory();
   const {user} = useContext(AuthContext);
   const classes = useStyles();
   const [error, setError] = useState<boolean>(false);
@@ -78,34 +80,6 @@ const Header: React.FC<HeaderProps> = ({isWelcome, refreshTable, children}) => {
     setAccountMenuAnchorEl(event.currentTarget);
   };
 
-  const handleCloseMainMenu = () => {
-    setMainMenuAnchorEl(null);
-  };
-
-  const handleCloseAccountMenu = () => {
-    setAccountMenuAnchorEl(null);
-  };
-
-  const handleOpenAddIncome = () => {
-    setOpenAddIncome(true);
-  };
-
-  const handleCloseAddIncome = () => {
-    setOpenAddIncome(false);
-  };
-
-  const handleOpenAddExpense = () => {
-    setOpenAddExpense(true);
-  };
-
-  const handleCloseAddExpense = () => {
-    setOpenAddExpense(false);
-  };
-
-  const handleLogout = () => {
-    window.location.assign('logout');
-  };
-
   const handleExportToExcel = async () => {
     setError(false);
     try {
@@ -123,7 +97,6 @@ const Header: React.FC<HeaderProps> = ({isWelcome, refreshTable, children}) => {
 
           <Box className={classes.root}>
             <IconButton
-              className={classes.menuButton}
               edge="start"
               color="inherit"
               onClick={handleClickOnMainMenu}
@@ -135,28 +108,33 @@ const Header: React.FC<HeaderProps> = ({isWelcome, refreshTable, children}) => {
               anchorEl={mainMenuAnchorEl}
               keepMounted
               open={Boolean(mainMenuAnchorEl)}
-              onClose={handleCloseMainMenu}
+              onClose={() => setMainMenuAnchorEl(null)}
             >
               <MenuItem onClick={handleExportToExcel}>Export to Excel</MenuItem>
             </StyledMenu>
-            <Typography variant="h6">
+
+            <Typography
+              className={classes.cursor}
+              variant="h6"
+              onClick={() => history.push('/')}
+            >
               Money Manager
             </Typography>
           </Box>
 
-          {!isWelcome &&
+          {!isWelcome && refreshTable &&
           <Box className={classes.buttonsBox}>
               <Box>
                   <Button
                       variant="outlined"
-                      className={`${classes.menuButton} ${classes.greenText}`}
-                      onClick={handleOpenAddIncome}
+                      className={classes.greenText}
+                      onClick={() => setOpenAddIncome(true)}
                   >
                       Add income
                   </Button>
                   <AddIncomeDialog
                       open={openAddIncome}
-                      handleClose={handleCloseAddIncome}
+                      handleClose={() => setOpenAddIncome(false)}
                       onAction={refreshTable}
                   />
               </Box>
@@ -164,14 +142,14 @@ const Header: React.FC<HeaderProps> = ({isWelcome, refreshTable, children}) => {
               <Box>
                   <Button
                       variant="outlined"
-                      className={`${classes.menuButton} ${classes.redText}`}
-                      onClick={handleOpenAddExpense}
+                      className={classes.redText}
+                      onClick={() => setOpenAddExpense(true)}
                   >
                       Add expense
                   </Button>
                   <AddExpenseDialog
                       open={openAddExpense}
-                      handleClose={handleCloseAddExpense}
+                      handleClose={() => setOpenAddExpense(false)}
                       onAction={refreshTable}
                   />
               </Box>
@@ -186,27 +164,38 @@ const Header: React.FC<HeaderProps> = ({isWelcome, refreshTable, children}) => {
           </Box>
           }
 
-          <IconButton aria-label="account" onClick={handleClickOnAccountMenu}>
-            <AccountCircle fontSize="large"/>
-          </IconButton>
-          <StyledMenu
-            id="account-menu"
-            anchorEl={accountMenuAnchorEl}
-            keepMounted
-            open={Boolean(accountMenuAnchorEl)}
-            onClose={handleCloseAccountMenu}
-          >
-            <ListItem>
-              <ListItemAvatar>
-                <Avatar
-                  alt="Avatar"
-                  src={user.picture}
+          <Box>
+            <IconButton aria-label="account" onClick={handleClickOnAccountMenu}>
+              <AccountCircle fontSize="large"/>
+            </IconButton>
+            <StyledMenu
+              id="account-menu"
+              anchorEl={accountMenuAnchorEl}
+              keepMounted
+              open={Boolean(accountMenuAnchorEl)}
+              onClose={() => setAccountMenuAnchorEl(null)}
+            >
+              <ListItem>
+                <ListItemAvatar>
+                  <Avatar
+                    alt="Avatar"
+                    src={user.picture}
+                  />
+                </ListItemAvatar>
+                <ListItemText primary={user.name}/>
+              </ListItem>
+              <ListItem>
+
+              </ListItem>
+              <MenuItem onClick={() => history.push('/profile')}>
+                <ListItemText
+                  primary={user.currentAccount.name}
+                  secondary={user.currentAccount.currency}
                 />
-              </ListItemAvatar>
-              <ListItemText primary={user.name}/>
-            </ListItem>
-            <MenuItem onClick={handleLogout}>Logout</MenuItem>
-          </StyledMenu>
+              </MenuItem>
+              <MenuItem onClick={() => window.location.assign('logout')}>Logout</MenuItem>
+            </StyledMenu>
+          </Box>
 
         </Toolbar>
         <Drawer anchor="top" open={openChildren} onClose={() => setOpenChildren(false)}>

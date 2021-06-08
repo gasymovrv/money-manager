@@ -66,7 +66,7 @@ const EditOperationDialog: React.FC<EditOperationDialogProps & EditOperationProp
         isPlanned: isPlanned,
       });
       setSuccessEdit(true);
-      onAction();
+      await onAction();
     } catch (error) {
       console.log(error);
       setErrorEdit(true);
@@ -80,7 +80,7 @@ const EditOperationDialog: React.FC<EditOperationDialogProps & EditOperationProp
     try {
       await deleteOperation(operation.id);
       setSuccessDelete(true);
-      onAction();
+      await onAction();
     } catch (error) {
       console.log(error);
       setErrorDelete(true);

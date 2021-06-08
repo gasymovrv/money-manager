@@ -63,7 +63,7 @@ public class IncomeServiceImpl
         .description(dto.getDescription())
         .isPlanned(dto.getIsPlanned())
         .category(category)
-        .user(currentUser)
+        .account(currentUser.getCurrentAccount())
         .build();
   }
 
@@ -84,8 +84,8 @@ public class IncomeServiceImpl
   }
 
   @Override
-  protected void deleteOperation(Income income, String currentUserId) {
-    incomeRepository.deleteByIdAndUserId(income.getId(), currentUserId);
+  protected void deleteOperation(Income income, Long currentAccountId) {
+    incomeRepository.deleteByIdAndAccountId(income.getId(), currentAccountId);
     savingService.decrease(income.getValue(), income.getDate());
     savingService.updateAfterDeletionOperation(income.getDate());
   }

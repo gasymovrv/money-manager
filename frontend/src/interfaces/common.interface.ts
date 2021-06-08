@@ -4,6 +4,7 @@ import {
   Operation,
   OperationCategory
 } from './operation.interface';
+import { Account } from './user.interface';
 
 export interface SearchResult<T> {
   result: T[],
@@ -52,4 +53,12 @@ export interface EditOperationCategoryProps {
   editOperationCategory(id: number, request: AddOrEditOperationCategoryRequest): void,
 
   deleteOperationCategory(id: number): void
+}
+
+export interface AddAccountProps {
+  currencies: string[],
+}
+
+export interface DeleteAccountProps {
+  account: Account
 }

@@ -27,4 +27,6 @@ public class UserResponseDto {
   private String locale;
 
   private LocalDateTime lastVisit;
+
+  private AccountResponseDto currentAccount;
 }

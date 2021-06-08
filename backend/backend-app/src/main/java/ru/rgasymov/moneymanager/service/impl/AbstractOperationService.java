@@ -36,10 +36,10 @@ public abstract class AbstractOperationService<
   @Override
   public OperationResponseDto createFromDto(OperationRequestDto dto) {
     var currentUser = userService.getCurrentUser();
-    var currentUserId = currentUser.getId();
+    var currentAccountId = currentUser.getCurrentAccount().getId();
     var categoryId = dto.getCategoryId();
 
-    OT category = operationCategoryRepository.findByIdAndUserId(categoryId, currentUserId)
+    OT category = operationCategoryRepository.findByIdAndAccountId(categoryId, currentAccountId)
         .orElseThrow(() ->
             new EntityNotFoundException(
                 String.format("Could not find operation category with id = '%s' in the database",
@@ -59,12 +59,12 @@ public abstract class AbstractOperationService<
   @Override
   public OperationResponseDto update(Long id, OperationRequestDto dto) {
     var currentUser = userService.getCurrentUser();
-    var currentUserId = currentUser.getId();
+    var currentAccountId = currentUser.getCurrentAccount().getId();
     var categoryId = dto.getCategoryId();
     var date = dto.getDate();
     var value = dto.getValue();
 
-    O operation = operationRepository.findByIdAndUserId(id, currentUserId)
+    O operation = operationRepository.findByIdAndAccountId(id, currentAccountId)
         .orElseThrow(() ->
             new EntityNotFoundException(
                 String.format("Could not find operation with id = '%s' in the database",
@@ -74,12 +74,12 @@ public abstract class AbstractOperationService<
     var oldValue = operation.getValue();
 
     if (isChanged(oldDate, date)) {
-      deleteOperation(operation, currentUserId);
+      deleteOperation(operation, currentAccountId);
       return createFromDto(dto);
     }
 
     if (isChanged(oldCategoryId, categoryId)) {
-      OT category = operationCategoryRepository.findByIdAndUserId(categoryId, currentUserId)
+      OT category = operationCategoryRepository.findByIdAndAccountId(categoryId, currentAccountId)
           .orElseThrow(() ->
               new EntityNotFoundException(
                   String.format("Could not find operation category with id = '%s' in the database",
@@ -101,15 +101,15 @@ public abstract class AbstractOperationService<
   @Override
   public void delete(Long id) {
     var currentUser = userService.getCurrentUser();
-    var currentUserId = currentUser.getId();
+    var currentAccountId = currentUser.getCurrentAccount().getId();
 
-    O operation = operationRepository.findByIdAndUserId(id, currentUserId)
+    O operation = operationRepository.findByIdAndAccountId(id, currentAccountId)
         .orElseThrow(() ->
             new EntityNotFoundException(
                 String.format("Could not find operation with id = '%s' in the database",
                     id)));
 
-    deleteOperation(operation, currentUserId);
+    deleteOperation(operation, currentAccountId);
   }
 
   protected abstract OperationResponseDto saveNewOperation(O operation);
@@ -123,7 +123,7 @@ public abstract class AbstractOperationService<
                                         LocalDate date,
                                         O operation);
 
-  protected abstract void deleteOperation(O operation, String currentUserId);
+  protected abstract void deleteOperation(O operation, Long currentAccountId);
 
   protected abstract OT getOperationCategory(O operation);
 

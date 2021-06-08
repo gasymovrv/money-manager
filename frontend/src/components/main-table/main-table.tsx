@@ -112,7 +112,6 @@ const MainTable: React.FC<MainTableProps> = ({
     setOpenAddExpenseCategory(false);
   }
 
-  console.log('Main Table rendering')
   return (
     isLoading ?
       <LinearProgress/> :
