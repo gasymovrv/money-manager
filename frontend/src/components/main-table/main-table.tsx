@@ -178,7 +178,7 @@ const MainTable: React.FC<MainTableProps> = ({
 
               <TableRow>
                 <StyledTableCell className={classes.stickyDateCell} variant="head">
-                  Date
+                  Period
                 </StyledTableCell>
 
                 {showIncomeCategories && incomeCategories.map((category) =>

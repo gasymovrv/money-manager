@@ -4,7 +4,8 @@ import lombok.Getter;
 
 @Getter
 public enum SavingFieldToSort {
-  DATE("date");
+  DATE("date"),
+  SAVING_VALUE("value");
 
   private final String fieldName;
 

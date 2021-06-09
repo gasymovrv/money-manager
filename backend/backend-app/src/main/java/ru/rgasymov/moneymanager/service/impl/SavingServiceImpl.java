@@ -18,6 +18,8 @@ import ru.rgasymov.moneymanager.domain.dto.request.SavingCriteriaDto;
 import ru.rgasymov.moneymanager.domain.dto.response.SavingResponseDto;
 import ru.rgasymov.moneymanager.domain.dto.response.SearchResultDto;
 import ru.rgasymov.moneymanager.domain.entity.Saving;
+import ru.rgasymov.moneymanager.domain.enums.Period;
+import ru.rgasymov.moneymanager.mapper.SavingGroupMapper;
 import ru.rgasymov.moneymanager.mapper.SavingMapper;
 import ru.rgasymov.moneymanager.repository.SavingRepository;
 import ru.rgasymov.moneymanager.service.SavingService;
@@ -30,6 +32,7 @@ public class SavingServiceImpl implements SavingService {
 
   private final SavingRepository savingRepository;
   private final SavingMapper savingMapper;
+  private final SavingGroupMapper savingGroupMapper;
   private final UserService userService;
 
   @Transactional(readOnly = true)
@@ -44,7 +47,13 @@ public class SavingServiceImpl implements SavingService {
             Sort.by(criteria.getSortDirection(),
                 criteria.getSortBy().getFieldName())));
 
-    List<SavingResponseDto> result = savingMapper.toDtos(page.getContent());
+    List<SavingResponseDto> result;
+    if (criteria.getGroupBy() != Period.DAY) {
+      result = savingGroupMapper.toGroupDtos(page.getContent(), criteria.getGroupBy());
+    } else {
+      result = savingMapper.toDtos(page.getContent());
+    }
+
     return SearchResultDto
         .<SavingResponseDto>builder()
         .result(result)

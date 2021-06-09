@@ -1,4 +1,4 @@
-import { SearchResult, SortDirection } from './common.interface';
+import { Period, SearchResult, SortDirection } from './common.interface';
 
 export class SavingSearchResult implements SearchResult<SavingResponse> {
   result: SavingResponse[];
@@ -13,6 +13,7 @@ export class SavingSearchResult implements SearchResult<SavingResponse> {
 
 export interface SavingResponse {
   id: number,
+  period: Period,
   date: string,
   value: number,
   isOverdue: boolean,
@@ -22,10 +23,11 @@ export interface SavingResponse {
   expensesByCategory: any
 }
 
-export class SavingSearchParams {
+export class SavingSearchRequestParams {
   from?: string;
   to?: string;
   sortBy?: SavingFieldToSort;
+  groupBy?: Period;
   sortDirection: SortDirection;
   pageNum: number;
   pageSize: number;
@@ -39,6 +41,8 @@ export class SavingSearchParams {
     this.from = filter.from;
     this.to = filter.to;
     this.sortDirection = filter.sortDirection;
+    this.sortBy = filter.sortBy;
+    this.groupBy = filter.groupBy;
   }
 
   public toUrlSearchParams(): URLSearchParams {
@@ -56,11 +60,13 @@ export class SavingSearchParams {
 
 export enum SavingFieldToSort {
   DATE = 'DATE',
+  SAVING_VALUE = 'SAVING_VALUE',
 }
 
 export interface SavingsFilterParams {
   from?: string;
   to?: string;
   sortBy?: SavingFieldToSort;
+  groupBy?: Period;
   sortDirection: SortDirection;
 }

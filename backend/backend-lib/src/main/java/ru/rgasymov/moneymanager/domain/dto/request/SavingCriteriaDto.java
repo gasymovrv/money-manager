@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.format.annotation.DateTimeFormat;
 import ru.rgasymov.moneymanager.constant.DateTimeFormats;
+import ru.rgasymov.moneymanager.domain.enums.Period;
 import ru.rgasymov.moneymanager.domain.enums.SavingFieldToSort;
 
 @Data
@@ -33,6 +34,8 @@ public class SavingCriteriaDto {
   @ApiParam(example = "1000")
   @Positive
   private Integer pageSize = 1000;
+
+  private Period groupBy = Period.DAY;
 
   public void setFrom(LocalDate from) {
     if (to != null && to.isBefore(from)) {

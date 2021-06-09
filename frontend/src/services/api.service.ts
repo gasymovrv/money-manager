@@ -5,7 +5,7 @@ import {
   Operation,
   OperationCategory
 } from '../interfaces/operation.interface';
-import { SavingResponse, SavingSearchParams, SavingSearchResult } from '../interfaces/saving.interface';
+import { SavingResponse, SavingSearchRequestParams, SavingSearchResult } from '../interfaces/saving.interface';
 import { SearchResult } from '../interfaces/common.interface';
 
 const apiUrl = '/api/';
@@ -80,7 +80,7 @@ export async function getIncomeCategories(): Promise<Array<OperationCategory>> {
   return await response.json();
 }
 
-export async function getSavings(request: SavingSearchParams): Promise<SearchResult<SavingResponse>> {
+export async function getSavings(request: SavingSearchRequestParams): Promise<SearchResult<SavingResponse>> {
   return fetch(apiUrl + 'savings?' + request.toUrlSearchParams().toString())
     .then(handleErrors)
     .then((response) => {
@@ -94,6 +94,7 @@ export async function getSavings(request: SavingSearchParams): Promise<SearchRes
         return {
           id: saving.id,
           date: saving.date,
+          period: saving.period,
           value: saving.value,
           isOverdue: saving.isOverdue,
           incomesSum: saving.incomesSum,

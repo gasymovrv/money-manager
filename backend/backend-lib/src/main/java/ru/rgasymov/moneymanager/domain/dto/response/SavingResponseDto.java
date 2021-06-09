@@ -16,6 +16,7 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 import ru.rgasymov.moneymanager.constant.DateTimeFormats;
+import ru.rgasymov.moneymanager.domain.enums.Period;
 
 @ApiModel
 @Data
@@ -26,6 +27,9 @@ import ru.rgasymov.moneymanager.constant.DateTimeFormats;
 public class SavingResponseDto {
 
   private Long id;
+
+  @Builder.Default
+  private Period period = Period.DAY;
 
   @JsonFormat(shape = JsonFormat.Shape.STRING,
       pattern = DateTimeFormats.COMMON_DATE_FORMAT)

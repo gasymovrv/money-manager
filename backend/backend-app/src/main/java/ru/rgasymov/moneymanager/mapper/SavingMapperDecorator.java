@@ -42,10 +42,10 @@ public class SavingMapperDecorator implements SavingMapper {
       ArrayList<OperationResponseDto> value = new ArrayList<>();
       value.add(expenseMapper.toDto(exp));
       expenseMap.merge(exp.getCategory().getName(), value,
-          ((list1, list2) -> {
-            list1.addAll(value);
-            return list1;
-          }));
+          (oldValue, newValue) -> {
+            oldValue.addAll(newValue);
+            return oldValue;
+          });
     });
 
     var incomeMap = new HashMap<String, List<OperationResponseDto>>();
@@ -59,10 +59,10 @@ public class SavingMapperDecorator implements SavingMapper {
       ArrayList<OperationResponseDto> value = new ArrayList<>();
       value.add(incomeMapper.toDto(inc));
       incomeMap.merge(inc.getCategory().getName(), value,
-          ((list1, list2) -> {
-            list1.addAll(value);
-            return list1;
-          }));
+          (oldValue, newValue) -> {
+            oldValue.addAll(newValue);
+            return oldValue;
+          });
     });
 
     dto.setOverdue(isOverdue.get());

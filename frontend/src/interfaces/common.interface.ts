@@ -16,6 +16,12 @@ export enum SortDirection {
   DESC = 'DESC'
 }
 
+export enum Period {
+  DAY = 'DAY',
+  MONTH = 'MONTH',
+  YEAR = 'YEAR',
+}
+
 export interface DialogProps {
   open: boolean,
 

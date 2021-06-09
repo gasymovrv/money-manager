@@ -1,9 +1,11 @@
 import { Operation, OperationCategory } from './operation.interface';
 import React from 'react';
+import { Period } from './common.interface';
 
 export interface Row {
   id: number,
   date: string,
+  period: Period,
   isOverdue: boolean,
   incomesSum: number,
   expensesSum: number,
@@ -12,7 +14,7 @@ export interface Row {
   savings: number
 }
 
-export interface HomeState {
+export interface MainTableData {
   incomeCategories: OperationCategory[],
   expenseCategories: OperationCategory[],
   rows: Row[],

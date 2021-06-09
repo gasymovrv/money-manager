@@ -5,7 +5,7 @@ import { Grid, makeStyles, TableRow, Tooltip, useTheme } from '@material-ui/core
 import { createStyles, Theme } from '@material-ui/core/styles';
 import MainTableCell from './main-table-cell';
 import { Row } from '../../interfaces/main-table.interface';
-import { isToday } from '../../helpers/date.helper';
+import { isCurrentPeriod } from '../../helpers/date.helper';
 import ErrorOutlineIcon from '@material-ui/icons/ErrorOutline';
 import MoneyFormat from '../money-format/money-format';
 
@@ -70,6 +70,7 @@ const MainTableRow: React.FC<MainTableRowProps> = ({
   const {
     id,
     date,
+    period,
     isOverdue,
     incomeLists,
     expenseLists,
@@ -78,7 +79,7 @@ const MainTableRow: React.FC<MainTableRowProps> = ({
     savings
   } = row;
   const classes = useStyles();
-  const today = isToday(date);
+  const today = isCurrentPeriod(date, period);
   const isDarkTheme = useTheme().palette.type === 'dark';
 
   let rowClass = '';
