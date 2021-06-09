@@ -114,7 +114,6 @@ const HomePage: React.FC = () => {
     setGroupBy(event.target.value);
   }
 
-  console.log('Home Page rendering');
   return (
     <PageContainer>
 

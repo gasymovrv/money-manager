@@ -6,7 +6,11 @@ export const MONTH_FORMAT = 'YYYY-MM'
 export const YEAR_FORMAT = 'YYYY'
 
 export function isCurrentPeriod(date: any, period: Period): boolean {
-  return formatByPeriod(moment(), period) === formatByPeriod(moment(date), period)
+  return formatByPeriod(moment(), period) === formatByPeriod(moment(date), period);
+}
+
+export function isFuture(date: any): boolean {
+  return moment(date).isAfter(moment());
 }
 
 export function formatByPeriod(date: any, period: Period): any {

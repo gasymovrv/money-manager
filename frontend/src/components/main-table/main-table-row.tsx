@@ -5,7 +5,7 @@ import { Grid, makeStyles, TableRow, Tooltip, useTheme } from '@material-ui/core
 import { createStyles, Theme } from '@material-ui/core/styles';
 import MainTableCell from './main-table-cell';
 import { Row } from '../../interfaces/main-table.interface';
-import { isCurrentPeriod } from '../../helpers/date.helper';
+import { isCurrentPeriod, isFuture } from '../../helpers/date.helper';
 import ErrorOutlineIcon from '@material-ui/icons/ErrorOutline';
 import MoneyFormat from '../money-format/money-format';
 
@@ -23,11 +23,14 @@ const useStyles = makeStyles((theme: Theme) =>
     contrastRed: {
       color: theme.palette.redText.contrastText
     },
-    todayRow: {
+    currentPeriodRow: {
       backgroundColor: theme.palette.secondary.main
     },
     overdueRow: {
       backgroundColor: theme.palette.warning.main
+    },
+    plannedCell: {
+      color: theme.palette.secondary.main
     },
     boldFont: {
       fontSize: 14,
@@ -79,14 +82,15 @@ const MainTableRow: React.FC<MainTableRowProps> = ({
     savings
   } = row;
   const classes = useStyles();
-  const today = isCurrentPeriod(date, period);
+  const isPlanned = isFuture(date);
+  const currentPeriod = isCurrentPeriod(date, period);
   const isDarkTheme = useTheme().palette.type === 'dark';
 
   let rowClass = '';
   let incCellClass = classes.green;
   let expCellClass = classes.red;
-  if (today) {
-    rowClass = classes.todayRow;
+  if (currentPeriod) {
+    rowClass = classes.currentPeriodRow;
     incCellClass = classes.contrastGreen;
     expCellClass = classes.contrastRed;
   } else if (isOverdue) {
@@ -97,10 +101,13 @@ const MainTableRow: React.FC<MainTableRowProps> = ({
     } else {
       rowClass = classes.overdueRow;
     }
+  } else if (isPlanned) {
+    incCellClass = classes.plannedCell;
+    expCellClass = classes.plannedCell;
   }
 
   return (
-    <TableRow hover={!today && !isOverdue} key={id} className={rowClass}>
+    <TableRow hover={!currentPeriod && !isOverdue} key={id} className={rowClass}>
 
       <StyledTableCell className={classes.stickyDateCell} key={'date_' + id}>
         <Grid justify="center" className={classes.dateGrid} container>
@@ -119,6 +126,7 @@ const MainTableRow: React.FC<MainTableRowProps> = ({
         showIncomeCategories && incomeLists.map((incomes: Operation[] | undefined, index) => (
           <MainTableCell
             key={'inc_cell_' + index}
+            isCurrentPeriod={currentPeriod}
             rowId={id}
             categories={incomeCategories}
             itemType={OperationType.INCOME}
@@ -138,6 +146,7 @@ const MainTableRow: React.FC<MainTableRowProps> = ({
         showExpenseCategories && expenseLists.map((expenses: Operation[] | undefined, index) => (
           <MainTableCell
             key={'exp_cell_' + index}
+            isCurrentPeriod={currentPeriod}
             rowId={id}
             categories={expenseCategories}
             itemType={OperationType.EXPENSE}

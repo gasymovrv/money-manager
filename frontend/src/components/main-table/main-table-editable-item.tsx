@@ -7,30 +7,35 @@ import MoneyFormat from '../money-format/money-format';
 
 type MainTableEditableItemProps = {
   className: string | undefined,
+  isCurrentPeriod: boolean,
   operation: Operation,
   operationType: OperationType,
   categories: OperationCategory[],
   refreshTable(): void
 }
 
-const useStyles = makeStyles(() =>
+const useStyles = makeStyles((theme) =>
   createStyles({
     menuItem: {
       justifyContent: 'center',
       padding: 0,
       fontSize: 13
+    },
+    plannedCell: {
+      color: theme.palette.background.paper
     }
   })
 );
 
 const MainTableEditableItem: React.FC<MainTableEditableItemProps> = ({
                                                                        className,
+                                                                       isCurrentPeriod,
                                                                        operation,
                                                                        operationType,
                                                                        categories,
                                                                        refreshTable
                                                                      }) => {
-  const {id, value, description} = operation;
+  const {id, value, isPlanned, description} = operation;
   const [openEditOperation, setOpenEditOperation] = React.useState(false);
   const classes = useStyles();
 
@@ -42,11 +47,15 @@ const MainTableEditableItem: React.FC<MainTableEditableItemProps> = ({
     setOpenEditOperation(false);
   };
 
+  let itemClasses = `${classes.menuItem} ${className}`;
+  if (isPlanned && isCurrentPeriod) {
+    itemClasses= `${classes.menuItem} ${classes.plannedCell}`;
+  }
   const clickableMenu = (
     <Tooltip title={description || ''}>
       <MenuItem
         key={id}
-        className={`${classes.menuItem} ${className}`}
+        className={itemClasses}
         onClick={handleOpenEditOperation}
       >
         <MoneyFormat value={value}/>
@@ -80,15 +89,6 @@ const MainTableEditableItem: React.FC<MainTableEditableItemProps> = ({
             onAction={refreshTable}
           />
         </>
-      );
-    default:
-      return (
-        <MenuItem
-          key={id}
-          className={`${classes.menuItem} ${className}`}
-        >
-          <MoneyFormat value={value}/>
-        </MenuItem>
       );
   }
 }

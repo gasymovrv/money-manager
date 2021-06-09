@@ -13,6 +13,7 @@ function calculateSum(list: Operation[]): number {
 
 type MainTableCellProps = {
   rowId: number,
+  isCurrentPeriod: boolean,
   categories: OperationCategory[],
   itemType: OperationType,
   items: Operation[] | undefined,
@@ -26,12 +27,16 @@ const useStyles = makeStyles((theme: Theme) =>
       justifyContent: 'center',
       padding: 0,
       fontSize: 13
+    },
+    plannedCell: {
+      color: theme.palette.background.paper
     }
   })
 );
 
 const MainTableCell: React.FC<MainTableCellProps> = ({
                                                        rowId,
+                                                       isCurrentPeriod,
                                                        categories,
                                                        itemType,
                                                        items,
@@ -52,11 +57,13 @@ const MainTableCell: React.FC<MainTableCellProps> = ({
 
   if (items && items.length > 0) {
     const firstEl = items[0];
+
     if (items.length === 1) {
       return (
         <StyledTableCell key={rowId + '_' + index}>
           <MainTableEditableItem
             className={className}
+            isCurrentPeriod={isCurrentPeriod}
             operation={firstEl}
             categories={categories}
             operationType={itemType}
@@ -65,6 +72,11 @@ const MainTableCell: React.FC<MainTableCellProps> = ({
         </StyledTableCell>
       )
     } else {
+      let menuItemClasses = `${classes.menuItem} ${className}`;
+      if (items.every((i) => i.isPlanned) && isCurrentPeriod) {
+        menuItemClasses = `${classes.menuItem} ${classes.plannedCell}`;
+      }
+
       return (
         <StyledTableCell key={rowId + '_' + index}>
           {expandList ?
@@ -72,12 +84,14 @@ const MainTableCell: React.FC<MainTableCellProps> = ({
                 const menuItem = (
                   <MainTableEditableItem
                     className={className}
+                    isCurrentPeriod={isCurrentPeriod}
                     operation={inc}
                     categories={categories}
                     operationType={itemType}
                     refreshTable={refreshTable}
                   />
                 )
+
                 if (i === items.length - 1) {
                   return (
                     <>
@@ -94,7 +108,7 @@ const MainTableCell: React.FC<MainTableCellProps> = ({
             <MenuItem
               key={firstEl.id}
               onClick={handleExpandList}
-              className={`${classes.menuItem} ${className}`}
+              className={menuItemClasses}
             >
               <MoneyFormat value={calculateSum(items)}/>
             </MenuItem>
