@@ -1,18 +1,22 @@
 # Money-Manager
+The main purpose of the application is to manage income, expenses and savings.
 
 ### Backend
-+ Java 16 + Spring Boot 
-+ Made as a REST API but with session and Google OAuth2 authorization
++ Java 16, Spring Boot
++ Authentication with Google OAuth2
++ Application has made as a REST API but with session
 + Built frontend is in jar resources, single html page will be opened by Thymeleaf (Spring MVC)
 
 ### Frontend
-+ TypeScript + React
++ TypeScript, React 17.0.3, Material-UI 4.11.1
++ No class components, only functional ones with React Hooks
++ Using Material-UI components for styling
 
 ### Instructions
 #### Build and run
-+ Call `mvn clean install` at root of the project
-+ Built result (jar file) will be in 'target' directory at root of the project
 + Change GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET in .env to actual
-+ Call `java -jar money-manager-<version>.jar` to start the application
-+ Optionally. It is possibly to build exe installer for windows, just run pack_exe_installer.bat after build
++ Call `mvn clean install` at root of the project to build the application
++ Built result (jar file) will be in 'target' directory at root of the project
++ Call `java -Duser.timezone=UTC -jar money-manager-<version>.jar` to start the application
++ Optionally. It is possibly to build exe installer for Windows, just run pack_exe_installer.bat after build
 + Optionally. Call `npm start` at frontend directory to start frontend dev server
