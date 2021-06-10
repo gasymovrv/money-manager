@@ -70,7 +70,7 @@ const App: React.FC = () => {
   if (isLoading) {
     return (<LinearProgress/>);
   }
-  const context: IContext = {user, updateUser: loadUser};
+  const context: IContext = {user, refreshUser: loadUser};
 
   return (
     <ThemeProvider theme={theme}>

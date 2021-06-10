@@ -6,7 +6,7 @@ import { EditExpenseDialog, EditIncomeDialog } from '../dialog/edit-operation.di
 import MoneyFormat from '../money-format/money-format';
 
 type MainTableEditableItemProps = {
-  className: string | undefined,
+  colorClass: string | undefined,
   isCurrentPeriod: boolean,
   operation: Operation,
   operationType: OperationType,
@@ -28,7 +28,7 @@ const useStyles = makeStyles((theme) =>
 );
 
 const MainTableEditableItem: React.FC<MainTableEditableItemProps> = ({
-                                                                       className,
+                                                                       colorClass,
                                                                        isCurrentPeriod,
                                                                        operation,
                                                                        operationType,
@@ -47,7 +47,7 @@ const MainTableEditableItem: React.FC<MainTableEditableItemProps> = ({
     setOpenEditOperation(false);
   };
 
-  let itemClasses = `${classes.menuItem} ${className}`;
+  let itemClasses = `${classes.menuItem} ${colorClass}`;
   if (isPlanned && isCurrentPeriod) {
     itemClasses= `${classes.menuItem} ${classes.plannedCell}`;
   }

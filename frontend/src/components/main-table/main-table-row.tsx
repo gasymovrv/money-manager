@@ -132,7 +132,7 @@ const MainTableRow: React.FC<MainTableRowProps> = ({
             itemType={OperationType.INCOME}
             items={incomes}
             index={index}
-            className={incCellClass}
+            colorClass={incCellClass}
             refreshTable={refreshTable}
           />
         ))
@@ -152,7 +152,7 @@ const MainTableRow: React.FC<MainTableRowProps> = ({
             itemType={OperationType.EXPENSE}
             items={expenses}
             index={index}
-            className={expCellClass}
+            colorClass={expCellClass}
             refreshTable={refreshTable}
           />
         ))

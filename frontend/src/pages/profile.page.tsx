@@ -31,7 +31,7 @@ const useStyles = makeStyles((theme: Theme) =>
 
 const ProfilePage: React.FC = () => {
   const classes = useStyles();
-  const {user, updateUser} = useContext(AuthContext);
+  const {user, refreshUser} = useContext(AuthContext);
   const {currentAccount} = user;
 
   const [error, setError] = useState<boolean>(false);
@@ -113,7 +113,7 @@ const ProfilePage: React.FC = () => {
         await changeAccount(account.id);
       }
       await loadAccountsData();
-      updateUser();
+      refreshUser();
     } catch (error) {
       console.log(error);
       setError(true);

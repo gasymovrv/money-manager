@@ -72,17 +72,6 @@ const MainTableEditableCategory: React.FC<MainTableEditableCategoryProps> = ({
           />
         </>
       );
-    default:
-      return (
-        <>
-          <MenuItem
-            key={id}
-            className={classes.menuItem}
-          >
-            {name}
-          </MenuItem>
-        </>
-      );
   }
 }
 

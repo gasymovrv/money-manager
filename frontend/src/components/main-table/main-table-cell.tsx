@@ -18,7 +18,7 @@ type MainTableCellProps = {
   itemType: OperationType,
   items: Operation[] | undefined,
   index: number,
-  className: string | undefined,
+  colorClass: string | undefined,
   refreshTable(): void
 }
 const useStyles = makeStyles((theme: Theme) =>
@@ -41,7 +41,7 @@ const MainTableCell: React.FC<MainTableCellProps> = ({
                                                        itemType,
                                                        items,
                                                        index,
-                                                       className,
+                                                       colorClass,
                                                        refreshTable
                                                      }) => {
   const [expandList, setExpandList] = React.useState(false);
@@ -62,7 +62,7 @@ const MainTableCell: React.FC<MainTableCellProps> = ({
       return (
         <StyledTableCell key={rowId + '_' + index}>
           <MainTableEditableItem
-            className={className}
+            colorClass={colorClass}
             isCurrentPeriod={isCurrentPeriod}
             operation={firstEl}
             categories={categories}
@@ -72,7 +72,7 @@ const MainTableCell: React.FC<MainTableCellProps> = ({
         </StyledTableCell>
       )
     } else {
-      let menuItemClasses = `${classes.menuItem} ${className}`;
+      let menuItemClasses = `${classes.menuItem} ${colorClass}`;
       if (items.every((i) => i.isPlanned) && isCurrentPeriod) {
         menuItemClasses = `${classes.menuItem} ${classes.plannedCell}`;
       }
@@ -83,7 +83,7 @@ const MainTableCell: React.FC<MainTableCellProps> = ({
             items.map((inc, i) => {
                 const menuItem = (
                   <MainTableEditableItem
-                    className={className}
+                    colorClass={colorClass}
                     isCurrentPeriod={isCurrentPeriod}
                     operation={inc}
                     categories={categories}
@@ -117,7 +117,7 @@ const MainTableCell: React.FC<MainTableCellProps> = ({
       )
     }
   } else {
-    return <StyledTableCell key={rowId + '_' + index} className={className}/>
+    return <StyledTableCell key={rowId + '_' + index} className={colorClass}/>
   }
 }
 
