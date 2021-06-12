@@ -7,7 +7,7 @@ import { WithEditIncomeActions } from '../../hocs/with-edit-income-actions';
 import { WithEditExpenseActions } from '../../hocs/with-edit-expense-actions';
 import SuccessNotification from '../notification/success.notification';
 import ErrorNotification from '../notification/error.notification';
-import { DATE_FORMAT } from '../../helpers/date.helper';
+import { DATE_FORMAT } from '../../constants';
 
 const EditOperationDialog: React.FC<EditOperationDialogProps & EditOperationProps> = ({
                                                                                         operation,

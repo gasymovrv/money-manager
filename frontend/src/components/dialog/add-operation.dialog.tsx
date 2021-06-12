@@ -10,7 +10,7 @@ import { sortCategories } from '../../helpers/sort.helper';
 import { OperationCategory } from '../../interfaces/operation.interface';
 import { WithAddIncomeActions } from '../../hocs/with-add-income-actions';
 import { WithAddExpenseActions } from '../../hocs/with-add-expense-actions';
-import { DATE_FORMAT } from '../../helpers/date.helper';
+import { DATE_FORMAT } from '../../constants';
 
 const AddOperationDialog: React.FC<DialogProps & AddOperationProps> = ({
                                                                          open,

@@ -4,7 +4,7 @@ import MomentUtils from '@date-io/moment';
 import { KeyboardDatePicker, MuiPickersUtilsProvider } from '@material-ui/pickers';
 import moment, { Moment } from 'moment';
 import { OperationCategory } from '../../interfaces/operation.interface';
-import { DATE_FORMAT } from '../../helpers/date.helper';
+import { DATE_FORMAT } from '../../constants';
 
 type CommonContentDialogProps = {
   value: number,
