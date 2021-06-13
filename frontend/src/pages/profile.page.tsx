@@ -78,7 +78,7 @@ const ProfilePage: React.FC = () => {
     };
   }
 
-  useEffect(loadAccountsData, []);
+  useEffect(loadAccountsData, [dispatch]);
 
   const handleChangeAccountName = (event: React.ChangeEvent<HTMLInputElement>) => {
     setAccountName(event.target.value)

@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { Button, Grid, Link, Typography } from '@material-ui/core';
+import { Button, Container, Grid, Link, Paper, Typography } from '@material-ui/core';
 import FileUploader from '../components/file-uploader/file-uploader';
 import { addExpenseCategory, addIncomeCategory, downloadTemplateXlsxFile } from '../services/api.service';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
@@ -16,6 +16,9 @@ const useStyles = makeStyles((theme: Theme) =>
     link: {
       color: theme.palette.primary.light,
       cursor: 'pointer'
+    },
+    container: {
+      padding: theme.spacing(3)
     },
   }),
 );
@@ -51,32 +54,36 @@ const WelcomePage: React.FC = () => {
   return (
     <PageContainer>
       <Header/>
-      <Grid container alignItems="center" direction="column" spacing={4}>
-        <Grid item><Typography variant="h2">Get started</Typography></Grid>
-        <Grid item>
-          <Typography variant="h6">
-            You can start by importing a .xlsx file filled in as <Link className={classes.link}
-                                                                       onClick={handleDownloadTemplate}>
-            template.xlsx
-          </Link>:
-          </Typography>
-        </Grid>
-        <Grid item>
-          <FileUploader onSend={() => window.location.assign('/')}/>
-        </Grid>
-        <Grid item>
-          <Typography variant="h6">
-            Or start from scratch:
-          </Typography>
-        </Grid>
-        <Grid item>
-          <Button onClick={handleStartFromScratch}>
-            <Typography variant="h5">
-              Start
-            </Typography>
-          </Button>
-        </Grid>
-      </Grid>
+      <Container maxWidth="md">
+        <Paper className={classes.container}>
+          <Grid container alignItems="center" direction="column" spacing={4}>
+            <Grid item><Typography variant="h2">Get started</Typography></Grid>
+            <Grid item>
+              <Typography variant="h6">
+                You can start by importing a .xlsx file filled in as <Link className={classes.link}
+                                                                           onClick={handleDownloadTemplate}>
+                template.xlsx
+              </Link>:
+              </Typography>
+            </Grid>
+            <Grid item>
+              <FileUploader onSend={() => window.location.assign('/')}/>
+            </Grid>
+            <Grid item>
+              <Typography variant="h6">
+                Or start from scratch:
+              </Typography>
+            </Grid>
+            <Grid item>
+              <Button onClick={handleStartFromScratch}>
+                <Typography variant="h5">
+                  Start
+                </Typography>
+              </Button>
+            </Grid>
+          </Grid>
+        </Paper>
+      </Container>
     </PageContainer>
   );
 }

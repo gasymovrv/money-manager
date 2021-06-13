@@ -4,6 +4,7 @@ import { createStyles, Theme } from '@material-ui/core/styles';
 import { useSelector } from 'react-redux';
 import ErrorNotification from '../notification/error.notification';
 import SuccessNotification from '../notification/success.notification';
+import Footer from '../footer/footer';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -23,6 +24,7 @@ const PageContainer: React.FC<any> = ({children}) => {
       {children}
       {error && <ErrorNotification text={error}/>}
       {success && <SuccessNotification text={success}/>}
+      <Footer/>
     </Container>
   )
 }
