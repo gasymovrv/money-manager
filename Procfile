@@ -1,0 +1,1 @@
+web:   java -Dserver.port=$PORT -Duser.timezone=UTC $JAVA_OPTS -jar target/*.jar
