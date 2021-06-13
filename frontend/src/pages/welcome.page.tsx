@@ -1,13 +1,15 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext } from 'react';
 import { Button, Grid, Link, Typography } from '@material-ui/core';
 import FileUploader from '../components/file-uploader/file-uploader';
 import { addExpenseCategory, addIncomeCategory, downloadTemplateXlsxFile } from '../services/api.service';
-import ErrorNotification from '../components/notification/error.notification';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import Header from '../components/header/header';
 import PageContainer from '../components/page-container/page-container';
 import { useHistory } from 'react-router-dom';
 import { AuthContext } from '../interfaces/auth-context.interface';
+import { useDispatch } from 'react-redux';
+import { showError } from '../actions/error.actions';
+import { COMMON_ERROR_MSG } from '../constants';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -19,23 +21,21 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 const WelcomePage: React.FC = () => {
+  const dispatch = useDispatch();
   const {user} = useContext(AuthContext);
   const classes = useStyles();
   const history = useHistory();
-  const [error, setError] = useState<boolean>(false);
 
   const handleDownloadTemplate = async () => {
-    setError(false);
     try {
       await downloadTemplateXlsxFile();
     } catch (error) {
       console.log(error);
-      setError(true);
+      dispatch(showError(COMMON_ERROR_MSG));
     }
   };
 
   const handleStartFromScratch = async () => {
-    setError(false);
     try {
       await addIncomeCategory({name: 'New income category'});
       await addExpenseCategory({name: 'New expense category'});
@@ -43,7 +43,7 @@ const WelcomePage: React.FC = () => {
       history.push('/');
     } catch (error) {
       console.log(error);
-      setError(true);
+      dispatch(showError(COMMON_ERROR_MSG));
     }
   };
 
@@ -77,7 +77,6 @@ const WelcomePage: React.FC = () => {
           </Button>
         </Grid>
       </Grid>
-      {error && <ErrorNotification text="Something went wrong"/>}
     </PageContainer>
   );
 }

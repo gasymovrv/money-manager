@@ -1,7 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Avatar, Button, Container, Grid, MenuItem, Paper, TextField, Typography } from '@material-ui/core';
 import { changeAccount, editAccount, findAllAccounts, getAllCurrencies } from '../services/api.service';
-import ErrorNotification from '../components/notification/error.notification';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import Header from '../components/header/header';
 import PageContainer from '../components/page-container/page-container';
@@ -12,6 +11,8 @@ import DeleteAccountDialog from '../components/dialog/delete-account.dialog';
 import { useDispatch } from 'react-redux';
 import { resetPagination } from '../actions/pagination.actions';
 import { resetShowingCategories } from '../actions/show-categories.actions';
+import { COMMON_ERROR_MSG } from '../constants';
+import { showError } from '../actions/error.actions';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -39,7 +40,6 @@ const ProfilePage: React.FC = () => {
   const {user, refreshUser} = useContext(AuthContext);
   const {currentAccount} = user;
 
-  const [error, setError] = useState<boolean>(false);
   const [account, setAccount] = useState<Account>(currentAccount);
   const [accountName, setAccountName] = useState<string>(currentAccount.name);
   const [accountTheme, setAccountTheme] = useState<AccountTheme>(currentAccount.theme);
@@ -55,14 +55,13 @@ const ProfilePage: React.FC = () => {
     let mounted = true;
     (async () => {
       if (mounted) {
-        setError(false);
         try {
           const data = await getAllCurrencies();
           setCurrencies(data);
           setLoadingCurrencies(false);
         } catch (err) {
           console.log(`Getting currencies error: ${err}`);
-          setError(true);
+          dispatch(showError(COMMON_ERROR_MSG));
         }
         try {
           const data = await findAllAccounts();
@@ -70,7 +69,7 @@ const ProfilePage: React.FC = () => {
           setLoadingAccounts(false);
         } catch (err) {
           console.log(`Getting accounts error: ${err}`);
-          setError(true);
+          dispatch(showError(COMMON_ERROR_MSG));
         }
       }
     })();
@@ -107,7 +106,6 @@ const ProfilePage: React.FC = () => {
   }
 
   const handleSave = async () => {
-    setError(false);
     try {
       await editAccount(account.id, {
         name: accountName,
@@ -123,7 +121,7 @@ const ProfilePage: React.FC = () => {
       refreshUser();
     } catch (error) {
       console.log(error);
-      setError(true);
+      dispatch(showError(COMMON_ERROR_MSG));
     }
   }
 
@@ -313,7 +311,6 @@ const ProfilePage: React.FC = () => {
           </Grid>
         </Paper>
       </Container>
-      {error && <ErrorNotification text="Something went wrong"/>}
     </PageContainer>
   );
 }

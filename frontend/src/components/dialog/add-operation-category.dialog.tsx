@@ -1,7 +1,5 @@
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField } from '@material-ui/core';
 import React, { useState } from 'react';
-import ErrorNotification from '../notification/error.notification';
-import SuccessNotification from '../notification/success.notification';
 import { AddOperationCategoryProps, DialogProps } from '../../interfaces/common.interface';
 import { WithAddIncomeCategoryActions } from '../../hocs/with-add-income-category-actions';
 import { WithAddExpenseCategoryActions } from '../../hocs/with-add-expense-category-actions';
@@ -9,6 +7,9 @@ import { useDispatch, useSelector } from 'react-redux';
 import { SavingsFilterParams } from '../../interfaces/saving.interface';
 import { PaginationParams } from '../../interfaces/main-table.interface';
 import { fetchMainTable } from '../../services/async-dispatch.service';
+import { showSuccess } from '../../actions/success.actions';
+import { showError } from '../../actions/error.actions';
+import { COMMON_ERROR_MSG } from '../../constants';
 
 const AddOperationCategoryDialog: React.FC<DialogProps & AddOperationCategoryProps> = ({
                                                                                          open,
@@ -19,10 +20,6 @@ const AddOperationCategoryDialog: React.FC<DialogProps & AddOperationCategoryPro
   const savingsFilter: SavingsFilterParams = useSelector(({savingsFilter}: any) => savingsFilter);
   const paginationParams: PaginationParams = useSelector(({pagination}: any) => pagination);
 
-  const [success, setSuccess] = useState<boolean>(false);
-  const [error, setError] = useState<boolean>(false);
-  const [alreadyExistsError, setAlreadyExistsError] = useState<boolean>(false);
-
   const [name, setName] = useState<string>('New category');
 
   const handleChangeName = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -30,61 +27,53 @@ const AddOperationCategoryDialog: React.FC<DialogProps & AddOperationCategoryPro
   }
 
   const handleSave = async () => {
-    setSuccess(false);
-    setError(false);
-    setAlreadyExistsError(false);
     try {
       await addOperationCategory({
         name: name
       });
-      setSuccess(true);
       dispatch(fetchMainTable(paginationParams, savingsFilter));
+      dispatch(showSuccess('New category has been successfully added'));
     } catch (error) {
       console.log(error);
       const resp = error as Response;
       if (resp.status === 400) {
-        setAlreadyExistsError(true)
+        dispatch(showError('You cannot create category with such name'));
       } else {
-        setError(true);
+        dispatch(showError(COMMON_ERROR_MSG));
       }
     }
     handleClose();
   }
 
   return (
-    <>
-      <Dialog maxWidth="xs" open={open} onClose={handleClose}>
+    <Dialog maxWidth="xs" open={open} onClose={handleClose}>
 
-        <DialogTitle>Add category</DialogTitle>
+      <DialogTitle>Add category</DialogTitle>
 
-        <DialogContent>
-          <TextField
-            required
-            error={!name}
-            color="secondary"
-            margin="normal"
-            id="categoryName"
-            label="Category name"
-            type="text"
-            fullWidth
-            value={name}
-            onChange={handleChangeName}
-          />
-        </DialogContent>
+      <DialogContent>
+        <TextField
+          required
+          error={!name}
+          color="secondary"
+          margin="normal"
+          id="categoryName"
+          label="Category name"
+          type="text"
+          fullWidth
+          value={name}
+          onChange={handleChangeName}
+        />
+      </DialogContent>
 
-        <DialogActions>
-          <Button onClick={handleClose} color="inherit">
-            Cancel
-          </Button>
-          <Button disabled={!name} onClick={handleSave} color="inherit">
-            Save
-          </Button>
-        </DialogActions>
-      </Dialog>
-      {success && <SuccessNotification text="New category has been successfully added"/>}
-      {error && <ErrorNotification text="Something went wrong"/>}
-      {alreadyExistsError && <ErrorNotification text="You cannot create category with such name"/>}
-    </>
+      <DialogActions>
+        <Button onClick={handleClose} color="inherit">
+          Cancel
+        </Button>
+        <Button disabled={!name} onClick={handleSave} color="inherit">
+          Save
+        </Button>
+      </DialogActions>
+    </Dialog>
   );
 }
 

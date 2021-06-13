@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Grid,
   IconButton,
@@ -93,8 +93,8 @@ const MainTable: React.FC = () => {
   const changePgnOptions = (pp: PaginationParams) => dispatch(changePagination(pp));
   const changeShowCatOptions = (scp: ShowingCategoriesParams) => dispatch(changeShowingCategories(scp));
 
-  const [openAddIncomeCategory, setOpenAddIncomeCategory] = React.useState(false);
-  const [openAddExpenseCategory, setOpenAddExpenseCategory] = React.useState(false);
+  const [openAddIncomeCategory, setOpenAddIncomeCategory] = useState(false);
+  const [openAddExpenseCategory, setOpenAddExpenseCategory] = useState(false);
 
   const handleHideIncomeCategories = () => {
     changeShowCatOptions({showExpenseCategories, showIncomeCategories: !showIncomeCategories});

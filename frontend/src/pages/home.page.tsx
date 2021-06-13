@@ -9,10 +9,11 @@ import { SavingsFilterParams } from '../interfaces/saving.interface';
 import { fetchMainTable } from '../services/async-dispatch.service';
 import { LinearProgress } from '@material-ui/core';
 import { MainTableState, PaginationParams } from '../interfaces/main-table.interface';
+import { COMMON_ERROR_MSG } from '../constants';
 
 const HomePage: React.FC = () => {
-  const savingsFilter: SavingsFilterParams = useSelector(({savingsFilter}: any) => savingsFilter);
   const mainTableState: MainTableState = useSelector(({mainTable}: any) => mainTable);
+  const savingsFilter: SavingsFilterParams = useSelector(({savingsFilter}: any) => savingsFilter);
   const pagination: PaginationParams = useSelector(({pagination}: any) => pagination);
 
   const dispatch = useDispatch();
@@ -30,7 +31,6 @@ const HomePage: React.FC = () => {
   console.log('render home')
   return (
     <PageContainer>
-
       <Header hasActions={!mainTableState.isLoading}>
         <SavingsFilter/>
       </Header>
@@ -38,9 +38,7 @@ const HomePage: React.FC = () => {
         <LinearProgress/> :
         <MainTable/>
       }
-
-      {mainTableState.error && <ErrorNotification text="Something went wrong"/>}
-
+      {mainTableState.error && <ErrorNotification text={COMMON_ERROR_MSG}/>}
     </PageContainer>
   )
 }

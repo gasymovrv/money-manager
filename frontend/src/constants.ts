@@ -14,3 +14,11 @@ export const RESET_SHOWING_CATEGORIES = 'RESET_SHOWING_CATEGORIES';
 export const LOADING_MAIN_TABLE = 'LOADING_MAIN_TABLE';
 export const SUCCESS_MAIN_TABLE = 'SUCCESS_MAIN_TABLE';
 export const ERROR_MAIN_TABLE = 'ERROR_MAIN_TABLE';
+
+export const SHOW_ERROR = 'SHOW_ERROR';
+export const HIDE_ERROR = 'HIDE_ERROR';
+
+export const SHOW_SUCCESS = 'SHOW_SUCCESS';
+export const HIDE_SUCCESS = 'HIDE_SUCCESS';
+
+export const COMMON_ERROR_MSG = 'Something went wrong';

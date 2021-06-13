@@ -1,16 +1,16 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Button, Grid, Input, Typography } from '@material-ui/core';
 import { importFromXlsxFile } from '../../services/api.service';
-import ErrorNotification from '../notification/error.notification';
-import SuccessNotification from '../notification/success.notification';
+import { showSuccess } from '../../actions/success.actions';
+import { showError } from '../../actions/error.actions';
+import { useDispatch } from 'react-redux';
 
 type FileUploaderProps = {
   onSend(): void
 }
 
 const FileUploader: React.FC<FileUploaderProps> = ({onSend}) => {
-  const [success, setSuccess] = useState<boolean>(false);
-  const [error, setError] = useState<boolean>(false);
+  const dispatch = useDispatch();
   const [selectedFile, setSelectedFile] = React.useState();
 
   const onInputChange = ({target}: any) => {
@@ -18,15 +18,13 @@ const FileUploader: React.FC<FileUploaderProps> = ({onSend}) => {
   };
 
   const handleSendFile = async () => {
-    setSuccess(false);
-    setError(false);
     try {
       await importFromXlsxFile(selectedFile);
-      setSuccess(true);
+      dispatch(showSuccess('Excel file has been successfully imported'));
       onSend();
     } catch (error) {
       console.log(error);
-      setError(true);
+      dispatch(showError('Error occurred while importing file'));
     }
   };
 
@@ -52,8 +50,6 @@ const FileUploader: React.FC<FileUploaderProps> = ({onSend}) => {
           </Button>
         </Grid>
       </Grid>
-      {success && <SuccessNotification text="Excel file has been successfully imported"/>}
-      {error && <ErrorNotification text="Error occurred while importing file"/>}
     </>
   );
 }

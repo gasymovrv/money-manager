@@ -1,18 +1,18 @@
 import { Button, Dialog, DialogActions, DialogTitle } from '@material-ui/core';
 import React, { useState } from 'react';
 import moment from 'moment';
-import ErrorNotification from '../notification/error.notification';
-import SuccessNotification from '../notification/success.notification';
 import { AddOperationProps, DialogProps } from '../../interfaces/common.interface';
 import CommonModal from '../modal/common.modal';
 import CommonOperationDialog from './common-operation.dialog';
 import { WithAddIncomeActions } from '../../hocs/with-add-income-actions';
 import { WithAddExpenseActions } from '../../hocs/with-add-expense-actions';
-import { DATE_FORMAT } from '../../constants';
+import { COMMON_ERROR_MSG, DATE_FORMAT } from '../../constants';
 import { PaginationParams } from '../../interfaces/main-table.interface';
 import { useDispatch, useSelector } from 'react-redux';
 import { SavingsFilterParams } from '../../interfaces/saving.interface';
 import { fetchMainTable } from '../../services/async-dispatch.service';
+import { showError } from '../../actions/error.actions';
+import { showSuccess } from '../../actions/success.actions';
 
 const AddOperationDialog: React.FC<DialogProps & AddOperationProps> = ({
                                                                          open,
@@ -23,9 +23,6 @@ const AddOperationDialog: React.FC<DialogProps & AddOperationProps> = ({
   const dispatch = useDispatch();
   const savingsFilter: SavingsFilterParams = useSelector(({savingsFilter}: any) => savingsFilter);
   const paginationParams: PaginationParams = useSelector(({pagination}: any) => pagination);
-
-  const [success, setSuccess] = useState<boolean>(false);
-  const [error, setError] = useState<boolean>(false);
 
   const [value, setValue] = useState<number>(100);
   const [description, setDescription] = useState<string>();
@@ -59,8 +56,6 @@ const AddOperationDialog: React.FC<DialogProps & AddOperationProps> = ({
   }
 
   const handleSave = async () => {
-    setSuccess(false);
-    setError(false);
     try {
       await addOperation({
         categoryId: categoryId,
@@ -69,11 +64,11 @@ const AddOperationDialog: React.FC<DialogProps & AddOperationProps> = ({
         value: value,
         isPlanned: isPlanned
       });
-      setSuccess(true);
       dispatch(fetchMainTable(paginationParams, savingsFilter));
+      dispatch(showSuccess('New operation has been successfully added'));
     } catch (error) {
       console.log(error);
-      setError(true);
+      dispatch(showError(COMMON_ERROR_MSG));
     }
     handleClose();
   }
@@ -90,42 +85,38 @@ const AddOperationDialog: React.FC<DialogProps & AddOperationProps> = ({
   }
 
   return (
-    <>
-      <Dialog maxWidth="xs" open={open} onClose={handleClose}>
+    <Dialog maxWidth="xs" open={open} onClose={handleClose}>
 
-        <DialogTitle>Add operation</DialogTitle>
+      <DialogTitle>Add operation</DialogTitle>
 
-        <CommonOperationDialog
-          value={value}
-          isPlanned={isPlanned}
-          categoryId={categoryId}
-          description={description}
-          selectedDate={selectedDate}
-          inputDateValue={inputDateValue}
-          categories={categories}
-          handleChangeValue={handleChangeValue}
-          handleChangeIsPlanned={handleChangeIsPlanned}
-          handleChangeDate={handleChangeDate}
-          handleChangeDescription={handleChangeDescription}
-          handleChangeCategoryId={handleChangeCategoryId}
-        />
+      <CommonOperationDialog
+        value={value}
+        isPlanned={isPlanned}
+        categoryId={categoryId}
+        description={description}
+        selectedDate={selectedDate}
+        inputDateValue={inputDateValue}
+        categories={categories}
+        handleChangeValue={handleChangeValue}
+        handleChangeIsPlanned={handleChangeIsPlanned}
+        handleChangeDate={handleChangeDate}
+        handleChangeDescription={handleChangeDescription}
+        handleChangeCategoryId={handleChangeCategoryId}
+      />
 
-        <DialogActions>
-          <Button onClick={handleClose} color="inherit">
-            Cancel
-          </Button>
-          <Button
-            disabled={!value || !categoryId || !inputDateValue}
-            onClick={handleSave}
-            color="inherit"
-          >
-            Save
-          </Button>
-        </DialogActions>
-      </Dialog>
-      {success && <SuccessNotification text="New operation has been successfully added"/>}
-      {error && <ErrorNotification text="Something went wrong"/>}
-    </>
+      <DialogActions>
+        <Button onClick={handleClose} color="inherit">
+          Cancel
+        </Button>
+        <Button
+          disabled={!value || !categoryId || !inputDateValue}
+          onClick={handleSave}
+          color="inherit"
+        >
+          Save
+        </Button>
+      </DialogActions>
+    </Dialog>
   );
 }
 

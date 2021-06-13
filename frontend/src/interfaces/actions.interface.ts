@@ -3,10 +3,14 @@ import {
   CHANGE_PAGINATION,
   CHANGE_SHOWING_CATEGORIES,
   ERROR_MAIN_TABLE,
+  HIDE_ERROR,
+  HIDE_SUCCESS,
   LOADING_MAIN_TABLE,
   RESET_FILTER,
   RESET_PAGINATION,
   RESET_SHOWING_CATEGORIES,
+  SHOW_ERROR,
+  SHOW_SUCCESS,
   SUCCESS_MAIN_TABLE
 } from '../constants';
 import { SavingsFilterParams } from './saving.interface';
@@ -76,6 +80,28 @@ interface ErrorMainTableAction {
   }
 }
 
+interface ShowErrorAction {
+  type: typeof SHOW_ERROR,
+  payload: {
+    errorMsg: string | null
+  }
+}
+
+interface HideErrorAction {
+  type: typeof HIDE_ERROR,
+}
+
+interface ShowSuccessAction {
+  type: typeof SHOW_SUCCESS,
+  payload: {
+    successMsg: string | null
+  }
+}
+
+interface HideSuccessAction {
+  type: typeof HIDE_SUCCESS,
+}
+
 export type SavingsFilterActionType = ChangeFilterAction | ResetFilterAction;
 
 export type PaginationActionType = ChangePaginationAction | ResetPaginationAction;
@@ -83,3 +109,7 @@ export type PaginationActionType = ChangePaginationAction | ResetPaginationActio
 export type ShowingCategoriesActionType = ChangeShowingCategoriesAction | ResetShowingCategoriesAction;
 
 export type MainTableActionType = LoadingMainTableAction | SuccessMainTableAction | ErrorMainTableAction;
+
+export type ErrorActionType = ShowErrorAction | HideErrorAction;
+
+export type SuccessActionType = ShowSuccessAction | HideSuccessAction;
