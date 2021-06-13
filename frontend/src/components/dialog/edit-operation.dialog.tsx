@@ -5,23 +5,25 @@ import moment from 'moment';
 import CommonOperationDialog from './common-operation.dialog';
 import { WithEditIncomeActions } from '../../hocs/with-edit-income-actions';
 import { WithEditExpenseActions } from '../../hocs/with-edit-expense-actions';
-import SuccessNotification from '../notification/success.notification';
-import ErrorNotification from '../notification/error.notification';
-import { DATE_FORMAT } from '../../helpers/date.helper';
+import { COMMON_ERROR_MSG, DATE_FORMAT } from '../../constants';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchMainTable } from '../../services/async-dispatch.service';
+import { SavingsFilterParams } from '../../interfaces/saving.interface';
+import { PaginationParams } from '../../interfaces/main-table.interface';
+import { showSuccess } from '../../actions/success.actions';
+import { showError } from '../../actions/error.actions';
 
 const EditOperationDialog: React.FC<EditOperationDialogProps & EditOperationProps> = ({
                                                                                         operation,
                                                                                         categories,
-                                                                                        onAction,
                                                                                         open,
                                                                                         handleClose,
                                                                                         editOperation,
                                                                                         deleteOperation
                                                                                       }) => {
-  const [successEdit, setSuccessEdit] = useState<boolean>(false);
-  const [successDelete, setSuccessDelete] = useState<boolean>(false);
-  const [errorEdit, setErrorEdit] = useState<boolean>(false);
-  const [errorDelete, setErrorDelete] = useState<boolean>(false);
+  const dispatch = useDispatch();
+  const savingsFilter: SavingsFilterParams = useSelector(({savingsFilter}: any) => savingsFilter);
+  const paginationParams: PaginationParams = useSelector(({pagination}: any) => pagination);
 
   const [value, setValue] = useState<number>(operation.value);
   const [description, setDescription] = useState<string>(operation.description || '');
@@ -55,8 +57,6 @@ const EditOperationDialog: React.FC<EditOperationDialogProps & EditOperationProp
   }
 
   const handleSave = async () => {
-    setSuccessEdit(false);
-    setErrorEdit(false);
     try {
       await editOperation(operation.id, {
         value: value,
@@ -65,25 +65,23 @@ const EditOperationDialog: React.FC<EditOperationDialogProps & EditOperationProp
         categoryId: categoryId,
         isPlanned: isPlanned,
       });
-      setSuccessEdit(true);
-      await onAction();
+      dispatch(fetchMainTable(paginationParams, savingsFilter));
+      dispatch(showSuccess('The operation has been successfully edited'));
     } catch (error) {
       console.log(error);
-      setErrorEdit(true);
+      dispatch((showError(COMMON_ERROR_MSG)))
     }
     handleClose();
   }
 
   const handleDelete = async () => {
-    setSuccessDelete(false);
-    setErrorDelete(false);
     try {
       await deleteOperation(operation.id);
-      setSuccessDelete(true);
-      await onAction();
+      dispatch(fetchMainTable(paginationParams, savingsFilter));
+      dispatch(showSuccess('The operation has been successfully deleted'));
     } catch (error) {
       console.log(error);
-      setErrorDelete(true);
+      dispatch((showError(COMMON_ERROR_MSG)))
     }
     handleClose();
   }
@@ -99,46 +97,41 @@ const EditOperationDialog: React.FC<EditOperationDialogProps & EditOperationProp
   }
 
   return (
-    <>
-      <Dialog maxWidth="xs" open={open} onClose={handleClose}>
+    <Dialog maxWidth="xs" open={open} onClose={handleClose}>
 
-        <DialogTitle>Edit operation</DialogTitle>
+      <DialogTitle>Edit operation</DialogTitle>
 
-        <CommonOperationDialog
-          value={value}
-          isPlanned={isPlanned}
-          categoryId={categoryId}
-          description={description}
-          selectedDate={selectedDate}
-          inputDateValue={inputDateValue}
-          categories={categories}
-          handleChangeValue={handleChangeValue}
-          handleChangeIsPlanned={handleChangeIsPlanned}
-          handleChangeDate={handleChangeDate}
-          handleChangeDescription={handleChangeDescription}
-          handleChangeCategoryId={handleChangeTypeId}
-        />
+      <CommonOperationDialog
+        value={value}
+        isPlanned={isPlanned}
+        categoryId={categoryId}
+        description={description}
+        selectedDate={selectedDate}
+        inputDateValue={inputDateValue}
+        categories={categories}
+        handleChangeValue={handleChangeValue}
+        handleChangeIsPlanned={handleChangeIsPlanned}
+        handleChangeDate={handleChangeDate}
+        handleChangeDescription={handleChangeDescription}
+        handleChangeCategoryId={handleChangeTypeId}
+      />
 
-        <DialogActions>
-          <Button onClick={handleCancel} color="inherit">
-            Cancel
-          </Button>
-          <Button onClick={handleDelete} color="inherit">
-            Delete
-          </Button>
-          <Button
-            disabled={!value || !categoryId}
-            onClick={handleSave}
-            color="inherit"
-          >
-            Save
-          </Button>
-        </DialogActions>
-      </Dialog>
-      {successEdit && <SuccessNotification text="The operation has been successfully edited"/>}
-      {successDelete && <SuccessNotification text="The operation has been successfully deleted"/>}
-      {(errorEdit || errorDelete) && <ErrorNotification text="Something went wrong"/>}
-    </>
+      <DialogActions>
+        <Button onClick={handleCancel} color="inherit">
+          Cancel
+        </Button>
+        <Button onClick={handleDelete} color="inherit">
+          Delete
+        </Button>
+        <Button
+          disabled={!value || !categoryId}
+          onClick={handleSave}
+          color="inherit"
+        >
+          Save
+        </Button>
+      </DialogActions>
+    </Dialog>
   );
 }
 export const EditIncomeDialog = WithEditIncomeActions<EditOperationDialogProps>(EditOperationDialog);

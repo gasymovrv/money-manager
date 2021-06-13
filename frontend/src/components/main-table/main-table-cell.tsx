@@ -18,8 +18,7 @@ type MainTableCellProps = {
   itemType: OperationType,
   items: Operation[] | undefined,
   index: number,
-  colorClass: string | undefined,
-  refreshTable(): void
+  colorClass: string | undefined
 }
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -41,8 +40,7 @@ const MainTableCell: React.FC<MainTableCellProps> = ({
                                                        itemType,
                                                        items,
                                                        index,
-                                                       colorClass,
-                                                       refreshTable
+                                                       colorClass
                                                      }) => {
   const [expandList, setExpandList] = React.useState(false);
   const classes = useStyles();
@@ -67,7 +65,6 @@ const MainTableCell: React.FC<MainTableCellProps> = ({
             operation={firstEl}
             categories={categories}
             operationType={itemType}
-            refreshTable={refreshTable}
           />
         </StyledTableCell>
       )
@@ -88,7 +85,6 @@ const MainTableCell: React.FC<MainTableCellProps> = ({
                     operation={inc}
                     categories={categories}
                     operationType={itemType}
-                    refreshTable={refreshTable}
                   />
                 )
 

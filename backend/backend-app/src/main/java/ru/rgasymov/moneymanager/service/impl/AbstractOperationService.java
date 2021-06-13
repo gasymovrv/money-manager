@@ -21,12 +21,12 @@ import ru.rgasymov.moneymanager.service.UserService;
 @RequiredArgsConstructor
 public abstract class AbstractOperationService<
     O extends BaseOperation,
-    OT extends BaseOperationCategory>
+    C extends BaseOperationCategory>
     implements BaseOperationService<O> {
 
   private final BaseOperationRepository<O> operationRepository;
 
-  private final BaseOperationCategoryRepository<OT> operationCategoryRepository;
+  private final BaseOperationCategoryRepository<C> operationCategoryRepository;
 
   private final BaseOperationMapper<O> operationMapper;
 
@@ -39,7 +39,7 @@ public abstract class AbstractOperationService<
     var currentAccountId = currentUser.getCurrentAccount().getId();
     var categoryId = dto.getCategoryId();
 
-    OT category = operationCategoryRepository.findByIdAndAccountId(categoryId, currentAccountId)
+    C category = operationCategoryRepository.findByIdAndAccountId(categoryId, currentAccountId)
         .orElseThrow(() ->
             new EntityNotFoundException(
                 String.format("Could not find operation category with id = '%s' in the database",
@@ -79,7 +79,7 @@ public abstract class AbstractOperationService<
     }
 
     if (isChanged(oldCategoryId, categoryId)) {
-      OT category = operationCategoryRepository.findByIdAndAccountId(categoryId, currentAccountId)
+      C category = operationCategoryRepository.findByIdAndAccountId(categoryId, currentAccountId)
           .orElseThrow(() ->
               new EntityNotFoundException(
                   String.format("Could not find operation category with id = '%s' in the database",
@@ -116,7 +116,7 @@ public abstract class AbstractOperationService<
 
   protected abstract O buildNewOperation(User currentUser,
                                          OperationRequestDto dto,
-                                         OT category);
+                                         C category);
 
   protected abstract void updateSavings(BigDecimal value,
                                         BigDecimal oldValue,
@@ -125,7 +125,7 @@ public abstract class AbstractOperationService<
 
   protected abstract void deleteOperation(O operation, Long currentAccountId);
 
-  protected abstract OT getOperationCategory(O operation);
+  protected abstract C getOperationCategory(O operation);
 
-  protected abstract void setOperationCategory(O operation, OT operationCategory);
+  protected abstract void setOperationCategory(O operation, C operationCategory);
 }

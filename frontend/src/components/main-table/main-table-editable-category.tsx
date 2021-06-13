@@ -6,8 +6,7 @@ import { EditExpenseCategoryDialog, EditIncomeCategoryDialog } from '../dialog/e
 
 type MainTableEditableCategoryProps = {
   category: OperationCategory,
-  operationType: OperationType,
-  refreshTable(): void
+  operationType: OperationType
 }
 
 const useStyles = makeStyles(() =>
@@ -22,8 +21,7 @@ const useStyles = makeStyles(() =>
 
 const MainTableEditableCategory: React.FC<MainTableEditableCategoryProps> = ({
                                                                                category,
-                                                                               operationType,
-                                                                               refreshTable
+                                                                               operationType
                                                                              }) => {
   const {id, name} = category;
   const [openEditCategory, setOpenEditCategory] = React.useState(false);
@@ -56,7 +54,6 @@ const MainTableEditableCategory: React.FC<MainTableEditableCategoryProps> = ({
             operationCategory={category}
             open={openEditCategory}
             handleClose={handleCloseEditCategory}
-            onAction={refreshTable}
           />
         </>
       );
@@ -68,7 +65,6 @@ const MainTableEditableCategory: React.FC<MainTableEditableCategoryProps> = ({
             operationCategory={category}
             open={openEditCategory}
             handleClose={handleCloseEditCategory}
-            onAction={refreshTable}
           />
         </>
       );

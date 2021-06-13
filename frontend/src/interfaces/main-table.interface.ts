@@ -1,5 +1,4 @@
 import { Operation, OperationCategory } from './operation.interface';
-import React from 'react';
 import { Period } from './common.interface';
 
 export interface Row {
@@ -14,25 +13,21 @@ export interface Row {
   savings: number
 }
 
-export interface MainTableData {
-  incomeCategories: OperationCategory[],
-  expenseCategories: OperationCategory[],
-  rows: Row[],
-  totalElements: number
-}
-
-export interface MainTableProps {
-  isLoading: boolean,
+export type MainTableState = {
   incomeCategories: OperationCategory[],
   expenseCategories: OperationCategory[],
   rows: Row[],
   totalElements: number,
+  isLoading: boolean,
+  error?: Response
+}
+
+export type PaginationParams = {
   page: number,
-  pageSize: number,
+  pageSize: number
+}
 
-  refreshTable(): void,
-
-  handleChangePage(event: unknown, newPage: number): void
-
-  handleChangeRowsPerPage(event: React.ChangeEvent<HTMLInputElement>): void
+export type ShowingCategoriesParams = {
+  showIncomeCategories: boolean,
+  showExpenseCategories: boolean
 }

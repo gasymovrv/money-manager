@@ -4,7 +4,6 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections.CollectionUtils;
@@ -110,8 +109,8 @@ public class FileServiceImpl implements FileService {
     var criteria = new SavingCriteriaDto();
     criteria.setPageSize(MAX_SAVINGS);
     List<SavingResponseDto> savings = savingService.search(criteria).getResult();
-    Set<OperationCategoryResponseDto> incCategories = incomeCategoryService.findAll();
-    Set<OperationCategoryResponseDto> expCategories = expenseCategoryService.findAll();
+    List<OperationCategoryResponseDto> incCategories = incomeCategoryService.findAll();
+    List<OperationCategoryResponseDto> expCategories = expenseCategoryService.findAll();
     if (CollectionUtils.isEmpty(savings)) {
       throw new EmptyDataGenerationException("There is no data in current account to export");
     }

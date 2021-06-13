@@ -10,11 +10,9 @@ import { SearchResult } from '../interfaces/common.interface';
 
 const apiUrl = '/api/';
 
-function handleErrors(response: Response) {
-  if (!response.ok) {
-    throw response;
-  }
-  return response;
+export async function getVersion(): Promise<string> {
+  const response = handleErrors(await fetch(apiUrl + 'version'));
+  return await response.text();
 }
 
 export async function getCurrentUser(): Promise<User> {
@@ -276,4 +274,11 @@ function downloadFile(blob: Blob, fileName: string) {
   link.setAttribute('download', fileName);
   document.body.appendChild(link);
   link.click();
+}
+
+function handleErrors(response: Response) {
+  if (!response.ok) {
+    throw response;
+  }
+  return response;
 }

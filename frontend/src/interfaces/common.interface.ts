@@ -26,8 +26,6 @@ export interface DialogProps {
   open: boolean,
 
   handleClose(): void
-
-  onAction(): void
 }
 
 export interface EditOperationDialogProps extends DialogProps {
@@ -46,7 +44,7 @@ export interface EditOperationProps {
 }
 
 export interface AddOperationProps {
-  getCategories(): Promise<OperationCategory[]>
+  categories: OperationCategory[],
 
   addOperation(request: AddOrEditOperationRequest): void
 }
@@ -63,8 +61,12 @@ export interface EditOperationCategoryProps {
 
 export interface AddAccountProps {
   currencies: string[],
+
+  onAdd(): void
 }
 
 export interface DeleteAccountProps {
-  account: Account
+  account: Account,
+
+  onDelete(): void
 }

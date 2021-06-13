@@ -1,0 +1,24 @@
+export const DATE_FORMAT = 'YYYY-MM-DD'
+export const MONTH_FORMAT = 'YYYY-MM'
+export const YEAR_FORMAT = 'YYYY'
+
+export const CHANGE_FILTER = 'CHANGE_FILTER';
+export const RESET_FILTER = 'RESET_FILTER';
+
+export const CHANGE_PAGINATION = 'CHANGE_PAGINATION';
+export const RESET_PAGINATION = 'RESET_PAGINATION';
+
+export const CHANGE_SHOWING_CATEGORIES = 'CHANGE_SHOWING_CATEGORIES';
+export const RESET_SHOWING_CATEGORIES = 'RESET_SHOWING_CATEGORIES';
+
+export const LOADING_MAIN_TABLE = 'LOADING_MAIN_TABLE';
+export const SUCCESS_MAIN_TABLE = 'SUCCESS_MAIN_TABLE';
+export const ERROR_MAIN_TABLE = 'ERROR_MAIN_TABLE';
+
+export const SHOW_ERROR = 'SHOW_ERROR';
+export const HIDE_ERROR = 'HIDE_ERROR';
+
+export const SHOW_SUCCESS = 'SHOW_SUCCESS';
+export const HIDE_SUCCESS = 'HIDE_SUCCESS';
+
+export const COMMON_ERROR_MSG = 'Something went wrong';

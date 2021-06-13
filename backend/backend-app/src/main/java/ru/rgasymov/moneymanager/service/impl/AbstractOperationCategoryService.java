@@ -1,6 +1,6 @@
 package ru.rgasymov.moneymanager.service.impl;
 
-import java.util.Set;
+import java.util.List;
 import javax.persistence.EntityNotFoundException;
 import javax.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
@@ -19,24 +19,26 @@ import ru.rgasymov.moneymanager.service.UserService;
 @RequiredArgsConstructor
 public abstract class AbstractOperationCategoryService<
     O extends BaseOperation,
-    OT extends BaseOperationCategory> implements BaseOperationCategoryService {
+    C extends BaseOperationCategory> implements BaseOperationCategoryService {
 
   private final BaseOperationRepository<O> operationRepository;
 
-  private final BaseOperationCategoryRepository<OT> operationCategoryRepository;
+  private final BaseOperationCategoryRepository<C> operationCategoryRepository;
 
-  private final BaseOperationCategoryMapper<OT> operationCategoryMapper;
+  private final BaseOperationCategoryMapper<C> operationCategoryMapper;
 
   private final UserService userService;
 
   @Transactional(readOnly = true)
   @Override
-  public Set<OperationCategoryResponseDto> findAll() {
+  public List<OperationCategoryResponseDto> findAll() {
     var currentUser = userService.getCurrentUser();
     var currentAccountId = currentUser.getCurrentAccount().getId();
-    Set<OT> result = operationCategoryRepository.findAllByAccountId(currentAccountId);
+    List<C> result = findAll(currentAccountId);
     return operationCategoryMapper.toDtos(result);
   }
+
+  protected abstract List<C> findAll(Long accountId);
 
   @Transactional
   @Override
@@ -44,13 +46,14 @@ public abstract class AbstractOperationCategoryService<
     var currentUser = userService.getCurrentUser();
     var currentAccountId = currentUser.getCurrentAccount().getId();
 
-    if (operationCategoryRepository.existsByNameAndAccountId(dto.getName(), currentAccountId)) {
+    if (operationCategoryRepository
+        .existsByNameIgnoreCaseAndAccountId(dto.getName(), currentAccountId)) {
       throw new ValidationException(
           "Could not create operation category because such name already exists");
     }
 
-    OT newOperationCategory = buildNewOperationCategory(currentUser, dto.getName());
-    OT saved = operationCategoryRepository.save(newOperationCategory);
+    C newOperationCategory = buildNewOperationCategory(currentUser, dto.getName());
+    C saved = operationCategoryRepository.save(newOperationCategory);
     return operationCategoryMapper.toDto(saved);
   }
 
@@ -60,18 +63,19 @@ public abstract class AbstractOperationCategoryService<
     var currentUser = userService.getCurrentUser();
     var currentAccountId = currentUser.getCurrentAccount().getId();
 
-    if (operationCategoryRepository.existsByNameAndAccountId(dto.getName(), currentAccountId)) {
+    if (operationCategoryRepository
+        .existsByNameIgnoreCaseAndAccountId(dto.getName(), currentAccountId)) {
       throw new ValidationException(
           "Could not update operation category because such name already exists");
     }
 
-    OT operationCategory = operationCategoryRepository.findByIdAndAccountId(id, currentAccountId)
+    C operationCategory = operationCategoryRepository.findByIdAndAccountId(id, currentAccountId)
         .orElseThrow(() ->
             new EntityNotFoundException(
                 String.format("Could not find operation category with id = '%s' in the database",
                     id)));
     operationCategory.setName(dto.getName());
-    OT saved = operationCategoryRepository.save(operationCategory);
+    C saved = operationCategoryRepository.save(operationCategory);
     return operationCategoryMapper.toDto(saved);
   }
 
@@ -88,5 +92,5 @@ public abstract class AbstractOperationCategoryService<
     operationCategoryRepository.deleteByIdAndAccountId(id, currentAccountId);
   }
 
-  protected abstract OT buildNewOperationCategory(User currentUser, String name);
+  protected abstract C buildNewOperationCategory(User currentUser, String name);
 }

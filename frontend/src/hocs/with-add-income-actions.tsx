@@ -1,25 +1,24 @@
 import React from 'react';
-import { addIncome, getIncomeCategories } from '../services/api.service';
+import { addIncome } from '../services/api.service';
 import { AddOperationProps } from '../interfaces/common.interface';
-import { AddOrEditOperationRequest, OperationCategory } from '../interfaces/operation.interface';
+import { AddOrEditOperationRequest } from '../interfaces/operation.interface';
 import { getHocDisplayName } from '../helpers/hoc.helper';
+import { MainTableState } from '../interfaces/main-table.interface';
+import { useSelector } from 'react-redux';
 
 export function WithAddIncomeActions<P>(
   WrappedComponent: React.ComponentType<P & AddOperationProps>
 ) {
-
-  const handleGetCategories = async (): Promise<OperationCategory[]> => {
-    return await getIncomeCategories();
-  }
-
   const handleAddOperation = async (request: AddOrEditOperationRequest) => {
     await addIncome(request);
   }
 
   const ResultComponent = (props: P) => {
+    const {incomeCategories}: MainTableState = useSelector(({mainTable}: any) => mainTable);
+
     return <WrappedComponent
       {...props}
-      getCategories={handleGetCategories}
+      categories={incomeCategories}
       addOperation={handleAddOperation}
     />;
   };

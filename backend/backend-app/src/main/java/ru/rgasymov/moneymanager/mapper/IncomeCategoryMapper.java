@@ -1,6 +1,6 @@
 package ru.rgasymov.moneymanager.mapper;
 
-import java.util.Set;
+import java.util.List;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
 import ru.rgasymov.moneymanager.domain.dto.response.OperationCategoryResponseDto;
@@ -12,5 +12,5 @@ public interface IncomeCategoryMapper extends BaseOperationCategoryMapper<Income
 
   OperationCategoryResponseDto toDto(IncomeCategory entity);
 
-  Set<OperationCategoryResponseDto> toDtos(Set<IncomeCategory> entities);
+  List<OperationCategoryResponseDto> toDtos(List<IncomeCategory> entities);
 }

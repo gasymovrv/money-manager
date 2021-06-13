@@ -1,28 +1,13 @@
 import React from 'react';
-import { makeStyles, MenuItem, TextField, Toolbar } from '@material-ui/core';
+import { Button, makeStyles, MenuItem, TextField, Toolbar } from '@material-ui/core';
 import { createStyles, Theme } from '@material-ui/core/styles';
 import { KeyboardDatePicker, MuiPickersUtilsProvider } from '@material-ui/pickers';
 import MomentUtils from '@date-io/moment';
-import { Moment } from 'moment';
 import { Period, SortDirection } from '../../interfaces/common.interface';
-import { SavingFieldToSort } from '../../interfaces/saving.interface';
-import { DATE_FORMAT } from '../../helpers/date.helper';
-
-type SavingsFilterProps = {
-  selectedFrom: Moment | null,
-  inputFromValue?: string,
-  selectedTo?: Moment | null,
-  inputToValue?: string,
-  sortDirection?: SortDirection,
-  sortBy?: SavingFieldToSort,
-  groupBy?: Period,
-
-  handleChangeFrom(date: any, value: any): void
-  handleChangeTo(date: any, value: any): void
-  handleChangeSortDirection(event: React.ChangeEvent<any>): void
-  handleChangeSortBy(event: React.ChangeEvent<any>): void
-  handleChangeGroupBy(event: React.ChangeEvent<any>): void
-}
+import { SavingFieldToSort, SavingsFilterParams } from '../../interfaces/saving.interface';
+import { DATE_FORMAT } from '../../constants';
+import { useDispatch, useSelector } from 'react-redux';
+import { changeFilter, resetFilter } from '../../actions/savings-filter.actions';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -36,21 +21,33 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-const SavingsFilter: React.FC<SavingsFilterProps> = ({
-                                                       selectedFrom,
-                                                       inputFromValue,
-                                                       selectedTo,
-                                                       inputToValue,
-                                                       sortDirection,
-                                                       sortBy,
-                                                       groupBy,
-                                                       handleChangeFrom,
-                                                       handleChangeTo,
-                                                       handleChangeSortDirection,
-                                                       handleChangeSortBy,
-                                                       handleChangeGroupBy
-                                                     }) => {
+const SavingsFilter: React.FC = () => {
   const classes = useStyles();
+  const savingsFilter: SavingsFilterParams = useSelector(({savingsFilter}: any) => savingsFilter);
+  const dispatch = useDispatch();
+  const change = (activeFilter: SavingsFilterParams) => dispatch(changeFilter(activeFilter))
+  const reset = () => dispatch(resetFilter())
+
+  const handleChangeFrom = (date: any, value: any) => {
+    change({...savingsFilter, from: value});
+  }
+
+  const handleChangeTo = (date: any, value: any) => {
+    change({...savingsFilter, to: value});
+  }
+
+  const handleChangeSortDirection = (event: React.ChangeEvent<any>) => {
+    change({...savingsFilter, sortDirection: event.target.value});
+  }
+
+  const handleSortBy = (event: React.ChangeEvent<any>) => {
+    change({...savingsFilter, sortBy: event.target.value});
+  }
+
+  const handleChangeGroupBy = (event: React.ChangeEvent<any>) => {
+    change({...savingsFilter, groupBy: event.target.value});
+  }
+
   return (
     <Toolbar className={classes.root}>
       <MuiPickersUtilsProvider utils={MomentUtils}>
@@ -58,12 +55,12 @@ const SavingsFilter: React.FC<SavingsFilterProps> = ({
           className={classes.inputField}
           margin="normal"
           format={DATE_FORMAT}
-          value={selectedFrom}
-          inputValue={inputFromValue}
+          value={savingsFilter.from ? savingsFilter.from : null}
+          inputValue={savingsFilter.from}
           onChange={handleChangeFrom}
           label="From"
           color="secondary"
-          maxDate={selectedTo ? selectedTo : undefined}
+          maxDate={savingsFilter.to ? savingsFilter.to : undefined}
         />
       </MuiPickersUtilsProvider>
 
@@ -72,12 +69,12 @@ const SavingsFilter: React.FC<SavingsFilterProps> = ({
           className={classes.inputField}
           margin="normal"
           format={DATE_FORMAT}
-          value={selectedTo}
-          inputValue={inputToValue}
+          value={savingsFilter.to ? savingsFilter.to : null}
+          inputValue={savingsFilter.to}
           onChange={handleChangeTo}
           label="To"
           color="secondary"
-          minDate={selectedFrom ? selectedFrom : undefined}
+          minDate={savingsFilter.from ? savingsFilter.from : undefined}
         />
       </MuiPickersUtilsProvider>
 
@@ -87,11 +84,11 @@ const SavingsFilter: React.FC<SavingsFilterProps> = ({
         select
         color="secondary"
         label="Sort direction"
-        value={sortDirection}
+        value={savingsFilter.sortDirection}
         onChange={handleChangeSortDirection}
       >
         {Object.values(SortDirection).map((value) =>
-          <MenuItem key={value} value={value}>{value.replaceAll("_", " ")}</MenuItem>
+          <MenuItem key={value} value={value}>{value.replaceAll('_', ' ')}</MenuItem>
         )}
       </TextField>
 
@@ -101,11 +98,11 @@ const SavingsFilter: React.FC<SavingsFilterProps> = ({
         select
         color="secondary"
         label="Sort by"
-        value={sortBy}
-        onChange={handleChangeSortBy}
+        value={savingsFilter.sortBy}
+        onChange={handleSortBy}
       >
         {Object.values(SavingFieldToSort).map((value) =>
-          <MenuItem key={value} value={value}>{value.replaceAll("_", " ")}</MenuItem>
+          <MenuItem key={value} value={value}>{value.replaceAll('_', ' ')}</MenuItem>
         )}
       </TextField>
 
@@ -115,13 +112,20 @@ const SavingsFilter: React.FC<SavingsFilterProps> = ({
         select
         color="secondary"
         label="Group by"
-        value={groupBy}
+        value={savingsFilter.groupBy}
         onChange={handleChangeGroupBy}
       >
         {Object.values(Period).map((value) =>
-          <MenuItem key={value} value={value}>{value.replaceAll("_", " ")}</MenuItem>
+          <MenuItem key={value} value={value}>{value.replaceAll('_', ' ')}</MenuItem>
         )}
       </TextField>
+
+      <Button
+        variant="outlined"
+        onClick={reset}
+      >
+        Reset
+      </Button>
     </Toolbar>
   )
 }

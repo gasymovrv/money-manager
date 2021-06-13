@@ -1,9 +1,6 @@
 import moment from 'moment';
 import { Period } from '../interfaces/common.interface';
-
-export const DATE_FORMAT = 'YYYY-MM-DD'
-export const MONTH_FORMAT = 'YYYY-MM'
-export const YEAR_FORMAT = 'YYYY'
+import { DATE_FORMAT, MONTH_FORMAT, YEAR_FORMAT } from '../constants';
 
 export function isCurrentPeriod(date: any, period: Period): boolean {
   return formatByPeriod(moment(), period) === formatByPeriod(moment(date), period);

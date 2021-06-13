@@ -1,7 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Avatar, Button, Container, Grid, MenuItem, Paper, TextField, Typography } from '@material-ui/core';
 import { changeAccount, editAccount, findAllAccounts, getAllCurrencies } from '../services/api.service';
-import ErrorNotification from '../components/notification/error.notification';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import Header from '../components/header/header';
 import PageContainer from '../components/page-container/page-container';
@@ -9,6 +8,11 @@ import { AuthContext } from '../interfaces/auth-context.interface';
 import { Account, AccountTheme } from '../interfaces/user.interface';
 import AddAccountDialog from '../components/dialog/add-account.dialog';
 import DeleteAccountDialog from '../components/dialog/delete-account.dialog';
+import { useDispatch } from 'react-redux';
+import { resetPagination } from '../actions/pagination.actions';
+import { resetShowingCategories } from '../actions/show-categories.actions';
+import { COMMON_ERROR_MSG } from '../constants';
+import { showError } from '../actions/error.actions';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -31,10 +35,11 @@ const useStyles = makeStyles((theme: Theme) =>
 
 const ProfilePage: React.FC = () => {
   const classes = useStyles();
+
+  const dispatch = useDispatch();
   const {user, refreshUser} = useContext(AuthContext);
   const {currentAccount} = user;
 
-  const [error, setError] = useState<boolean>(false);
   const [account, setAccount] = useState<Account>(currentAccount);
   const [accountName, setAccountName] = useState<string>(currentAccount.name);
   const [accountTheme, setAccountTheme] = useState<AccountTheme>(currentAccount.theme);
@@ -50,14 +55,13 @@ const ProfilePage: React.FC = () => {
     let mounted = true;
     (async () => {
       if (mounted) {
-        setError(false);
         try {
           const data = await getAllCurrencies();
           setCurrencies(data);
           setLoadingCurrencies(false);
         } catch (err) {
           console.log(`Getting currencies error: ${err}`);
-          setError(true);
+          dispatch(showError(COMMON_ERROR_MSG));
         }
         try {
           const data = await findAllAccounts();
@@ -65,7 +69,7 @@ const ProfilePage: React.FC = () => {
           setLoadingAccounts(false);
         } catch (err) {
           console.log(`Getting accounts error: ${err}`);
-          setError(true);
+          dispatch(showError(COMMON_ERROR_MSG));
         }
       }
     })();
@@ -74,7 +78,7 @@ const ProfilePage: React.FC = () => {
     };
   }
 
-  useEffect(loadAccountsData, []);
+  useEffect(loadAccountsData, [dispatch]);
 
   const handleChangeAccountName = (event: React.ChangeEvent<HTMLInputElement>) => {
     setAccountName(event.target.value)
@@ -102,7 +106,6 @@ const ProfilePage: React.FC = () => {
   }
 
   const handleSave = async () => {
-    setError(false);
     try {
       await editAccount(account.id, {
         name: accountName,
@@ -111,12 +114,14 @@ const ProfilePage: React.FC = () => {
       });
       if (currentAccount.id !== account.id) {
         await changeAccount(account.id);
+        dispatch(resetPagination());
+        dispatch(resetShowingCategories())
       }
       await loadAccountsData();
       refreshUser();
     } catch (error) {
       console.log(error);
-      setError(true);
+      dispatch(showError(COMMON_ERROR_MSG));
     }
   }
 
@@ -129,7 +134,7 @@ const ProfilePage: React.FC = () => {
 
   return (
     <PageContainer>
-      <Header isWelcome={true}/>
+      <Header/>
       <Container maxWidth="sm">
         <Paper className={classes.container}>
           <Grid container direction="column" alignItems="center" spacing={5}>
@@ -242,7 +247,7 @@ const ProfilePage: React.FC = () => {
                           <AddAccountDialog
                               open={openAddAccount}
                               handleClose={() => setOpenAddAccount(false)}
-                              onAction={loadAccountsData}
+                              onAdd={loadAccountsData}
                               currencies={currencies}
                           />
                           }
@@ -260,7 +265,7 @@ const ProfilePage: React.FC = () => {
                           <DeleteAccountDialog
                             open={openDeleteAccount}
                             handleClose={() => setOpenDeleteAccount(false)}
-                            onAction={async () => {
+                            onDelete={async () => {
                               await loadAccountsData();
                               reset();
                             }}
@@ -306,7 +311,6 @@ const ProfilePage: React.FC = () => {
           </Grid>
         </Paper>
       </Container>
-      {error && <ErrorNotification text="Something went wrong"/>}
     </PageContainer>
   );
 }

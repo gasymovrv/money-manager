@@ -1,6 +1,8 @@
 package ru.rgasymov.moneymanager.service.impl;
 
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.rgasymov.moneymanager.domain.entity.Income;
 import ru.rgasymov.moneymanager.domain.entity.IncomeCategory;
@@ -10,12 +12,14 @@ import ru.rgasymov.moneymanager.repository.IncomeCategoryRepository;
 import ru.rgasymov.moneymanager.repository.IncomeRepository;
 import ru.rgasymov.moneymanager.service.IncomeCategoryService;
 import ru.rgasymov.moneymanager.service.UserService;
+import ru.rgasymov.moneymanager.specs.IncomeCategorySpec;
 
 @Service
 @Slf4j
 public class IncomeCategoryServiceImpl
     extends AbstractOperationCategoryService<Income, IncomeCategory>
     implements IncomeCategoryService {
+  private final IncomeCategoryRepository incomeCategoryRepository;
 
   public IncomeCategoryServiceImpl(
       IncomeCategoryRepository incomeCategoryRepository,
@@ -23,6 +27,15 @@ public class IncomeCategoryServiceImpl
       IncomeCategoryMapper incomeCategoryMapper,
       UserService userService) {
     super(incomeRepository, incomeCategoryRepository, incomeCategoryMapper, userService);
+    this.incomeCategoryRepository = incomeCategoryRepository;
+  }
+
+  @Override
+  protected List<IncomeCategory> findAll(Long accountId) {
+    return incomeCategoryRepository.findAll(
+        IncomeCategorySpec.accountIdEq(accountId),
+        Sort.by(Sort.Order.asc("name").ignoreCase())
+    );
   }
 
   @Override

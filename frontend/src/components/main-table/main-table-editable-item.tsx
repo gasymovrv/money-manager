@@ -10,8 +10,7 @@ type MainTableEditableItemProps = {
   isCurrentPeriod: boolean,
   operation: Operation,
   operationType: OperationType,
-  categories: OperationCategory[],
-  refreshTable(): void
+  categories: OperationCategory[]
 }
 
 const useStyles = makeStyles((theme) =>
@@ -32,8 +31,7 @@ const MainTableEditableItem: React.FC<MainTableEditableItemProps> = ({
                                                                        isCurrentPeriod,
                                                                        operation,
                                                                        operationType,
-                                                                       categories,
-                                                                       refreshTable
+                                                                       categories
                                                                      }) => {
   const {id, value, isPlanned, description} = operation;
   const [openEditOperation, setOpenEditOperation] = React.useState(false);
@@ -73,7 +71,6 @@ const MainTableEditableItem: React.FC<MainTableEditableItemProps> = ({
             categories={categories}
             open={openEditOperation}
             handleClose={handleCloseEditOperation}
-            onAction={refreshTable}
           />
         </>
       );
@@ -86,7 +83,6 @@ const MainTableEditableItem: React.FC<MainTableEditableItemProps> = ({
             categories={categories}
             open={openEditOperation}
             handleClose={handleCloseEditOperation}
-            onAction={refreshTable}
           />
         </>
       );
