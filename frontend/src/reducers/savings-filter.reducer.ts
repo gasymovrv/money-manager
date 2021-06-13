@@ -3,7 +3,7 @@ import { SavingsFilterActionType } from '../interfaces/actions.interface';
 import { defaultFilter, SavingsFilterParams } from '../interfaces/saving.interface';
 import { load } from 'redux-localstorage-simple';
 
-const state: any = load({namespace: 'money-manager'});
+const state: any = load({states: ["savingsFilter"], namespace: 'money-manager'});
 
 const initialState: SavingsFilterParams = (state && state.savingsFilter) ? state.savingsFilter : defaultFilter;
 
@@ -13,7 +13,6 @@ const savingsFilter = (
 ): SavingsFilterParams => {
   switch (type) {
     case CHANGE_FILTER:
-      return payload.activeFilter;
     case RESET_FILTER:
       return payload.activeFilter;
     default:
@@ -21,4 +20,4 @@ const savingsFilter = (
   }
 }
 
-export default savingsFilter
+export default savingsFilter;

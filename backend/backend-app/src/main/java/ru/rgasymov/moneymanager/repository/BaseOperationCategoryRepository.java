@@ -1,7 +1,7 @@
 package ru.rgasymov.moneymanager.repository;
 
+import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.NoRepositoryBean;
 import ru.rgasymov.moneymanager.domain.entity.BaseOperationCategory;
@@ -16,7 +16,7 @@ public interface BaseOperationCategoryRepository<T extends BaseOperationCategory
 
   void deleteAllByAccountId(Long accountId);
 
-  Set<T> findAllByAccountId(Long accountId);
+  List<T> findAllByAccountIdOrderByName(Long accountId);
 
   boolean existsByAccountId(Long accountId);
 

@@ -1,6 +1,6 @@
 package ru.rgasymov.moneymanager.service.impl;
 
-import java.util.Set;
+import java.util.List;
 import javax.persistence.EntityNotFoundException;
 import javax.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
@@ -31,10 +31,10 @@ public abstract class AbstractOperationCategoryService<
 
   @Transactional(readOnly = true)
   @Override
-  public Set<OperationCategoryResponseDto> findAll() {
+  public List<OperationCategoryResponseDto> findAll() {
     var currentUser = userService.getCurrentUser();
     var currentAccountId = currentUser.getCurrentAccount().getId();
-    Set<OT> result = operationCategoryRepository.findAllByAccountId(currentAccountId);
+    List<OT> result = operationCategoryRepository.findAllByAccountIdOrderByName(currentAccountId);
     return operationCategoryMapper.toDtos(result);
   }
 

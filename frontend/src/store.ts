@@ -1,25 +1,18 @@
-import { applyMiddleware, compose, createStore } from 'redux';
+import { applyMiddleware, createStore } from 'redux';
+import { composeWithDevTools } from 'redux-devtools-extension';
 import rootReducer from './reducers';
 import { save } from 'redux-localstorage-simple'
+import thunk from 'redux-thunk';
 
-/* eslint-disable no-underscore-dangle */
-const composeEnhancers =
-  process.env.NODE_ENV !== 'production' &&
-  typeof window === 'object' &&
-  (window as any).__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ ?
-    (window as any).__REDUX_DEVTOOLS_EXTENSION_COMPOSE__({}) : compose;
-/* eslint-enable */
-
-const configureStore = (preloadedState: any) => (
-  createStore(
-    rootReducer,
-    preloadedState,
-    composeEnhancers(
-      applyMiddleware(save({namespace: 'money-manager'}))
-    ),
-  )
+const store = createStore(
+  rootReducer,
+  composeWithDevTools(
+    applyMiddleware(thunk),
+    applyMiddleware(save({
+      states: ["savingsFilter"],
+      namespace: 'money-manager'
+    }))
+  ),
 );
-
-const store = configureStore({});
 
 export default store;

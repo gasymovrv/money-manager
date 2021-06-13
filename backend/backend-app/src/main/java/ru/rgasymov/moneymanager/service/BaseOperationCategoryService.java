@@ -1,12 +1,12 @@
 package ru.rgasymov.moneymanager.service;
 
-import java.util.Set;
+import java.util.List;
 import ru.rgasymov.moneymanager.domain.dto.request.OperationCategoryRequestDto;
 import ru.rgasymov.moneymanager.domain.dto.response.OperationCategoryResponseDto;
 
 public interface BaseOperationCategoryService {
 
-  Set<OperationCategoryResponseDto> findAll();
+  List<OperationCategoryResponseDto> findAll();
 
   OperationCategoryResponseDto create(OperationCategoryRequestDto dto);
 

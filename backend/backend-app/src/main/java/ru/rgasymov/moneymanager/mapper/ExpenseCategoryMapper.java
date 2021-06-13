@@ -1,6 +1,6 @@
 package ru.rgasymov.moneymanager.mapper;
 
-import java.util.Set;
+import java.util.List;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
 import ru.rgasymov.moneymanager.domain.dto.response.OperationCategoryResponseDto;
@@ -12,5 +12,5 @@ public interface ExpenseCategoryMapper extends BaseOperationCategoryMapper<Expen
 
   OperationCategoryResponseDto toDto(ExpenseCategory entity);
 
-  Set<OperationCategoryResponseDto> toDtos(Set<ExpenseCategory> entities);
+  List<OperationCategoryResponseDto> toDtos(List<ExpenseCategory> entities);
 }

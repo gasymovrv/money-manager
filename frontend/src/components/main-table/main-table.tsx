@@ -2,7 +2,6 @@ import React from 'react';
 import {
   Grid,
   IconButton,
-  LinearProgress,
   makeStyles,
   Paper,
   Table,
@@ -22,7 +21,8 @@ import { AddExpenseCategoryDialog, AddIncomeCategoryDialog } from '../dialog/add
 import StyledTableCell from './styled-table-cell';
 import MainTableRow from './main-table-row';
 import MainTableEditableCategory from './main-table-editable-category';
-import { OperationType } from '../../interfaces/operation.interface';
+import { OperationCategory, OperationType } from '../../interfaces/operation.interface';
+import { useSelector } from 'react-redux';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -71,9 +71,6 @@ const useStyles = makeStyles((theme: Theme) =>
 
 const MainTable: React.FC<MainTableProps> = ({
                                                refreshTable,
-                                               isLoading,
-                                               incomeCategories,
-                                               expenseCategories,
                                                rows,
                                                totalElements,
                                                page,
@@ -83,6 +80,8 @@ const MainTable: React.FC<MainTableProps> = ({
                                              }) => {
   const classes = useStyles();
 
+  const expenseCategories: OperationCategory[] = useSelector(({expCategoriesState}: any) => expCategoriesState.categories);
+  const incomeCategories: OperationCategory[] = useSelector(({incCategoriesState}: any) => incCategoriesState.categories);
   const [showIncomeCategories, setShowIncomeCategories] = React.useState(true);
   const [showExpenseCategories, setShowExpenseCategories] = React.useState(true);
   const [openAddIncomeCategory, setOpenAddIncomeCategory] = React.useState(false);
@@ -111,153 +110,151 @@ const MainTable: React.FC<MainTableProps> = ({
   const handleCloseAddExpenseCategory = () => {
     setOpenAddExpenseCategory(false);
   }
-
+  console.log('main table render')
   return (
-    isLoading ?
-      <LinearProgress/> :
-      <Paper>
-        <TableContainer className={classes.container}>
-          <Table aria-label="sticky table">
+    <Paper>
+      <TableContainer className={classes.container}>
+        <Table aria-label="sticky table">
 
-            <TableHead>
-              <TableRow>
-                <StyledTableCell variant="head" className={classes.stickyFirstCell}/>
+          <TableHead>
+            <TableRow>
+              <StyledTableCell variant="head" className={classes.stickyFirstCell}/>
 
-                <StyledTableCell className={classes.stickyFirstHeadRow} variant="head"
-                                 colSpan={showIncomeCategories ? incomeCategories.length + 1 : 1}>
-                  <Grid justify="center" container>
-                    <Grid item>Incomes</Grid>
-                    <Grid item>
-                      <IconButton size="small" onClick={handleHideIncomeCategories}>
-                        {showIncomeCategories ?
-                          <ExpandLessIcon fontSize="small"/> :
-                          <ExpandMoreIcon fontSize="small"/>
-                        }
+              <StyledTableCell className={classes.stickyFirstHeadRow} variant="head"
+                               colSpan={showIncomeCategories ? incomeCategories.length + 1 : 1}>
+                <Grid justify="center" container>
+                  <Grid item>Incomes</Grid>
+                  <Grid item>
+                    <IconButton size="small" onClick={handleHideIncomeCategories}>
+                      {showIncomeCategories ?
+                        <ExpandLessIcon fontSize="small"/> :
+                        <ExpandMoreIcon fontSize="small"/>
+                      }
+                    </IconButton>
+                    <Tooltip title="Add income category">
+                      <IconButton size="small" onClick={handleOpenAddIncomeCategory}>
+                        <AddCircleIcon fontSize="small"/>
                       </IconButton>
-                      <Tooltip title="Add income category">
-                        <IconButton size="small" onClick={handleOpenAddIncomeCategory}>
-                          <AddCircleIcon fontSize="small"/>
-                        </IconButton>
-                      </Tooltip>
-                      <AddIncomeCategoryDialog
-                        open={openAddIncomeCategory}
-                        handleClose={handleCloseAddIncomeCategory}
-                        onAction={refreshTable}
-                      />
-                    </Grid>
+                    </Tooltip>
+                    <AddIncomeCategoryDialog
+                      open={openAddIncomeCategory}
+                      handleClose={handleCloseAddIncomeCategory}
+                      onAction={refreshTable}
+                    />
                   </Grid>
-                </StyledTableCell>
+                </Grid>
+              </StyledTableCell>
 
-                <StyledTableCell className={classes.stickyFirstHeadRow} variant="head"
-                                 colSpan={showExpenseCategories ? expenseCategories.length + 1 : 1}>
-                  <Grid justify="center" container>
-                    <Grid item>Expenses</Grid>
-                    <Grid item>
-                      <IconButton size="small" onClick={handleHideExpenseCategories}>
-                        {showExpenseCategories ?
-                          <ExpandLessIcon fontSize="small"/> :
-                          <ExpandMoreIcon fontSize="small"/>
-                        }
+              <StyledTableCell className={classes.stickyFirstHeadRow} variant="head"
+                               colSpan={showExpenseCategories ? expenseCategories.length + 1 : 1}>
+                <Grid justify="center" container>
+                  <Grid item>Expenses</Grid>
+                  <Grid item>
+                    <IconButton size="small" onClick={handleHideExpenseCategories}>
+                      {showExpenseCategories ?
+                        <ExpandLessIcon fontSize="small"/> :
+                        <ExpandMoreIcon fontSize="small"/>
+                      }
+                    </IconButton>
+                    <Tooltip title="Add expense category">
+                      <IconButton size="small" onClick={handleOpenAddExpenseCategory}>
+                        <AddCircleIcon fontSize="small"/>
                       </IconButton>
-                      <Tooltip title="Add expense category">
-                        <IconButton size="small" onClick={handleOpenAddExpenseCategory}>
-                          <AddCircleIcon fontSize="small"/>
-                        </IconButton>
-                      </Tooltip>
-                      <AddExpenseCategoryDialog
-                        open={openAddExpenseCategory}
-                        handleClose={handleCloseAddExpenseCategory}
-                        onAction={refreshTable}
-                      />
-                    </Grid>
+                    </Tooltip>
+                    <AddExpenseCategoryDialog
+                      open={openAddExpenseCategory}
+                      handleClose={handleCloseAddExpenseCategory}
+                      onAction={refreshTable}
+                    />
                   </Grid>
-                </StyledTableCell>
+                </Grid>
+              </StyledTableCell>
 
-                <StyledTableCell className={classes.stickyFirstHeadRow} variant="head"/>
-              </TableRow>
+              <StyledTableCell className={classes.stickyFirstHeadRow} variant="head"/>
+            </TableRow>
 
-              <TableRow>
-                <StyledTableCell className={classes.stickyDateCell} variant="head">
-                  Period
-                </StyledTableCell>
+            <TableRow>
+              <StyledTableCell className={classes.stickyDateCell} variant="head">
+                Period
+              </StyledTableCell>
 
-                {showIncomeCategories && incomeCategories.map((category) =>
-                  <StyledTableCell
-                    variant="head"
-                    key={category.id}
-                    className={`${classes.paddings} ${classes.stickySecondHeadRow}`}
-                  >
-                    <MainTableEditableCategory
-                      category={category}
-                      operationType={OperationType.INCOME}
-                      refreshTable={refreshTable}
-                    />
-                  </StyledTableCell>
-                )}
-
+              {showIncomeCategories && incomeCategories.map((category) =>
                 <StyledTableCell
                   variant="head"
-                  className={`${classes.paddings} ${classes.stickySecondHeadRow} ${classes.sumColumnsWidth}`}
-                >
-                  {showIncomeCategories && 'Incomes sum'}
-                </StyledTableCell>
-
-                {showExpenseCategories && expenseCategories.map((category) =>
-                  <StyledTableCell
-                    variant="head"
-                    key={category.id}
-                    className={`${classes.paddings} ${classes.stickySecondHeadRow}`}
-                  >
-                    <MainTableEditableCategory
-                      category={category}
-                      operationType={OperationType.EXPENSE}
-                      refreshTable={refreshTable}
-                    />
-                  </StyledTableCell>
-                )}
-
-                <StyledTableCell
-                  variant="head"
-                  className={`${classes.paddings} ${classes.stickySecondHeadRow} ${classes.sumColumnsWidth}`}
-                >
-                  {showExpenseCategories && 'Expenses sum'}
-                </StyledTableCell>
-
-                <StyledTableCell
-                  variant="head"
+                  key={category.id}
                   className={`${classes.paddings} ${classes.stickySecondHeadRow}`}
                 >
-                  Savings
+                  <MainTableEditableCategory
+                    category={category}
+                    operationType={OperationType.INCOME}
+                    refreshTable={refreshTable}
+                  />
                 </StyledTableCell>
-              </TableRow>
-            </TableHead>
-
-            <TableBody>
-              {rows.map((row: Row, i) =>
-                <MainTableRow
-                  key={row.id}
-                  row={row}
-                  incomeCategories={incomeCategories}
-                  expenseCategories={expenseCategories}
-                  refreshTable={refreshTable}
-                  showIncomeCategories={showIncomeCategories}
-                  showExpenseCategories={showExpenseCategories}
-                />
               )}
-            </TableBody>
 
-          </Table>
-        </TableContainer>
-        <TablePagination
-          rowsPerPageOptions={[10, 25, 50, 100, 500, 1000]}
-          component="div"
-          count={totalElements}
-          rowsPerPage={pageSize}
-          page={page}
-          onChangePage={handleChangePage}
-          onChangeRowsPerPage={handleChangeRowsPerPage}
-        />
-      </Paper>
+              <StyledTableCell
+                variant="head"
+                className={`${classes.paddings} ${classes.stickySecondHeadRow} ${classes.sumColumnsWidth}`}
+              >
+                {showIncomeCategories && 'Incomes sum'}
+              </StyledTableCell>
+
+              {showExpenseCategories && expenseCategories.map((category) =>
+                <StyledTableCell
+                  variant="head"
+                  key={category.id}
+                  className={`${classes.paddings} ${classes.stickySecondHeadRow}`}
+                >
+                  <MainTableEditableCategory
+                    category={category}
+                    operationType={OperationType.EXPENSE}
+                    refreshTable={refreshTable}
+                  />
+                </StyledTableCell>
+              )}
+
+              <StyledTableCell
+                variant="head"
+                className={`${classes.paddings} ${classes.stickySecondHeadRow} ${classes.sumColumnsWidth}`}
+              >
+                {showExpenseCategories && 'Expenses sum'}
+              </StyledTableCell>
+
+              <StyledTableCell
+                variant="head"
+                className={`${classes.paddings} ${classes.stickySecondHeadRow}`}
+              >
+                Savings
+              </StyledTableCell>
+            </TableRow>
+          </TableHead>
+
+          <TableBody>
+            {rows.map((row: Row, i) =>
+              <MainTableRow
+                key={row.id}
+                row={row}
+                incomeCategories={incomeCategories}
+                expenseCategories={expenseCategories}
+                refreshTable={refreshTable}
+                showIncomeCategories={showIncomeCategories}
+                showExpenseCategories={showExpenseCategories}
+              />
+            )}
+          </TableBody>
+
+        </Table>
+      </TableContainer>
+      <TablePagination
+        rowsPerPageOptions={[10, 25, 50, 100, 500, 1000]}
+        component="div"
+        count={totalElements}
+        rowsPerPage={pageSize}
+        page={page}
+        onChangePage={handleChangePage}
+        onChangeRowsPerPage={handleChangeRowsPerPage}
+      />
+    </Paper>
   );
 }
 

@@ -4,9 +4,10 @@ import { createStyles, Theme } from '@material-ui/core/styles';
 import { KeyboardDatePicker, MuiPickersUtilsProvider } from '@material-ui/pickers';
 import MomentUtils from '@date-io/moment';
 import { Period, SortDirection } from '../../interfaces/common.interface';
-import { SavingFieldToSort } from '../../interfaces/saving.interface';
+import { SavingFieldToSort, SavingsFilterParams } from '../../interfaces/saving.interface';
 import { DATE_FORMAT } from '../../constants';
-import { SavingsFilterProps } from '../../interfaces/actions.interface';
+import { useDispatch, useSelector } from 'react-redux';
+import { changeFilter, resetFilter } from '../../actions/savings-filter.actions';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -20,31 +21,31 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-const SavingsFilter: React.FC<SavingsFilterProps> = ({
-                                                       savingsFilter,
-                                                       changeFilter,
-                                                       resetFilter
-                                                     }) => {
+const SavingsFilter: React.FC = () => {
   const classes = useStyles();
+  const savingsFilter: SavingsFilterParams = useSelector(({savingsFilter}: any) => savingsFilter);
+  const dispatch = useDispatch();
+  const change = (activeFilter: SavingsFilterParams) => dispatch(changeFilter(activeFilter))
+  const reset = () => dispatch(resetFilter())
 
   const handleChangeFrom = (date: any, value: any) => {
-    changeFilter({...savingsFilter, from: value});
+    change({...savingsFilter, from: value});
   }
 
   const handleChangeTo = (date: any, value: any) => {
-    changeFilter({...savingsFilter, to: value});
+    change({...savingsFilter, to: value});
   }
 
   const handleChangeSortDirection = (event: React.ChangeEvent<any>) => {
-    changeFilter({...savingsFilter, sortDirection: event.target.value});
+    change({...savingsFilter, sortDirection: event.target.value});
   }
 
   const handleSortBy = (event: React.ChangeEvent<any>) => {
-    changeFilter({...savingsFilter, sortBy: event.target.value});
+    change({...savingsFilter, sortBy: event.target.value});
   }
 
   const handleChangeGroupBy = (event: React.ChangeEvent<any>) => {
-    changeFilter({...savingsFilter, groupBy: event.target.value});
+    change({...savingsFilter, groupBy: event.target.value});
   }
 
   return (
@@ -121,7 +122,7 @@ const SavingsFilter: React.FC<SavingsFilterProps> = ({
 
       <Button
         variant="outlined"
-        onClick={resetFilter}
+        onClick={reset}
       >
         Reset
       </Button>

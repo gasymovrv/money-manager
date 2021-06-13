@@ -14,17 +14,17 @@ export interface Row {
   savings: number
 }
 
-export interface MainTableData {
+export interface Categories {
   incomeCategories: OperationCategory[],
-  expenseCategories: OperationCategory[],
+  expenseCategories: OperationCategory[]
+}
+
+export interface Rows {
   rows: Row[],
   totalElements: number
 }
 
 export interface MainTableProps {
-  isLoading: boolean,
-  incomeCategories: OperationCategory[],
-  expenseCategories: OperationCategory[],
   rows: Row[],
   totalElements: number,
   page: number,

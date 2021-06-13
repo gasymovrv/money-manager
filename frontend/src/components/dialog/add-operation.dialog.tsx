@@ -6,7 +6,6 @@ import SuccessNotification from '../notification/success.notification';
 import { AddOperationProps, DialogProps } from '../../interfaces/common.interface';
 import CommonModal from '../modal/common.modal';
 import CommonOperationDialog from './common-operation.dialog';
-import { sortCategories } from '../../helpers/sort.helper';
 import { OperationCategory } from '../../interfaces/operation.interface';
 import { WithAddIncomeActions } from '../../hocs/with-add-income-actions';
 import { WithAddExpenseActions } from '../../hocs/with-add-expense-actions';
@@ -37,7 +36,7 @@ const AddOperationDialog: React.FC<DialogProps & AddOperationProps> = ({
     getCategories().then((data) => {
       if (mounted) {
         if (data.length) {
-          setCategories(data.sort(sortCategories));
+          setCategories(data);
           setCategoryId(data[0].id)
           setNoCategories(false)
         } else {

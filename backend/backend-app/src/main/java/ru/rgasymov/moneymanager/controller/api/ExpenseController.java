@@ -1,6 +1,6 @@
 package ru.rgasymov.moneymanager.controller.api;
 
-import java.util.Set;
+import java.util.List;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -54,7 +54,7 @@ public class ExpenseController {
   }
 
   @GetMapping("/categories")
-  public Set<OperationCategoryResponseDto> findAllCategories() {
+  public List<OperationCategoryResponseDto> findAllCategories() {
     log.info("# Find all expense categories, current user: {}", userService.getCurrentUser());
     return expenseCategoryService.findAll();
   }
