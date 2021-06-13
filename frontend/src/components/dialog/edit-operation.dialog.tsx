@@ -8,16 +8,23 @@ import { WithEditExpenseActions } from '../../hocs/with-edit-expense-actions';
 import SuccessNotification from '../notification/success.notification';
 import ErrorNotification from '../notification/error.notification';
 import { DATE_FORMAT } from '../../constants';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchMainTable } from '../../services/async-dispatch.service';
+import { SavingsFilterParams } from '../../interfaces/saving.interface';
+import { PaginationParams } from '../../interfaces/main-table.interface';
 
 const EditOperationDialog: React.FC<EditOperationDialogProps & EditOperationProps> = ({
                                                                                         operation,
                                                                                         categories,
-                                                                                        onAction,
                                                                                         open,
                                                                                         handleClose,
                                                                                         editOperation,
                                                                                         deleteOperation
                                                                                       }) => {
+  const dispatch = useDispatch();
+  const savingsFilter: SavingsFilterParams = useSelector(({savingsFilter}: any) => savingsFilter);
+  const paginationParams: PaginationParams = useSelector(({pagination}: any) => pagination);
+
   const [successEdit, setSuccessEdit] = useState<boolean>(false);
   const [successDelete, setSuccessDelete] = useState<boolean>(false);
   const [errorEdit, setErrorEdit] = useState<boolean>(false);
@@ -66,7 +73,7 @@ const EditOperationDialog: React.FC<EditOperationDialogProps & EditOperationProp
         isPlanned: isPlanned,
       });
       setSuccessEdit(true);
-      await onAction();
+      dispatch(fetchMainTable(paginationParams, savingsFilter));
     } catch (error) {
       console.log(error);
       setErrorEdit(true);
@@ -80,7 +87,7 @@ const EditOperationDialog: React.FC<EditOperationDialogProps & EditOperationProp
     try {
       await deleteOperation(operation.id);
       setSuccessDelete(true);
-      await onAction();
+      dispatch(fetchMainTable(paginationParams, savingsFilter));
     } catch (error) {
       console.log(error);
       setErrorDelete(true);

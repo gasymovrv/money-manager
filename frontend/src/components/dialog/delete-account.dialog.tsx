@@ -8,7 +8,7 @@ import { deleteAccount } from '../../services/api.service';
 const DeleteAccountDialog: React.FC<DialogProps & DeleteAccountProps> = ({
                                                                            open,
                                                                            handleClose,
-                                                                           onAction,
+                                                                           onDelete,
                                                                            account
                                                                          }) => {
   const [success, setSuccess] = useState<boolean>(false);
@@ -20,7 +20,7 @@ const DeleteAccountDialog: React.FC<DialogProps & DeleteAccountProps> = ({
     try {
       await deleteAccount(account.id);
       setSuccess(true);
-      await onAction();
+      await onDelete();
     } catch (err) {
       console.log(`Adding account error: ${err}`)
       setError(true);

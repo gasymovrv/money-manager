@@ -58,8 +58,7 @@ type MainTableRowProps = {
   incomeCategories: OperationCategory[],
   expenseCategories: OperationCategory[],
   showIncomeCategories: boolean,
-  showExpenseCategories: boolean,
-  refreshTable(): void
+  showExpenseCategories: boolean
 }
 
 const MainTableRow: React.FC<MainTableRowProps> = ({
@@ -67,8 +66,7 @@ const MainTableRow: React.FC<MainTableRowProps> = ({
                                                      incomeCategories,
                                                      expenseCategories,
                                                      showIncomeCategories,
-                                                     showExpenseCategories,
-                                                     refreshTable
+                                                     showExpenseCategories
                                                    }) => {
   const {
     id,
@@ -133,7 +131,6 @@ const MainTableRow: React.FC<MainTableRowProps> = ({
             items={incomes}
             index={index}
             colorClass={incCellClass}
-            refreshTable={refreshTable}
           />
         ))
       }
@@ -153,7 +150,6 @@ const MainTableRow: React.FC<MainTableRowProps> = ({
             items={expenses}
             index={index}
             colorClass={expCellClass}
-            refreshTable={refreshTable}
           />
         ))
       }

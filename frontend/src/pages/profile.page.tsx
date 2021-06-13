@@ -9,6 +9,9 @@ import { AuthContext } from '../interfaces/auth-context.interface';
 import { Account, AccountTheme } from '../interfaces/user.interface';
 import AddAccountDialog from '../components/dialog/add-account.dialog';
 import DeleteAccountDialog from '../components/dialog/delete-account.dialog';
+import { useDispatch } from 'react-redux';
+import { resetPagination } from '../actions/pagination.actions';
+import { resetShowingCategories } from '../actions/show-categories.actions';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -31,6 +34,8 @@ const useStyles = makeStyles((theme: Theme) =>
 
 const ProfilePage: React.FC = () => {
   const classes = useStyles();
+
+  const dispatch = useDispatch();
   const {user, refreshUser} = useContext(AuthContext);
   const {currentAccount} = user;
 
@@ -111,6 +116,8 @@ const ProfilePage: React.FC = () => {
       });
       if (currentAccount.id !== account.id) {
         await changeAccount(account.id);
+        dispatch(resetPagination());
+        dispatch(resetShowingCategories())
       }
       await loadAccountsData();
       refreshUser();
@@ -129,7 +136,7 @@ const ProfilePage: React.FC = () => {
 
   return (
     <PageContainer>
-      <Header isWelcome={true}/>
+      <Header/>
       <Container maxWidth="sm">
         <Paper className={classes.container}>
           <Grid container direction="column" alignItems="center" spacing={5}>
@@ -242,7 +249,7 @@ const ProfilePage: React.FC = () => {
                           <AddAccountDialog
                               open={openAddAccount}
                               handleClose={() => setOpenAddAccount(false)}
-                              onAction={loadAccountsData}
+                              onAdd={loadAccountsData}
                               currencies={currencies}
                           />
                           }
@@ -260,7 +267,7 @@ const ProfilePage: React.FC = () => {
                           <DeleteAccountDialog
                             open={openDeleteAccount}
                             handleClose={() => setOpenDeleteAccount(false)}
-                            onAction={async () => {
+                            onDelete={async () => {
                               await loadAccountsData();
                               reset();
                             }}

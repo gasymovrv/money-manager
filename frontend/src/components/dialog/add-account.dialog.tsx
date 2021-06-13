@@ -10,7 +10,7 @@ import { AuthContext } from '../../interfaces/auth-context.interface';
 const AddAccountDialog: React.FC<DialogProps & AddAccountProps> = ({
                                                                      open,
                                                                      handleClose,
-                                                                     onAction,
+                                                                     onAdd,
                                                                      currencies
                                                                    }) => {
   const {user} = useContext(AuthContext);
@@ -45,7 +45,7 @@ const AddAccountDialog: React.FC<DialogProps & AddAccountProps> = ({
         theme: accountTheme
       });
       setSuccess(true);
-      await onAction();
+      await onAdd();
     } catch (err) {
       console.log(`Adding account error: ${err}`)
       setError(true);

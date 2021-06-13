@@ -1,54 +1,38 @@
 import { Button, Dialog, DialogActions, DialogTitle } from '@material-ui/core';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import moment from 'moment';
 import ErrorNotification from '../notification/error.notification';
 import SuccessNotification from '../notification/success.notification';
 import { AddOperationProps, DialogProps } from '../../interfaces/common.interface';
 import CommonModal from '../modal/common.modal';
 import CommonOperationDialog from './common-operation.dialog';
-import { OperationCategory } from '../../interfaces/operation.interface';
 import { WithAddIncomeActions } from '../../hocs/with-add-income-actions';
 import { WithAddExpenseActions } from '../../hocs/with-add-expense-actions';
 import { DATE_FORMAT } from '../../constants';
+import { PaginationParams } from '../../interfaces/main-table.interface';
+import { useDispatch, useSelector } from 'react-redux';
+import { SavingsFilterParams } from '../../interfaces/saving.interface';
+import { fetchMainTable } from '../../services/async-dispatch.service';
 
 const AddOperationDialog: React.FC<DialogProps & AddOperationProps> = ({
                                                                          open,
-                                                                         onAction,
+                                                                         categories,
                                                                          handleClose,
-                                                                         getCategories,
                                                                          addOperation
                                                                        }) => {
-  const [isLoadingCategories, setLoadingCategories] = useState<boolean>(true);
-  const [categories, setCategories] = useState<OperationCategory[]>([]);
+  const dispatch = useDispatch();
+  const savingsFilter: SavingsFilterParams = useSelector(({savingsFilter}: any) => savingsFilter);
+  const paginationParams: PaginationParams = useSelector(({pagination}: any) => pagination);
+
   const [success, setSuccess] = useState<boolean>(false);
   const [error, setError] = useState<boolean>(false);
-  const [noCategories, setNoCategories] = useState<boolean>(true);
 
   const [value, setValue] = useState<number>(100);
   const [description, setDescription] = useState<string>();
-  const [categoryId, setCategoryId] = useState<number>(0);
+  const [categoryId, setCategoryId] = useState<number>(categories && categories.length ? categories[0].id : 0);
   const [selectedDate, setDate] = useState(moment());
   const [inputDateValue, setInputDateValue] = useState(moment().format(DATE_FORMAT));
   const [isPlanned, setIsPlanned] = useState<boolean>(false);
-
-  useEffect(() => {
-    let mounted = true;
-    getCategories().then((data) => {
-      if (mounted) {
-        if (data.length) {
-          setCategories(data);
-          setCategoryId(data[0].id)
-          setNoCategories(false)
-        } else {
-          setNoCategories(true)
-        }
-        setLoadingCategories(false);
-      }
-    })
-    return () => {
-      mounted = false
-    };
-  }, [getCategories])
 
   const handleChangeValue = (event: React.ChangeEvent<HTMLInputElement>) => {
     setValue(+event.target.value)
@@ -86,7 +70,7 @@ const AddOperationDialog: React.FC<DialogProps & AddOperationProps> = ({
         isPlanned: isPlanned
       });
       setSuccess(true);
-      await onAction();
+      dispatch(fetchMainTable(paginationParams, savingsFilter));
     } catch (error) {
       console.log(error);
       setError(true);
@@ -94,7 +78,7 @@ const AddOperationDialog: React.FC<DialogProps & AddOperationProps> = ({
     handleClose();
   }
 
-  if (noCategories) {
+  if (!categories.length) {
     return (
       <CommonModal
         open={open}
@@ -119,7 +103,6 @@ const AddOperationDialog: React.FC<DialogProps & AddOperationProps> = ({
           selectedDate={selectedDate}
           inputDateValue={inputDateValue}
           categories={categories}
-          isLoadingCategories={isLoadingCategories}
           handleChangeValue={handleChangeValue}
           handleChangeIsPlanned={handleChangeIsPlanned}
           handleChangeDate={handleChangeDate}

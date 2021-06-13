@@ -26,9 +26,7 @@ import FilterListIcon from '@material-ui/icons/FilterList';
 import { useHistory } from 'react-router-dom';
 
 type HeaderProps = {
-  isWelcome: boolean,
-
-  refreshTable?(): void
+  hasActions?: boolean,
 }
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -59,7 +57,7 @@ const useStyles = makeStyles((theme: Theme) =>
   }),
 );
 
-const Header: React.FC<HeaderProps> = ({isWelcome, refreshTable, children}) => {
+const Header: React.FC<HeaderProps> = ({hasActions, children}) => {
   const history = useHistory();
   const {user} = useContext(AuthContext);
   const classes = useStyles();
@@ -71,7 +69,7 @@ const Header: React.FC<HeaderProps> = ({isWelcome, refreshTable, children}) => {
   const [accountMenuAnchorEl, setAccountMenuAnchorEl] = React.useState<null | HTMLElement>(null);
 
   const handleClickOnMainMenu = (event: React.MouseEvent<HTMLButtonElement>) => {
-    if (!isWelcome) {
+    if (hasActions) {
       setMainMenuAnchorEl(event.currentTarget);
     }
   };
@@ -122,7 +120,7 @@ const Header: React.FC<HeaderProps> = ({isWelcome, refreshTable, children}) => {
             </Typography>
           </Box>
 
-          {!isWelcome && refreshTable &&
+          {hasActions &&
           <Box className={classes.buttonsBox}>
               <Box>
                   <Button
@@ -135,7 +133,6 @@ const Header: React.FC<HeaderProps> = ({isWelcome, refreshTable, children}) => {
                   <AddIncomeDialog
                       open={openAddIncome}
                       handleClose={() => setOpenAddIncome(false)}
-                      onAction={refreshTable}
                   />
               </Box>
 
@@ -150,7 +147,6 @@ const Header: React.FC<HeaderProps> = ({isWelcome, refreshTable, children}) => {
                   <AddExpenseDialog
                       open={openAddExpense}
                       handleClose={() => setOpenAddExpense(false)}
-                      onAction={refreshTable}
                   />
               </Box>
 

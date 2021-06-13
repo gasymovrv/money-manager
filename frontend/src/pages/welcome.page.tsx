@@ -50,7 +50,7 @@ const WelcomePage: React.FC = () => {
   console.log('Welcome Page rendering');
   return (
     <PageContainer>
-      <Header isWelcome={true}/>
+      <Header/>
       <Grid container alignItems="center" direction="column" spacing={4}>
         <Grid item><Typography variant="h2">Get started</Typography></Grid>
         <Grid item>

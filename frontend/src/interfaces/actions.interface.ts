@@ -1,17 +1,17 @@
 import {
   CHANGE_FILTER,
-  ERROR_EXP_CATEGORIES,
-  ERROR_INC_CATEGORIES,
-  LOADING_EXP_CATEGORIES,
-  LOADING_INC_CATEGORIES,
+  CHANGE_PAGINATION,
+  CHANGE_SHOWING_CATEGORIES,
+  ERROR_MAIN_TABLE,
+  LOADING_MAIN_TABLE,
   RESET_FILTER,
-  SAVE_EXP_CATEGORIES,
-  SAVE_INC_CATEGORIES,
-  SUCCESS_EXP_CATEGORIES,
-  SUCCESS_INC_CATEGORIES
+  RESET_PAGINATION,
+  RESET_SHOWING_CATEGORIES,
+  SUCCESS_MAIN_TABLE
 } from '../constants';
 import { SavingsFilterParams } from './saving.interface';
 import { OperationCategory } from './operation.interface';
+import { PaginationParams, Row, ShowingCategoriesParams } from './main-table.interface';
 
 interface ChangeFilterAction {
   type: typeof CHANGE_FILTER,
@@ -27,51 +27,50 @@ interface ResetFilterAction {
   }
 }
 
-interface SaveIncomeCategoriesAction {
-  type: typeof SAVE_INC_CATEGORIES,
+interface ChangePaginationAction {
+  type: typeof CHANGE_PAGINATION,
   payload: {
-    categories: OperationCategory[],
+    activePaginationOptions: PaginationParams,
   }
 }
 
-interface SaveExpenseCategoriesAction {
-  type: typeof SAVE_EXP_CATEGORIES,
+interface ResetPaginationAction {
+  type: typeof RESET_PAGINATION,
   payload: {
-    categories: OperationCategory[],
+    activePaginationOptions: PaginationParams,
   }
 }
 
-interface LoadingIncomeCategoriesAction {
-  type: typeof LOADING_INC_CATEGORIES
-}
-
-interface LoadingExpenseCategoriesAction {
-  type: typeof LOADING_EXP_CATEGORIES
-}
-
-interface SuccessIncomeCategoriesAction {
-  type: typeof SUCCESS_INC_CATEGORIES,
+interface ChangeShowingCategoriesAction {
+  type: typeof CHANGE_SHOWING_CATEGORIES,
   payload: {
-    categories: OperationCategory[],
+    activeShowingOptions: ShowingCategoriesParams,
   }
 }
 
-interface SuccessExpenseCategoriesAction {
-  type: typeof SUCCESS_EXP_CATEGORIES,
+interface ResetShowingCategoriesAction {
+  type: typeof RESET_SHOWING_CATEGORIES,
   payload: {
-    categories: OperationCategory[],
+    activeShowingOptions: ShowingCategoriesParams,
   }
 }
 
-interface ErrorIncomeCategoriesAction {
-  type: typeof ERROR_INC_CATEGORIES,
+interface LoadingMainTableAction {
+  type: typeof LOADING_MAIN_TABLE
+}
+
+interface SuccessMainTableAction {
+  type: typeof SUCCESS_MAIN_TABLE,
   payload: {
-    error: Response,
+    incomeCategories: OperationCategory[],
+    expenseCategories: OperationCategory[],
+    rows: Row[],
+    totalElements: number
   }
 }
 
-interface ErrorExpenseCategoriesAction {
-  type: typeof ERROR_EXP_CATEGORIES,
+interface ErrorMainTableAction {
+  type: typeof ERROR_MAIN_TABLE,
   payload: {
     error: Response,
   }
@@ -79,21 +78,8 @@ interface ErrorExpenseCategoriesAction {
 
 export type SavingsFilterActionType = ChangeFilterAction | ResetFilterAction;
 
-export type IncCategoriesActionType =
-  SaveIncomeCategoriesAction
-  | LoadingIncomeCategoriesAction
-  | SuccessIncomeCategoriesAction
-  | ErrorIncomeCategoriesAction;
+export type PaginationActionType = ChangePaginationAction | ResetPaginationAction;
 
-export type ExpCategoriesActionType =
-  SaveExpenseCategoriesAction
-  | LoadingExpenseCategoriesAction
-  | SuccessExpenseCategoriesAction
-  | ErrorExpenseCategoriesAction;
+export type ShowingCategoriesActionType = ChangeShowingCategoriesAction | ResetShowingCategoriesAction;
 
-export type CategoriesState = {
-  categories: OperationCategory[],
-  isLoading: boolean,
-  initialized: boolean,
-  error?: Response
-}
+export type MainTableActionType = LoadingMainTableAction | SuccessMainTableAction | ErrorMainTableAction;

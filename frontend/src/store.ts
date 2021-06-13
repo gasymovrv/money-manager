@@ -9,7 +9,7 @@ const store = createStore(
   composeWithDevTools(
     applyMiddleware(thunk),
     applyMiddleware(save({
-      states: ["savingsFilter"],
+      states: ["savingsFilter", "pagination", "showCategories"],
       namespace: 'money-manager'
     }))
   ),

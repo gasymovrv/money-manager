@@ -5,16 +5,23 @@ import SuccessNotification from '../notification/success.notification';
 import { EditOperationCategoryDialogProps, EditOperationCategoryProps } from '../../interfaces/common.interface';
 import { WithEditIncomeCategoryActions } from '../../hocs/with-edit-income-category-actions';
 import { WithEditExpenseCategoryActions } from '../../hocs/with-edit-expense-category-actions';
+import { useDispatch, useSelector } from 'react-redux';
+import { SavingsFilterParams } from '../../interfaces/saving.interface';
+import { PaginationParams } from '../../interfaces/main-table.interface';
+import { fetchMainTable } from '../../services/async-dispatch.service';
 
 const EditOperationCategoryDialog:
   React.FC<EditOperationCategoryDialogProps & EditOperationCategoryProps> = ({
                                                                                operationCategory,
                                                                                open,
-                                                                               onAction,
                                                                                handleClose,
                                                                                editOperationCategory,
                                                                                deleteOperationCategory
                                                                              }) => {
+  const dispatch = useDispatch();
+  const savingsFilter: SavingsFilterParams = useSelector(({savingsFilter}: any) => savingsFilter);
+  const paginationParams: PaginationParams = useSelector(({pagination}: any) => pagination);
+
   const [successEdit, setSuccessEdit] = useState<boolean>(false);
   const [successDelete, setSuccessDelete] = useState<boolean>(false);
   const [errorEdit, setErrorEdit] = useState<boolean>(false);
@@ -34,7 +41,7 @@ const EditOperationCategoryDialog:
     try {
       await deleteOperationCategory(operationCategory.id);
       setSuccessDelete(true);
-      await onAction();
+      dispatch(fetchMainTable(paginationParams, savingsFilter));
     } catch (error) {
       console.log(error);
       const resp = error as Response;
@@ -55,7 +62,7 @@ const EditOperationCategoryDialog:
         name: name
       });
       setSuccessEdit(true);
-      await onAction();
+      dispatch(fetchMainTable(paginationParams, savingsFilter));
     } catch (error) {
       console.log(error);
       setErrorEdit(true);

@@ -13,7 +13,7 @@ import {
   Tooltip
 } from '@material-ui/core';
 import { createStyles, Theme } from '@material-ui/core/styles';
-import { MainTableProps, Row } from '../../interfaces/main-table.interface';
+import { MainTableState, PaginationParams, Row, ShowingCategoriesParams } from '../../interfaces/main-table.interface';
 import AddCircleIcon from '@material-ui/icons/AddCircle';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import ExpandLessIcon from '@material-ui/icons/ExpandLess';
@@ -21,8 +21,12 @@ import { AddExpenseCategoryDialog, AddIncomeCategoryDialog } from '../dialog/add
 import StyledTableCell from './styled-table-cell';
 import MainTableRow from './main-table-row';
 import MainTableEditableCategory from './main-table-editable-category';
-import { OperationCategory, OperationType } from '../../interfaces/operation.interface';
-import { useSelector } from 'react-redux';
+import { OperationType } from '../../interfaces/operation.interface';
+import { fetchMainTable } from '../../services/async-dispatch.service';
+import { useDispatch, useSelector } from 'react-redux';
+import { SavingsFilterParams } from '../../interfaces/saving.interface';
+import { changePagination } from '../../actions/pagination.actions';
+import { changeShowingCategories } from '../../actions/show-categories.actions';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -69,30 +73,35 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-const MainTable: React.FC<MainTableProps> = ({
-                                               refreshTable,
-                                               rows,
-                                               totalElements,
-                                               page,
-                                               pageSize,
-                                               handleChangePage,
-                                               handleChangeRowsPerPage
-                                             }) => {
+const MainTable: React.FC = () => {
   const classes = useStyles();
 
-  const expenseCategories: OperationCategory[] = useSelector(({expCategoriesState}: any) => expCategoriesState.categories);
-  const incomeCategories: OperationCategory[] = useSelector(({incCategoriesState}: any) => incCategoriesState.categories);
-  const [showIncomeCategories, setShowIncomeCategories] = React.useState(true);
-  const [showExpenseCategories, setShowExpenseCategories] = React.useState(true);
+  const savingsFilter: SavingsFilterParams = useSelector(({savingsFilter}: any) => savingsFilter);
+  const pagination: PaginationParams = useSelector(({pagination}: any) => pagination);
+  const {
+    showExpenseCategories,
+    showIncomeCategories
+  }: ShowingCategoriesParams = useSelector(({showCategories}: any) => showCategories);
+  const {
+    rows,
+    incomeCategories,
+    expenseCategories,
+    totalElements
+  }: MainTableState = useSelector(({mainTable}: any) => mainTable);
+
+  const dispatch = useDispatch();
+  const changePgnOptions = (pp: PaginationParams) => dispatch(changePagination(pp));
+  const changeShowCatOptions = (scp: ShowingCategoriesParams) => dispatch(changeShowingCategories(scp));
+
   const [openAddIncomeCategory, setOpenAddIncomeCategory] = React.useState(false);
   const [openAddExpenseCategory, setOpenAddExpenseCategory] = React.useState(false);
 
   const handleHideIncomeCategories = () => {
-    setShowIncomeCategories(!showIncomeCategories);
+    changeShowCatOptions({showExpenseCategories, showIncomeCategories: !showIncomeCategories});
   }
 
   const handleHideExpenseCategories = () => {
-    setShowExpenseCategories(!showExpenseCategories);
+    changeShowCatOptions({showIncomeCategories, showExpenseCategories: !showExpenseCategories});
   }
 
   const handleOpenAddIncomeCategory = () => {
@@ -110,6 +119,18 @@ const MainTable: React.FC<MainTableProps> = ({
   const handleCloseAddExpenseCategory = () => {
     setOpenAddExpenseCategory(false);
   }
+
+  const handleChangePage = (event: unknown, newPage: number) => {
+    changePgnOptions({...pagination, page: newPage})
+    dispatch(fetchMainTable({page: newPage, pageSize: pagination.pageSize}, savingsFilter));
+  };
+
+  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const newPageSize = +event.target.value;
+    changePgnOptions({...pagination, pageSize: newPageSize})
+    dispatch(fetchMainTable({page: 0, pageSize: newPageSize}, savingsFilter));
+  };
+
   console.log('main table render')
   return (
     <Paper>
@@ -139,7 +160,6 @@ const MainTable: React.FC<MainTableProps> = ({
                     <AddIncomeCategoryDialog
                       open={openAddIncomeCategory}
                       handleClose={handleCloseAddIncomeCategory}
-                      onAction={refreshTable}
                     />
                   </Grid>
                 </Grid>
@@ -164,7 +184,6 @@ const MainTable: React.FC<MainTableProps> = ({
                     <AddExpenseCategoryDialog
                       open={openAddExpenseCategory}
                       handleClose={handleCloseAddExpenseCategory}
-                      onAction={refreshTable}
                     />
                   </Grid>
                 </Grid>
@@ -187,7 +206,6 @@ const MainTable: React.FC<MainTableProps> = ({
                   <MainTableEditableCategory
                     category={category}
                     operationType={OperationType.INCOME}
-                    refreshTable={refreshTable}
                   />
                 </StyledTableCell>
               )}
@@ -208,7 +226,6 @@ const MainTable: React.FC<MainTableProps> = ({
                   <MainTableEditableCategory
                     category={category}
                     operationType={OperationType.EXPENSE}
-                    refreshTable={refreshTable}
                   />
                 </StyledTableCell>
               )}
@@ -236,7 +253,6 @@ const MainTable: React.FC<MainTableProps> = ({
                 row={row}
                 incomeCategories={incomeCategories}
                 expenseCategories={expenseCategories}
-                refreshTable={refreshTable}
                 showIncomeCategories={showIncomeCategories}
                 showExpenseCategories={showExpenseCategories}
               />
@@ -249,8 +265,8 @@ const MainTable: React.FC<MainTableProps> = ({
         rowsPerPageOptions={[10, 25, 50, 100, 500, 1000]}
         component="div"
         count={totalElements}
-        rowsPerPage={pageSize}
-        page={page}
+        rowsPerPage={pagination.pageSize}
+        page={pagination.page}
         onChangePage={handleChangePage}
         onChangeRowsPerPage={handleChangeRowsPerPage}
       />

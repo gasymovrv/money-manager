@@ -5,13 +5,20 @@ import SuccessNotification from '../notification/success.notification';
 import { AddOperationCategoryProps, DialogProps } from '../../interfaces/common.interface';
 import { WithAddIncomeCategoryActions } from '../../hocs/with-add-income-category-actions';
 import { WithAddExpenseCategoryActions } from '../../hocs/with-add-expense-category-actions';
+import { useDispatch, useSelector } from 'react-redux';
+import { SavingsFilterParams } from '../../interfaces/saving.interface';
+import { PaginationParams } from '../../interfaces/main-table.interface';
+import { fetchMainTable } from '../../services/async-dispatch.service';
 
 const AddOperationCategoryDialog: React.FC<DialogProps & AddOperationCategoryProps> = ({
                                                                                          open,
-                                                                                         onAction,
                                                                                          handleClose,
                                                                                          addOperationCategory
                                                                                        }) => {
+  const dispatch = useDispatch();
+  const savingsFilter: SavingsFilterParams = useSelector(({savingsFilter}: any) => savingsFilter);
+  const paginationParams: PaginationParams = useSelector(({pagination}: any) => pagination);
+
   const [success, setSuccess] = useState<boolean>(false);
   const [error, setError] = useState<boolean>(false);
   const [alreadyExistsError, setAlreadyExistsError] = useState<boolean>(false);
@@ -31,7 +38,7 @@ const AddOperationCategoryDialog: React.FC<DialogProps & AddOperationCategoryPro
         name: name
       });
       setSuccess(true);
-      await onAction();
+      dispatch(fetchMainTable(paginationParams, savingsFilter));
     } catch (error) {
       console.log(error);
       const resp = error as Response;

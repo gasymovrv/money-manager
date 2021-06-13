@@ -14,7 +14,6 @@ type CommonContentDialogProps = {
   description?: string,
   categoryId: number,
   categories: OperationCategory[],
-  isLoadingCategories?: boolean,
 
   handleChangeValue(event: React.ChangeEvent<HTMLInputElement>): void
   handleChangeIsPlanned(event: React.ChangeEvent<HTMLInputElement>): void
@@ -31,7 +30,6 @@ const CommonOperationDialog: React.FC<CommonContentDialogProps> = ({
                                                                      selectedDate,
                                                                      inputDateValue,
                                                                      categories,
-                                                                     isLoadingCategories,
                                                                      handleChangeValue,
                                                                      handleChangeIsPlanned,
                                                                      handleChangeDescription,
@@ -63,22 +61,21 @@ const CommonOperationDialog: React.FC<CommonContentDialogProps> = ({
         onChange={handleChangeDescription}
       />
 
-      {isLoadingCategories ||
       <TextField
-          error={!categoryId}
-          margin="normal"
-          select
-          required
-          fullWidth
-          color="secondary"
-          label="Category"
-          value={categoryId}
-          onChange={handleChangeCategoryId}
+        error={!categoryId}
+        margin="normal"
+        select
+        required
+        fullWidth
+        color="secondary"
+        label="Category"
+        value={categoryId}
+        onChange={handleChangeCategoryId}
       >
         {categories.map(({id, name}) =>
           <MenuItem key={id} value={id}>{name}</MenuItem>
         )}
-      </TextField>}
+      </TextField>
 
       <MuiPickersUtilsProvider utils={MomentUtils}>
         <KeyboardDatePicker
@@ -90,7 +87,7 @@ const CommonOperationDialog: React.FC<CommonContentDialogProps> = ({
           value={selectedDate}
           inputValue={inputDateValue}
           onChange={handleChangeDate}
-          minDate={isPlanned ? moment().add(1, "days") : undefined}
+          minDate={isPlanned ? moment().add(1, 'days') : undefined}
           label="Date"
           color="secondary"
         />
