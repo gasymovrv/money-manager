@@ -1,145 +1,102 @@
 package ru.rgasymov.moneymanager.service.impl;
 
-import static ru.rgasymov.moneymanager.util.ComparingUtils.isChanged;
-import static ru.rgasymov.moneymanager.util.ComparingUtils.valueLessThan;
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.List;
-import javax.persistence.EntityNotFoundException;
-import javax.validation.ValidationException;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import ru.rgasymov.moneymanager.domain.dto.request.ExpenseRequestDto;
-import ru.rgasymov.moneymanager.domain.dto.response.ExpenseResponseDto;
-import ru.rgasymov.moneymanager.domain.entity.Accumulation;
+import ru.rgasymov.moneymanager.domain.dto.request.OperationRequestDto;
+import ru.rgasymov.moneymanager.domain.dto.response.OperationResponseDto;
 import ru.rgasymov.moneymanager.domain.entity.Expense;
-import ru.rgasymov.moneymanager.domain.entity.ExpenseType;
+import ru.rgasymov.moneymanager.domain.entity.ExpenseCategory;
+import ru.rgasymov.moneymanager.domain.entity.Saving;
 import ru.rgasymov.moneymanager.domain.entity.User;
 import ru.rgasymov.moneymanager.mapper.ExpenseMapper;
+import ru.rgasymov.moneymanager.repository.ExpenseCategoryRepository;
 import ru.rgasymov.moneymanager.repository.ExpenseRepository;
-import ru.rgasymov.moneymanager.repository.ExpenseTypeRepository;
-import ru.rgasymov.moneymanager.service.AccumulationService;
 import ru.rgasymov.moneymanager.service.ExpenseService;
+import ru.rgasymov.moneymanager.service.SavingService;
 import ru.rgasymov.moneymanager.service.UserService;
 
 @Service
-@RequiredArgsConstructor
 @Slf4j
-public class ExpenseServiceImpl implements ExpenseService {
+public class ExpenseServiceImpl
+    extends AbstractOperationService<Expense, ExpenseCategory>
+    implements ExpenseService {
 
   private final ExpenseRepository expenseRepository;
 
-  private final ExpenseTypeRepository expenseTypeRepository;
-
-  private final AccumulationService accumulationService;
-
-  private final UserService userService;
+  private final SavingService savingService;
 
   private final ExpenseMapper expenseMapper;
 
-  @Override
-  public List<ExpenseResponseDto> findAll() {
-    User currentUser = userService.getCurrentUser();
-    String currentUserId = currentUser.getId();
-
-    return expenseMapper.toDtos(expenseRepository.findAllByUserId(currentUserId));
+  public ExpenseServiceImpl(
+      ExpenseRepository expenseRepository,
+      ExpenseCategoryRepository expenseCategoryRepository,
+      ExpenseMapper expenseMapper,
+      UserService userService,
+      SavingService savingService) {
+    super(expenseRepository, expenseCategoryRepository, expenseMapper, userService);
+    this.expenseRepository = expenseRepository;
+    this.savingService = savingService;
+    this.expenseMapper = expenseMapper;
   }
 
-  @Transactional
   @Override
-  public ExpenseResponseDto create(ExpenseRequestDto dto) {
-    User currentUser = userService.getCurrentUser();
-    String currentUserId = currentUser.getId();
-    Long typeId = dto.getExpenseTypeId();
-    LocalDate date = dto.getDate();
-    BigDecimal value = dto.getValue();
+  protected OperationResponseDto saveNewOperation(Expense operation) {
+    var value = operation.getValue();
+    var date = operation.getDate();
+    savingService.decrease(value, date);
+    Saving saving = savingService.findByDate(date);
+    operation.setSaving(saving);
 
-    ExpenseType expenseType = expenseTypeRepository.findByIdAndUserId(typeId, currentUserId)
-        .orElseThrow(() ->
-            new EntityNotFoundException(
-                String.format("Could not find expense type with id = '%s' in the database",
-                    typeId)));
+    Expense saved = expenseRepository.save(operation);
+    return expenseMapper.toDto(saved);
+  }
 
-    Expense newExpense = Expense.builder()
-        .date(date)
-        .value(value)
+  @Override
+  protected Expense buildNewOperation(User currentUser,
+                                      OperationRequestDto dto,
+                                      ExpenseCategory category) {
+    return Expense.builder()
+        .date(dto.getDate())
+        .value(dto.getValue())
         .description(dto.getDescription())
-        .expenseType(expenseType)
-        .user(currentUser)
+        .isPlanned(dto.getIsPlanned())
+        .category(category)
+        .account(currentUser.getCurrentAccount())
         .build();
-
-    accumulationService.decrease(value, date);
-    Accumulation accumulation = accumulationService.findByDate(date);
-    newExpense.setAccumulation(accumulation);
-
-    Expense saved = expenseRepository.save(newExpense);
-    return expenseMapper.toDto(saved);
   }
 
-  @Transactional
   @Override
-  public ExpenseResponseDto update(Long id, ExpenseRequestDto dto) {
-    User currentUser = userService.getCurrentUser();
-    String currentUserId = currentUser.getId();
-    Long typeId = dto.getExpenseTypeId();
-    LocalDate date = dto.getDate();
-    BigDecimal value = dto.getValue();
-
-    Expense expense = expenseRepository.findByIdAndUserId(id, currentUserId)
-        .orElseThrow(() ->
-            new EntityNotFoundException(
-                String.format("Could not find expense with id = '%s' in the database",
-                    id)));
-    Long oldTypeId = expense.getExpenseType().getId();
-    LocalDate oldDate = expense.getDate();
-    BigDecimal oldValue = expense.getValue();
-
-    if (isChanged(oldDate, date)) {
-      throw new ValidationException("Expense date cannot be changed");
+  protected void updateSavings(BigDecimal value,
+                               BigDecimal oldValue,
+                               LocalDate date,
+                               Expense operation) {
+    BigDecimal subtract = value.subtract(oldValue);
+    if (subtract.signum() > 0) {
+      savingService.decrease(subtract, date);
+    } else {
+      savingService.increase(subtract.abs(), date);
     }
-
-    if (isChanged(oldTypeId, typeId)) {
-      ExpenseType expenseType = expenseTypeRepository.findByIdAndUserId(typeId, currentUserId)
-          .orElseThrow(() ->
-              new EntityNotFoundException(
-                  String.format("Could not find expense type with id = '%s' in the database",
-                      typeId)));
-      expense.setExpenseType(expenseType);
-    }
-
-    if (isChanged(oldValue, value)) {
-      BigDecimal subtract = value.subtract(oldValue);
-      if (valueLessThan(BigDecimal.ZERO, subtract)) {
-        accumulationService.decrease(subtract, date);
-      } else {
-        accumulationService.increase(subtract.abs(), date);
-      }
-      Accumulation accumulation = accumulationService.findByDate(date);
-      expense.setValue(value);
-      expense.setAccumulation(accumulation);
-    }
-
-    expense.setDescription(dto.getDescription());
-    Expense saved = expenseRepository.save(expense);
-    return expenseMapper.toDto(saved);
+    Saving saving = savingService.findByDate(date);
+    operation.setSaving(saving);
+    operation.setValue(value);
   }
 
-  @Transactional
   @Override
-  public void delete(Long id) {
-    User currentUser = userService.getCurrentUser();
-    String currentUserId = currentUser.getId();
+  protected void deleteOperation(Expense expense, Long currentAccountId) {
+    expenseRepository.deleteByIdAndAccountId(expense.getId(), currentAccountId);
+    savingService.increase(expense.getValue(), expense.getDate());
+    savingService.updateAfterDeletionOperation(expense.getDate());
+  }
 
-    Expense expense = expenseRepository.findByIdAndUserId(id, currentUserId)
-        .orElseThrow(() ->
-            new EntityNotFoundException(
-                String.format("Could not find expense with id = '%s' in the database",
-                    id)));
+  @Override
+  protected ExpenseCategory getOperationCategory(Expense operation) {
+    return operation.getCategory();
+  }
 
-    accumulationService.increase(expense.getValue(), expense.getDate());
-    expenseRepository.deleteByIdAndUserId(id, currentUserId);
+  @Override
+  protected void setOperationCategory(Expense operation, ExpenseCategory operationCategory) {
+    operation.setCategory(operationCategory);
   }
 }

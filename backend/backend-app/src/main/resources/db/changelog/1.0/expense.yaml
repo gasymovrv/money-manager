@@ -8,12 +8,13 @@ databaseChangeLog:
             tableName: expense
             columns:
               - column: { name: id, type: bigint }
-              - column: { name: user_id, type: varchar(255) }
-              - column: { name: expense_type_id, type: bigint }
-              - column: { name: accumulation_id, type: bigint }
+              - column: { name: account_id, type: bigint }
+              - column: { name: category_id, type: bigint }
+              - column: { name: saving_id, type: bigint }
               - column: { name: date, type: date }
               - column: { name: description, type: varchar(255) }
               - column: { name: value, type: numeric }
+              - column: { name: is_planned, type: boolean }
 
   - changeSet:
       id: 000000-create-constraint-expense
@@ -39,20 +40,20 @@ databaseChangeLog:
             columnDataType: bigint
             tableName: expense
         - addForeignKeyConstraint:
-            baseColumnNames: expense_type_id
+            baseColumnNames: category_id
             baseTableName: expense
-            constraintName: fk_expense_expense_type
+            constraintName: fk_expense_expense_category
             referencedColumnNames: id
-            referencedTableName: expense_type
+            referencedTableName: expense_category
         - addForeignKeyConstraint:
-            baseColumnNames: accumulation_id
+            baseColumnNames: saving_id
             baseTableName: expense
-            constraintName: fk_expense_accumulation
+            constraintName: fk_expense_saving
             referencedColumnNames: id
-            referencedTableName: accumulation
+            referencedTableName: saving
         - addForeignKeyConstraint:
-            baseColumnNames: user_id
+            baseColumnNames: account_id
             baseTableName: expense
-            constraintName: fk_expense_user
+            constraintName: fk_expense_account
             referencedColumnNames: id
-            referencedTableName: users
+            referencedTableName: account

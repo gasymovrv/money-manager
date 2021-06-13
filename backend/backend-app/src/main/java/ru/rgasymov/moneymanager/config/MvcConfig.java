@@ -9,6 +9,8 @@ public class MvcConfig implements WebMvcConfigurer {
 
   @Override
   public void addViewControllers(ViewControllerRegistry registry) {
-    registry.addViewController("/view/**").setViewName("forward:/");
+    registry.addViewController("/login").setViewName("forward:/");
+    registry.addViewController("/profile").setViewName("forward:/");
+    registry.addViewController("/welcome").setViewName("forward:/");
   }
 }

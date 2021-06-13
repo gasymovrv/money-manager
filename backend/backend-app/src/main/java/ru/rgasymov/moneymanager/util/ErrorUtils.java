@@ -14,13 +14,11 @@ public class ErrorUtils {
    * Create error list from stacktrace.
    */
   public List<ErrorDto> getErrorsFromStack(Throwable error) {
-    List<ErrorDto> errors = new ArrayList<>();
+    var errors = new ArrayList<ErrorDto>();
     while (error != null) {
-      ErrorDto errorDto = ErrorDto
-          .builder()
-          .message(error.getMessage())
-          .shortName(error.getClass().getName())
-          .build();
+      var errorDto = new ErrorDto(
+          error.getClass().getName(),
+          error.getMessage());
       errors.add(errorDto);
       error = error.getCause();
     }
@@ -28,7 +26,7 @@ public class ErrorUtils {
   }
 
   public void logException(Exception ex, Logger log) {
-    String message = ex.getMessage();
+    var message = ex.getMessage();
     if (StringUtils.isNotBlank(message)) {
       log.error("# " + message, ex);
     } else {

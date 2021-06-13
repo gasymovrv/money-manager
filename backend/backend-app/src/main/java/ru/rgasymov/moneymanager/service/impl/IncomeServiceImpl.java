@@ -1,145 +1,102 @@
 package ru.rgasymov.moneymanager.service.impl;
 
-import static ru.rgasymov.moneymanager.util.ComparingUtils.isChanged;
-import static ru.rgasymov.moneymanager.util.ComparingUtils.valueLessThan;
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.List;
-import javax.persistence.EntityNotFoundException;
-import javax.validation.ValidationException;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import ru.rgasymov.moneymanager.domain.dto.request.IncomeRequestDto;
-import ru.rgasymov.moneymanager.domain.dto.response.IncomeResponseDto;
-import ru.rgasymov.moneymanager.domain.entity.Accumulation;
+import ru.rgasymov.moneymanager.domain.dto.request.OperationRequestDto;
+import ru.rgasymov.moneymanager.domain.dto.response.OperationResponseDto;
 import ru.rgasymov.moneymanager.domain.entity.Income;
-import ru.rgasymov.moneymanager.domain.entity.IncomeType;
+import ru.rgasymov.moneymanager.domain.entity.IncomeCategory;
+import ru.rgasymov.moneymanager.domain.entity.Saving;
 import ru.rgasymov.moneymanager.domain.entity.User;
 import ru.rgasymov.moneymanager.mapper.IncomeMapper;
+import ru.rgasymov.moneymanager.repository.IncomeCategoryRepository;
 import ru.rgasymov.moneymanager.repository.IncomeRepository;
-import ru.rgasymov.moneymanager.repository.IncomeTypeRepository;
-import ru.rgasymov.moneymanager.service.AccumulationService;
 import ru.rgasymov.moneymanager.service.IncomeService;
+import ru.rgasymov.moneymanager.service.SavingService;
 import ru.rgasymov.moneymanager.service.UserService;
 
 @Service
-@RequiredArgsConstructor
 @Slf4j
-public class IncomeServiceImpl implements IncomeService {
+public class IncomeServiceImpl
+    extends AbstractOperationService<Income, IncomeCategory>
+    implements IncomeService {
 
   private final IncomeRepository incomeRepository;
 
-  private final IncomeTypeRepository incomeTypeRepository;
-
-  private final AccumulationService accumulationService;
-
-  private final UserService userService;
+  private final SavingService savingService;
 
   private final IncomeMapper incomeMapper;
 
-  @Override
-  public List<IncomeResponseDto> findAll() {
-    User currentUser = userService.getCurrentUser();
-    String currentUserId = currentUser.getId();
-
-    return incomeMapper.toDtos(incomeRepository.findAllByUserId(currentUserId));
+  public IncomeServiceImpl(
+      IncomeRepository incomeRepository,
+      IncomeCategoryRepository incomeCategoryRepository,
+      IncomeMapper incomeMapper,
+      UserService userService,
+      SavingService savingService) {
+    super(incomeRepository, incomeCategoryRepository, incomeMapper, userService);
+    this.incomeRepository = incomeRepository;
+    this.savingService = savingService;
+    this.incomeMapper = incomeMapper;
   }
 
-  @Transactional
   @Override
-  public IncomeResponseDto create(IncomeRequestDto dto) {
-    User currentUser = userService.getCurrentUser();
-    String currentUserId = currentUser.getId();
-    Long incomeTypeId = dto.getIncomeTypeId();
-    LocalDate date = dto.getDate();
-    BigDecimal value = dto.getValue();
+  protected OperationResponseDto saveNewOperation(Income operation) {
+    var value = operation.getValue();
+    var date = operation.getDate();
+    savingService.increase(value, date);
+    Saving saving = savingService.findByDate(date);
+    operation.setSaving(saving);
 
-    IncomeType incomeType = incomeTypeRepository.findByIdAndUserId(incomeTypeId, currentUserId)
-        .orElseThrow(() ->
-            new EntityNotFoundException(
-                String.format("Could not find income type with id = '%s' in the database",
-                    incomeTypeId)));
+    Income saved = incomeRepository.save(operation);
+    return incomeMapper.toDto(saved);
+  }
 
-    Income newIncome = Income.builder()
-        .date(date)
-        .value(value)
+  @Override
+  protected Income buildNewOperation(User currentUser,
+                                     OperationRequestDto dto,
+                                     IncomeCategory category) {
+    return Income.builder()
+        .date(dto.getDate())
+        .value(dto.getValue())
         .description(dto.getDescription())
-        .incomeType(incomeType)
-        .user(currentUser)
+        .isPlanned(dto.getIsPlanned())
+        .category(category)
+        .account(currentUser.getCurrentAccount())
         .build();
-
-    accumulationService.increase(value, date);
-    Accumulation accumulation = accumulationService.findByDate(date);
-    newIncome.setAccumulation(accumulation);
-
-    Income saved = incomeRepository.save(newIncome);
-    return incomeMapper.toDto(saved);
   }
 
-  @Transactional
   @Override
-  public IncomeResponseDto update(Long id, IncomeRequestDto dto) {
-    User currentUser = userService.getCurrentUser();
-    String currentUserId = currentUser.getId();
-    Long typeId = dto.getIncomeTypeId();
-    LocalDate date = dto.getDate();
-    BigDecimal value = dto.getValue();
-
-    Income income = incomeRepository.findByIdAndUserId(id, currentUserId)
-        .orElseThrow(() ->
-            new EntityNotFoundException(
-                String.format("Could not find income with id = '%s' in the database",
-                    id)));
-    Long oldTypeId = income.getIncomeType().getId();
-    LocalDate oldDate = income.getDate();
-    BigDecimal oldValue = income.getValue();
-
-    if (isChanged(oldDate, date)) {
-      throw new ValidationException("Income date cannot be changed");
+  protected void updateSavings(BigDecimal value,
+                               BigDecimal oldValue,
+                               LocalDate date,
+                               Income operation) {
+    BigDecimal subtract = value.subtract(oldValue);
+    if (subtract.signum() > 0) {
+      savingService.increase(subtract, date);
+    } else {
+      savingService.decrease(subtract.abs(), date);
     }
-
-    if (isChanged(oldTypeId, typeId)) {
-      IncomeType incomeType = incomeTypeRepository.findByIdAndUserId(typeId, currentUserId)
-          .orElseThrow(() ->
-              new EntityNotFoundException(
-                  String.format("Could not find income type with id = '%s' in the database",
-                      typeId)));
-      income.setIncomeType(incomeType);
-    }
-
-    if (isChanged(oldValue, value)) {
-      BigDecimal subtract = value.subtract(oldValue);
-      if (valueLessThan(BigDecimal.ZERO, subtract)) {
-        accumulationService.increase(subtract, date);
-      } else {
-        accumulationService.decrease(subtract.abs(), date);
-      }
-      Accumulation accumulation = accumulationService.findByDate(date);
-      income.setValue(value);
-      income.setAccumulation(accumulation);
-    }
-
-    income.setDescription(dto.getDescription());
-    Income saved = incomeRepository.save(income);
-    return incomeMapper.toDto(saved);
+    Saving saving = savingService.findByDate(date);
+    operation.setSaving(saving);
+    operation.setValue(value);
   }
 
-  @Transactional
   @Override
-  public void delete(Long id) {
-    User currentUser = userService.getCurrentUser();
-    String currentUserId = currentUser.getId();
+  protected void deleteOperation(Income income, Long currentAccountId) {
+    incomeRepository.deleteByIdAndAccountId(income.getId(), currentAccountId);
+    savingService.decrease(income.getValue(), income.getDate());
+    savingService.updateAfterDeletionOperation(income.getDate());
+  }
 
-    Income income = incomeRepository.findByIdAndUserId(id, currentUserId)
-        .orElseThrow(() ->
-            new EntityNotFoundException(
-                String.format("Could not find income with id = '%s' in the database",
-                    id)));
+  @Override
+  protected IncomeCategory getOperationCategory(Income operation) {
+    return operation.getCategory();
+  }
 
-    accumulationService.decrease(income.getValue(), income.getDate());
-    incomeRepository.deleteByIdAndUserId(id, currentUserId);
+  @Override
+  protected void setOperationCategory(Income operation, IncomeCategory incomeCategory) {
+    operation.setCategory(incomeCategory);
   }
 }

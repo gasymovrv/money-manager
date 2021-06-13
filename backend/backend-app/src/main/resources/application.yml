@@ -2,6 +2,7 @@ server:
   api-base-url: /api
   servlet:
     session:
+      limit: ${MAXIMUM_SESSIONS:5}
       timeout: ${SESSION_TIMEOUT:1h}
   error:
     whitelabel:
@@ -43,6 +44,10 @@ spring:
             clientId: ${GOOGLE_CLIENT_ID:client-id}
             clientSecret: ${GOOGLE_CLIENT_SECRET:client-secret}
             redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+  servlet:
+    multipart:
+      max-file-size: ${MAX_UPLOAD_FILE_SIZE:20MB}
+      max-request-size: ${MAX_REQUEST_BODY_SIZE:50MB}
 
 springfox:
   documentation:
@@ -61,5 +66,9 @@ logging:
   logback:
     rollingpolicy:
       max-file-size: ${LOGFILE_MAX_SIZE:100MB}
-      max-history: ${LOG_ARCHIVE_MAX_DAYS:60}
+      max-history: ${LOG_ARCHIVE_MAX_DAYS:30}
       total-size-cap: ${LOG_ARCHIVE_MAX_SIZE:500MB}
+
+file-service:
+  root: ${FILE_STORAGE_ROOT:uploaded-files}
+  delete-import-files: ${DELETE_IMPORT_FILES:true}
