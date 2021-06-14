@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
-import { Box, Typography } from '@material-ui/core';
+import { Box, Link, Typography } from '@material-ui/core';
 import { getVersion } from '../../services/api.service';
 
 
@@ -53,7 +53,7 @@ const Footer: React.FC = () => {
         !isLoadingVersion &&
         <Box className={classes.boxMargin}>
             <Typography variant="subtitle2">
-                Version: {version}
+                v{version}
             </Typography>
         </Box>
       }
@@ -61,6 +61,11 @@ const Footer: React.FC = () => {
         <Typography variant="subtitle2">
           Developed by: Gasymov R.V.
         </Typography>
+      </Box>
+      <Box className={classes.boxMargin}>
+        <Link color="inherit" href="https://github.com/gasymovrv/money-manager">
+          <Typography variant="subtitle2">Github</Typography>
+        </Link>
       </Box>
     </footer>
   )

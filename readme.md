@@ -1,5 +1,6 @@
 # Money-Manager
-The main purpose of the application is to manage income, expenses and savings.
+The main purpose of the application is to manage income, expenses and savings. 
+[Demo](https://gasymovrv-money-manager.herokuapp.com/)
 
 ### Backend
 + Java 16, Spring Boot
@@ -14,7 +15,7 @@ The main purpose of the application is to manage income, expenses and savings.
 
 ### Instructions
 #### Build and run
-+ Change GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET in .env to actual
++ Change GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET in .env (or as environment variables) to actual
 + Call `mvn clean install` at root of the project to build the application
 + Built result (jar file) will be in 'target' directory at root of the project
 + Call `java -Duser.timezone=UTC -jar money-manager-<version>.jar` to start the application
