@@ -10,6 +10,10 @@ export function isFuture(date: any): boolean {
   return moment(date).isAfter(moment());
 }
 
+export function isPastOrToday(date: any): boolean {
+  return moment(date).diff(moment().format(DATE_FORMAT), 'days') <= 0;
+}
+
 export function formatByPeriod(date: any, period: Period): any {
   switch (period) {
     case Period.DAY:

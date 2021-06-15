@@ -5,6 +5,7 @@ import { KeyboardDatePicker, MuiPickersUtilsProvider } from '@material-ui/picker
 import moment, { Moment } from 'moment';
 import { OperationCategory } from '../../interfaces/operation.interface';
 import { DATE_FORMAT } from '../../constants';
+import { isPastOrToday } from '../../helpers/date.helper';
 
 type CommonContentDialogProps = {
   value: number,
@@ -36,6 +37,7 @@ const CommonOperationDialog: React.FC<CommonContentDialogProps> = ({
                                                                      handleChangeCategoryId,
                                                                      handleChangeDate
                                                                    }) => {
+  const isSelectedDatePastOrToday = isPastOrToday(selectedDate);
   return (
     <DialogContent>
       <TextField
@@ -79,7 +81,7 @@ const CommonOperationDialog: React.FC<CommonContentDialogProps> = ({
 
       <MuiPickersUtilsProvider utils={MomentUtils}>
         <KeyboardDatePicker
-          error={!inputDateValue}
+          error={!inputDateValue || (isPlanned && isSelectedDatePastOrToday)}
           margin="normal"
           required
           fullWidth
@@ -97,11 +99,7 @@ const CommonOperationDialog: React.FC<CommonContentDialogProps> = ({
         label="Planned"
         control={
           <Checkbox
-            disabled={
-              selectedDate && !isPlanned ?
-                selectedDate.diff(moment().format(DATE_FORMAT), 'days') <= 0 :
-                false
-            }
+            disabled={selectedDate && !isPlanned ? isSelectedDatePastOrToday : false}
             checked={isPlanned}
             color="secondary"
             onChange={handleChangeIsPlanned}

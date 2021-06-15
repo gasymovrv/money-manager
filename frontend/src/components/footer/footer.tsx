@@ -10,14 +10,15 @@ const useStyles = makeStyles((theme: Theme) =>
       display: 'flex',
       justifyContent: 'center',
       alignItems: 'center',
-      marginTop: theme.spacing(2),
-      color: theme.palette.secondary.dark,
-      height: 30,
+      marginTop: theme.spacing(3),
+      color: theme.palette.type === 'dark'
+        ? theme.palette.secondary.dark
+        : theme.palette.secondary.light,
       backgroundColor: theme.palette.background.default,
     },
     boxMargin: {
-      marginRight: theme.spacing(2),
-      marginLeft: theme.spacing(2)
+      marginLeft: theme.spacing(5),
+      marginRight: theme.spacing(5)
     }
   }),
 );
@@ -59,7 +60,7 @@ const Footer: React.FC = () => {
       }
       <Box className={classes.boxMargin}>
         <Typography variant="subtitle2">
-          Developed by: Gasymov R.V.
+          Developed by R.Gasymov
         </Typography>
       </Box>
       <Box className={classes.boxMargin}>

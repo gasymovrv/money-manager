@@ -131,7 +131,6 @@ const MainTable: React.FC = () => {
     dispatch(fetchMainTable({page: 0, pageSize: newPageSize}, savingsFilter));
   };
 
-  console.log('main table render')
   return (
     <Paper>
       <TableContainer className={classes.container}>
