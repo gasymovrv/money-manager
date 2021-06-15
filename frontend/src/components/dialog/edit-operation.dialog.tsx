@@ -12,6 +12,7 @@ import { SavingsFilterParams } from '../../interfaces/saving.interface';
 import { PaginationParams } from '../../interfaces/main-table.interface';
 import { showSuccess } from '../../actions/success.actions';
 import { showError } from '../../actions/error.actions';
+import { isPastOrToday } from '../../helpers/date.helper';
 
 const EditOperationDialog: React.FC<EditOperationDialogProps & EditOperationProps> = ({
                                                                                         operation,
@@ -124,7 +125,11 @@ const EditOperationDialog: React.FC<EditOperationDialogProps & EditOperationProp
           Delete
         </Button>
         <Button
-          disabled={!value || !categoryId}
+          disabled={
+            !value
+            || !categoryId
+            || (isPlanned && isPastOrToday(selectedDate))
+          }
           onClick={handleSave}
           color="inherit"
         >

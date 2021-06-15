@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
-import { Box, Typography } from '@material-ui/core';
+import { Box, Link, Typography } from '@material-ui/core';
 import { getVersion } from '../../services/api.service';
 
 
@@ -10,14 +10,15 @@ const useStyles = makeStyles((theme: Theme) =>
       display: 'flex',
       justifyContent: 'center',
       alignItems: 'center',
-      marginTop: theme.spacing(2),
-      color: theme.palette.secondary.dark,
-      height: 30,
+      marginTop: theme.spacing(3),
+      color: theme.palette.type === 'dark'
+        ? theme.palette.secondary.dark
+        : theme.palette.secondary.light,
       backgroundColor: theme.palette.background.default,
     },
     boxMargin: {
-      marginRight: theme.spacing(2),
-      marginLeft: theme.spacing(2)
+      marginLeft: theme.spacing(5),
+      marginRight: theme.spacing(5)
     }
   }),
 );
@@ -53,14 +54,19 @@ const Footer: React.FC = () => {
         !isLoadingVersion &&
         <Box className={classes.boxMargin}>
             <Typography variant="subtitle2">
-                Version: {version}
+                v{version}
             </Typography>
         </Box>
       }
       <Box className={classes.boxMargin}>
         <Typography variant="subtitle2">
-          Developed by: Gasymov R.V.
+          Developed by R.Gasymov
         </Typography>
+      </Box>
+      <Box className={classes.boxMargin}>
+        <Link color="inherit" href="https://github.com/gasymovrv/money-manager">
+          <Typography variant="subtitle2">Github</Typography>
+        </Link>
       </Box>
     </footer>
   )

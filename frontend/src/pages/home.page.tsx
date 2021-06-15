@@ -28,7 +28,6 @@ const HomePage: React.FC = () => {
       dispatch
     ])
 
-  console.log('render home')
   return (
     <PageContainer>
       <Header hasActions={!mainTableState.isLoading}>
