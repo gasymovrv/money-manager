@@ -23,15 +23,14 @@ spring:
     time-zone: UTC
     date-format: yyyy-MM-dd HH:mm:ss
   datasource:
-    url: ${DATASOURCE_URL:jdbc:h2:file:./database/money-manager-db;AUTO_SERVER=TRUE}
+    url: ${SPRING_DATASOURCE_URL:jdbc:h2:file:./database/money-manager-db;AUTO_SERVER=TRUE}
     driverClassName: org.h2.Driver
-    username: ${DATASOURCE_USERNAME:sa}
-    password: ${DATASOURCE_PASSWORD:password}
+    username: ${SPRING_DATASOURCE_USERNAME:sa}
+    password: ${SPRING_DATASOURCE_PASSWORD:password}
   h2:
     console:
       enabled: false
   jpa:
-    database-platform: org.hibernate.dialect.H2Dialect
     hibernate:
       ddl-auto: validate
     show-sql: ${ENABLE_SHOW_SQL:false}
@@ -72,3 +71,5 @@ logging:
 file-service:
   root: ${FILE_STORAGE_ROOT:uploaded-files}
   delete-import-files: ${DELETE_IMPORT_FILES:true}
+
+use-postgres: ${USE_POSTGRES:false}

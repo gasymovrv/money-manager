@@ -67,7 +67,7 @@ const WelcomePage: React.FC = () => {
               </Typography>
             </Grid>
             <Grid item>
-              <FileUploader onSend={() => window.location.assign('/')}/>
+              <FileUploader onSuccess={() => window.location.assign('/')}/>
             </Grid>
             <Grid item>
               <Typography variant="h6">
