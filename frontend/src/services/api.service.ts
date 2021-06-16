@@ -7,6 +7,7 @@ import {
 } from '../interfaces/operation.interface';
 import { SavingResponse, SavingSearchRequestParams, SavingSearchResult } from '../interfaces/saving.interface';
 import { SearchResult } from '../interfaces/common.interface';
+import { downloadFile, getFileName, handleErrors } from '../helpers/api.helper';
 
 const apiUrl = '/api/';
 
@@ -240,45 +241,33 @@ export async function importFromXlsxFile(file?: File): Promise<Response> {
 }
 
 export async function exportToXlsxFile(): Promise<Response> {
+  let filename = 'money-manager.xlsx';
   return fetch(apiUrl + 'files/xlsx/export', {
     method: 'GET'
   })
     .then(handleErrors)
     .then((res: any) => {
+      filename = getFileName(res, filename);
       return res.blob();
     })
     .then(blob => {
-      downloadFile(blob, 'money-manager.xlsx');
+      downloadFile(blob, filename);
       return blob;
     });
 }
 
 export async function downloadTemplateXlsxFile(): Promise<Response> {
+  let filename = 'money-manager-template.xlsx';
   return fetch(apiUrl + 'files/xlsx/template', {
     method: 'GET'
   })
     .then(handleErrors)
     .then((res: any) => {
+      filename = getFileName(res, filename);
       return res.blob();
     })
     .then(blob => {
-      downloadFile(blob, 'money-manager-template.xlsx');
+      downloadFile(blob, filename);
       return blob;
     });
-}
-
-function downloadFile(blob: Blob, fileName: string) {
-  const href = window.URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = href;
-  link.setAttribute('download', fileName);
-  document.body.appendChild(link);
-  link.click();
-}
-
-function handleErrors(response: Response) {
-  if (!response.ok) {
-    throw response;
-  }
-  return response;
 }
