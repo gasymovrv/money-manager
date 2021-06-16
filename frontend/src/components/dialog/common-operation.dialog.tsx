@@ -6,6 +6,7 @@ import moment, { Moment } from 'moment';
 import { OperationCategory } from '../../interfaces/operation.interface';
 import { DATE_FORMAT } from '../../constants';
 import { isPastOrToday } from '../../helpers/date.helper';
+import EditableMoneyFormat from '../money-format/editable-money-format';
 
 type CommonContentDialogProps = {
   value: number,
@@ -47,10 +48,12 @@ const CommonOperationDialog: React.FC<CommonContentDialogProps> = ({
         color="secondary"
         margin="normal"
         label="Amount"
-        type="number"
         fullWidth
         value={value}
         onChange={handleChangeValue}
+        InputProps={{
+          inputComponent: EditableMoneyFormat as any
+        }}
       />
 
       <TextField
