@@ -36,7 +36,7 @@ import ru.rgasymov.moneymanager.service.XlsxParsingService;
 public class XlsxFileServiceImpl implements XlsxFileService {
 
   private static final String UPLOADED_FILE_NAME_PATTERN = "%s/%s_%s.%s";
-  private static final String DOWNLOADED_FILE_NAME = "money-manager.xlsx";
+  private static final String DOWNLOADED_FILE_NAME_PATTERN = "money-manager_%s.xlsx";
   private static final String DOWNLOADED_TEMPLATE_FILE_NAME = "money-manager-template.xlsx";
   private static final String PATH_TO_GENERATION_TEMPLATE = "xlsx/generation-template.xlsx";
   private static final String PATH_TO_USER_TEMPLATE = "xlsx/user-template.xlsx";
@@ -90,9 +90,14 @@ public class XlsxFileServiceImpl implements XlsxFileService {
     try {
       Resource result = xlsxGenerationService.generate(PATH_TO_GENERATION_TEMPLATE, data);
       log.info("# XlsxFileService: file generation has successfully completed");
+
+      String fileName = String.format(DOWNLOADED_FILE_NAME_PATTERN,
+          LocalDateTime.now()
+              .format(DateTimeFormatter
+                  .ofPattern(DateTimeFormats.FILE_NAME_DATE_TIME_FORMAT)));
       return ResponseEntity.ok()
           .header(HttpHeaders.CONTENT_DISPOSITION,
-              String.format("attachment; filename=\"%s\"", DOWNLOADED_FILE_NAME))
+              String.format("attachment; filename=\"%s\"", fileName))
           .contentType(MediaType.APPLICATION_OCTET_STREAM)
           .body(result);
 
