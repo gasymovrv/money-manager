@@ -21,12 +21,13 @@ const EditableMoneyFormat: React.FC<NumberFormatCustomProps> = (props) => {
           },
         });
       }}
+      allowNegative={false}
+      allowLeadingZeros={false}
+      fixedDecimalScale={true}
+      decimalSeparator=","
+      decimalScale={2}
       thousandSeparator=" "
       isNumericString
-      isAllowed={(values) => {
-        const {formattedValue, floatValue} = values;
-        return formattedValue === '' || floatValue === undefined || floatValue > 0;
-      }}
     />
   )
 }
