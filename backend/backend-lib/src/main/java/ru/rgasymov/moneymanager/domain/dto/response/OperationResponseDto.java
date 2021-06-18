@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModel;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
@@ -34,4 +35,8 @@ public class OperationResponseDto {
 
   @JsonProperty("isPlanned")
   private boolean isPlanned;
+
+  @JsonProperty("isOverdue")
+  @Builder.Default
+  private boolean isOverdue = false;
 }

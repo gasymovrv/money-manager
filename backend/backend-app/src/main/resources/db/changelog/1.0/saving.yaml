@@ -37,3 +37,12 @@ databaseChangeLog:
             tableName: saving
             columnNames: date, account_id
             constraintName: saving_date_unique
+
+  - changeSet:
+      id: 000000-edit-column-value-saving
+      author: Gasymov Ruslan
+      changes:
+        - modifyDataType:
+            columnName: value
+            newDataType: numeric(102, 2)
+            tableName: saving

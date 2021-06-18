@@ -4,6 +4,7 @@ import { makeStyles, MenuItem, Tooltip } from '@material-ui/core';
 import { createStyles } from '@material-ui/core/styles';
 import { EditExpenseDialog, EditIncomeDialog } from '../dialog/edit-operation.dialog';
 import MoneyFormat from '../money-format/money-format';
+import ErrorOutlineIcon from '@material-ui/icons/ErrorOutline';
 
 type MainTableEditableItemProps = {
   colorClass: string | undefined,
@@ -18,10 +19,19 @@ const useStyles = makeStyles((theme) =>
     menuItem: {
       justifyContent: 'center',
       padding: 0,
+      paddingRight: theme.spacing(0.5),
+      paddingLeft: theme.spacing(0.5),
       fontSize: 13
     },
-    plannedCell: {
+    secondaryColor: {
+      color: theme.palette.secondary.main
+    },
+    paperColor: {
       color: theme.palette.background.paper
+    },
+    errorIcon: {
+      color: theme.palette.error.main,
+      marginLeft: theme.spacing(0.5),
     }
   })
 );
@@ -45,18 +55,25 @@ const MainTableEditableItem: React.FC<MainTableEditableItemProps> = ({
     setOpenEditOperation(false);
   };
 
-  let itemClasses = `${classes.menuItem} ${colorClass}`;
+  let itemColor = colorClass;
   if (isPlanned && isCurrentPeriod) {
-    itemClasses= `${classes.menuItem} ${classes.plannedCell}`;
+    itemColor = classes.paperColor;
+  } else if (isPlanned) {
+    itemColor = classes.secondaryColor;
   }
   const clickableMenu = (
     <Tooltip title={description || ''}>
       <MenuItem
         key={id}
-        className={itemClasses}
+        className={`${classes.menuItem} ${itemColor}`}
         onClick={handleOpenEditOperation}
       >
         <MoneyFormat value={value}/>
+        {operation.isOverdue &&
+        <Tooltip title="This operation is overdue">
+            <ErrorOutlineIcon fontSize="small" className={classes.errorIcon}/>
+        </Tooltip>
+        }
       </MenuItem>
     </Tooltip>
   )

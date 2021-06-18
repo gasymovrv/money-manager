@@ -34,13 +34,15 @@ public class SavingMapperDecorator implements SavingMapper {
     var expenseMap = new HashMap<String, List<OperationResponseDto>>();
 
     entity.getExpenses().forEach((exp) -> {
+      OperationResponseDto operationDto = expenseMapper.toDto(exp);
       if (isBeforeOrEqualToday && Boolean.TRUE.equals(exp.getIsPlanned())) {
         isOverdue.set(true);
+        operationDto.setOverdue(true);
       }
       dto.setExpensesSum(dto.getExpensesSum().add(exp.getValue()));
 
       ArrayList<OperationResponseDto> value = new ArrayList<>();
-      value.add(expenseMapper.toDto(exp));
+      value.add(operationDto);
       expenseMap.merge(exp.getCategory().getName(), value,
           (oldValue, newValue) -> {
             oldValue.addAll(newValue);
@@ -51,13 +53,15 @@ public class SavingMapperDecorator implements SavingMapper {
     var incomeMap = new HashMap<String, List<OperationResponseDto>>();
 
     entity.getIncomes().forEach((inc) -> {
+      OperationResponseDto operationDto = incomeMapper.toDto(inc);
       if (isBeforeOrEqualToday && Boolean.TRUE.equals(inc.getIsPlanned())) {
         isOverdue.set(true);
+        operationDto.setOverdue(true);
       }
       dto.setIncomesSum(dto.getIncomesSum().add(inc.getValue()));
 
       ArrayList<OperationResponseDto> value = new ArrayList<>();
-      value.add(incomeMapper.toDto(inc));
+      value.add(operationDto);
       incomeMap.merge(inc.getCategory().getName(), value,
           (oldValue, newValue) -> {
             oldValue.addAll(newValue);

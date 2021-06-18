@@ -57,3 +57,12 @@ databaseChangeLog:
             constraintName: fk_expense_account
             referencedColumnNames: id
             referencedTableName: account
+
+  - changeSet:
+      id: 000000-edit-column-value-expense
+      author: Gasymov Ruslan
+      changes:
+        - modifyDataType:
+            columnName: value
+            newDataType: numeric(102, 2)
+            tableName: expense
