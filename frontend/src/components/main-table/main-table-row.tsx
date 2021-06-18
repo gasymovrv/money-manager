@@ -1,11 +1,11 @@
 import React from 'react';
 import { Operation, OperationCategory, OperationType } from '../../interfaces/operation.interface';
 import StyledTableCell from './styled-table-cell';
-import { Grid, makeStyles, TableRow, Tooltip, useTheme } from '@material-ui/core';
+import { Grid, makeStyles, TableRow, Tooltip } from '@material-ui/core';
 import { createStyles, Theme } from '@material-ui/core/styles';
 import MainTableCell from './main-table-cell';
 import { Row } from '../../interfaces/main-table.interface';
-import { isCurrentPeriod, isFuture } from '../../helpers/date.helper';
+import { isCurrentPeriod } from '../../helpers/date.helper';
 import ErrorOutlineIcon from '@material-ui/icons/ErrorOutline';
 import MoneyFormat from '../money-format/money-format';
 
@@ -26,12 +26,6 @@ const useStyles = makeStyles((theme: Theme) =>
     currentPeriodRow: {
       backgroundColor: theme.palette.secondary.main
     },
-    overdueRow: {
-      backgroundColor: theme.palette.warning.main
-    },
-    plannedCell: {
-      color: theme.palette.secondary.main
-    },
     boldFont: {
       fontSize: 14,
       fontWeight: 'bold'
@@ -44,10 +38,11 @@ const useStyles = makeStyles((theme: Theme) =>
       zIndex: 1
     },
     dateGrid: {
-      alignItems: 'center'
+      alignItems: 'center',
+      marginRight: theme.spacing(1),
     },
-    infoIcon: {
-      marginRight: theme.spacing(0.5),
+    errorIcon: {
+      color: theme.palette.error.main,
       marginLeft: theme.spacing(0.5),
     },
   })
@@ -80,9 +75,7 @@ const MainTableRow: React.FC<MainTableRowProps> = ({
     savings
   } = row;
   const classes = useStyles();
-  const isPlanned = isFuture(date);
   const currentPeriod = isCurrentPeriod(date, period);
-  const isDarkTheme = useTheme().palette.type === 'dark';
 
   let rowClass = '';
   let incCellClass = classes.green;
@@ -91,21 +84,10 @@ const MainTableRow: React.FC<MainTableRowProps> = ({
     rowClass = classes.currentPeriodRow;
     incCellClass = classes.contrastGreen;
     expCellClass = classes.contrastRed;
-  } else if (isOverdue) {
-    if (isDarkTheme) {
-      rowClass = classes.overdueRow;
-      incCellClass = classes.contrastGreen;
-      expCellClass = classes.contrastRed;
-    } else {
-      rowClass = classes.overdueRow;
-    }
-  } else if (isPlanned) {
-    incCellClass = classes.plannedCell;
-    expCellClass = classes.plannedCell;
   }
 
   return (
-    <TableRow hover={!currentPeriod && !isOverdue} key={id} className={rowClass}>
+    <TableRow hover={!currentPeriod} key={id} className={rowClass}>
 
       <StyledTableCell className={classes.stickyDateCell} key={'date_' + id}>
         <Grid justify="center" className={classes.dateGrid} container>
@@ -113,7 +95,7 @@ const MainTableRow: React.FC<MainTableRowProps> = ({
           <Grid item>
             {isOverdue &&
             <Tooltip title="Planned operation is overdue. You can change it by editing operations on this line">
-                <ErrorOutlineIcon fontSize="small" className={classes.infoIcon}/>
+                <ErrorOutlineIcon fontSize="small" className={classes.errorIcon}/>
             </Tooltip>
             }
           </Grid>
@@ -124,6 +106,7 @@ const MainTableRow: React.FC<MainTableRowProps> = ({
         showIncomeCategories && incomeLists.map((incomes: Operation[] | undefined, index) => (
           <MainTableCell
             key={'inc_cell_' + index}
+            isOverdue={isOverdue}
             isCurrentPeriod={currentPeriod}
             rowId={id}
             categories={incomeCategories}
@@ -143,6 +126,7 @@ const MainTableRow: React.FC<MainTableRowProps> = ({
         showExpenseCategories && expenseLists.map((expenses: Operation[] | undefined, index) => (
           <MainTableCell
             key={'exp_cell_' + index}
+            isOverdue={isOverdue}
             isCurrentPeriod={currentPeriod}
             rowId={id}
             categories={expenseCategories}
