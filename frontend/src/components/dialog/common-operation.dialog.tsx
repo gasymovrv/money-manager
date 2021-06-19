@@ -1,7 +1,7 @@
 import { Checkbox, DialogContent, FormControlLabel, MenuItem, TextField } from '@material-ui/core';
 import React from 'react';
 import MomentUtils from '@date-io/moment';
-import { KeyboardDatePicker, MuiPickersUtilsProvider } from '@material-ui/pickers';
+import { DatePicker, MuiPickersUtilsProvider } from '@material-ui/pickers';
 import moment, { Moment } from 'moment';
 import { OperationCategory } from '../../interfaces/operation.interface';
 import { DATE_FORMAT } from '../../constants';
@@ -11,8 +11,7 @@ import EditableMoneyFormat from '../money-format/editable-money-format';
 type CommonContentDialogProps = {
   value: number,
   isPlanned: boolean,
-  selectedDate: Moment,
-  inputDateValue: string,
+  date: Moment,
   description?: string,
   categoryId: number,
   categories: OperationCategory[],
@@ -21,7 +20,7 @@ type CommonContentDialogProps = {
   handleChangeIsPlanned(event: React.ChangeEvent<HTMLInputElement>): void
   handleChangeDescription(event: React.ChangeEvent<HTMLInputElement>): void
   handleChangeCategoryId(event: React.ChangeEvent<any>): void
-  handleChangeDate(date: any, value: any): void
+  handleChangeDate(date: any): void
 }
 
 const CommonOperationDialog: React.FC<CommonContentDialogProps> = ({
@@ -29,8 +28,7 @@ const CommonOperationDialog: React.FC<CommonContentDialogProps> = ({
                                                                      isPlanned,
                                                                      categoryId,
                                                                      description,
-                                                                     selectedDate,
-                                                                     inputDateValue,
+                                                                     date,
                                                                      categories,
                                                                      handleChangeValue,
                                                                      handleChangeIsPlanned,
@@ -38,7 +36,7 @@ const CommonOperationDialog: React.FC<CommonContentDialogProps> = ({
                                                                      handleChangeCategoryId,
                                                                      handleChangeDate
                                                                    }) => {
-  const isSelectedDatePastOrToday = isPastOrToday(selectedDate);
+  const isSelectedDatePastOrToday = isPastOrToday(date);
   return (
     <DialogContent>
       <TextField
@@ -83,14 +81,13 @@ const CommonOperationDialog: React.FC<CommonContentDialogProps> = ({
       </TextField>
 
       <MuiPickersUtilsProvider utils={MomentUtils}>
-        <KeyboardDatePicker
-          error={!inputDateValue || (isPlanned && isSelectedDatePastOrToday)}
+        <DatePicker
+          error={isPlanned && isSelectedDatePastOrToday}
           margin="normal"
           required
           fullWidth
           format={DATE_FORMAT}
-          value={selectedDate}
-          inputValue={inputDateValue}
+          value={date}
           onChange={handleChangeDate}
           minDate={isPlanned ? moment().add(1, 'days') : undefined}
           label="Date"
@@ -102,7 +99,7 @@ const CommonOperationDialog: React.FC<CommonContentDialogProps> = ({
         label="Planned"
         control={
           <Checkbox
-            disabled={selectedDate && !isPlanned ? isSelectedDatePastOrToday : false}
+            disabled={date && !isPlanned ? isSelectedDatePastOrToday : false}
             checked={isPlanned}
             color="secondary"
             onChange={handleChangeIsPlanned}

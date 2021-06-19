@@ -1,13 +1,14 @@
 import React from 'react';
 import { Button, makeStyles, MenuItem, TextField, Toolbar } from '@material-ui/core';
 import { createStyles, Theme } from '@material-ui/core/styles';
-import { KeyboardDatePicker, MuiPickersUtilsProvider } from '@material-ui/pickers';
+import { DatePicker, MuiPickersUtilsProvider } from '@material-ui/pickers';
 import MomentUtils from '@date-io/moment';
 import { Period, SortDirection } from '../../interfaces/common.interface';
 import { SavingFieldToSort, SavingsFilterParams } from '../../interfaces/saving.interface';
 import { DATE_FORMAT } from '../../constants';
 import { useDispatch, useSelector } from 'react-redux';
 import { changeFilter, resetFilter } from '../../actions/savings-filter.actions';
+import moment from 'moment/moment';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -28,12 +29,20 @@ const SavingsFilter: React.FC = () => {
   const change = (activeFilter: SavingsFilterParams) => dispatch(changeFilter(activeFilter))
   const reset = () => dispatch(resetFilter())
 
-  const handleChangeFrom = (date: any, value: any) => {
-    change({...savingsFilter, from: value});
+  const handleChangeFrom = (date: any) => {
+    if (!date) {
+      change({...savingsFilter, from: undefined});
+    } else {
+      change({...savingsFilter, from: moment(date).format(DATE_FORMAT)});
+    }
   }
 
-  const handleChangeTo = (date: any, value: any) => {
-    change({...savingsFilter, to: value});
+  const handleChangeTo = (date: any) => {
+    if (!date) {
+      change({...savingsFilter, to: undefined});
+    } else {
+      change({...savingsFilter, to: moment(date).format(DATE_FORMAT)});
+    }
   }
 
   const handleChangeSortDirection = (event: React.ChangeEvent<any>) => {
@@ -51,30 +60,30 @@ const SavingsFilter: React.FC = () => {
   return (
     <Toolbar className={classes.root}>
       <MuiPickersUtilsProvider utils={MomentUtils}>
-        <KeyboardDatePicker
+        <DatePicker
           className={classes.inputField}
           margin="normal"
           format={DATE_FORMAT}
           value={savingsFilter.from ? savingsFilter.from : null}
-          inputValue={savingsFilter.from}
           onChange={handleChangeFrom}
           label="From"
           color="secondary"
           maxDate={savingsFilter.to ? savingsFilter.to : undefined}
+          clearable
         />
       </MuiPickersUtilsProvider>
 
       <MuiPickersUtilsProvider utils={MomentUtils}>
-        <KeyboardDatePicker
+        <DatePicker
           className={classes.inputField}
           margin="normal"
           format={DATE_FORMAT}
           value={savingsFilter.to ? savingsFilter.to : null}
-          inputValue={savingsFilter.to}
           onChange={handleChangeTo}
           label="To"
           color="secondary"
           minDate={savingsFilter.from ? savingsFilter.from : undefined}
+          clearable
         />
       </MuiPickersUtilsProvider>
 

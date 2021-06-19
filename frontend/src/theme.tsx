@@ -1,6 +1,16 @@
 import { createMuiTheme } from '@material-ui/core';
 import { blueGrey, common, green, grey, red } from '@material-ui/core/colors';
 import { Theme } from '@material-ui/core/styles';
+import { MuiPickersOverrides } from '@material-ui/pickers/typings/overrides';
+
+type overridesNameToClassKey = {
+  [P in keyof MuiPickersOverrides]: keyof MuiPickersOverrides[P];
+};
+
+declare module '@material-ui/core/styles/overrides' {
+  export interface ComponentNameToClassKey extends overridesNameToClassKey {
+  }
+}
 
 declare module '@material-ui/core/styles/createPalette' {
   interface Palette {
@@ -29,6 +39,16 @@ export const darkTheme: Theme = createMuiTheme({
         marginRight: 10
       }
     },
+    MuiPickersDay: {
+      current: {
+        color: blueGrey['500'],
+      }
+    },
+    MuiPickersYear: {
+      yearSelected: {
+        color: blueGrey['500'],
+      }
+    }
   },
   palette: {
     type: 'dark',
@@ -62,6 +82,16 @@ export const lightTheme: Theme = createMuiTheme({
       },
       root: {
         marginRight: 10
+      }
+    },
+    MuiPickersDay: {
+      current: {
+        color: blueGrey['500'],
+      }
+    },
+    MuiPickersYear: {
+      yearSelected: {
+        color: blueGrey['500'],
       }
     }
   },

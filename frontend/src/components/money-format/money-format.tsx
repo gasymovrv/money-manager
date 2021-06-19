@@ -8,7 +8,6 @@ const MoneyFormat: React.FC<NumberFormatProps> = (props) => {
       style={{whiteSpace: 'nowrap'}}
       displayType="text"
       thousandSeparator=" "
-      allowNegative={false}
       allowLeadingZeros={false}
       fixedDecimalScale={true}
       decimalSeparator=","

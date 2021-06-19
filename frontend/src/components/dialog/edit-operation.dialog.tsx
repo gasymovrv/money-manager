@@ -29,8 +29,7 @@ const EditOperationDialog: React.FC<EditOperationDialogProps & EditOperationProp
   const [value, setValue] = useState<number>(operation.value);
   const [description, setDescription] = useState<string>(operation.description || '');
   const [categoryId, setCategoryId] = useState<number>(operation.category.id);
-  const [selectedDate, setDate] = useState(moment(operation.date));
-  const [inputDateValue, setInputDateValue] = useState(moment(operation.date).format(DATE_FORMAT));
+  const [date, setDate] = useState(moment(operation.date));
   const [isPlanned, setIsPlanned] = useState<boolean>(operation.isPlanned);
 
   const handleChangeValue = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -49,9 +48,8 @@ const EditOperationDialog: React.FC<EditOperationDialogProps & EditOperationProp
     setDescription(event.target.value)
   }
 
-  const handleChangeDate = (date: any, value: any) => {
+  const handleChangeDate = (date: any) => {
     setDate(date);
-    setInputDateValue(value);
     if (date && date.isAfter(moment(), 'days')) {
       setIsPlanned(true);
     }
@@ -61,7 +59,7 @@ const EditOperationDialog: React.FC<EditOperationDialogProps & EditOperationProp
     try {
       await editOperation(operation.id, {
         value: value,
-        date: inputDateValue,
+        date: date.format(DATE_FORMAT),
         description: description,
         categoryId: categoryId,
         isPlanned: isPlanned,
@@ -92,7 +90,6 @@ const EditOperationDialog: React.FC<EditOperationDialogProps & EditOperationProp
     setDescription(operation.description || '');
     setCategoryId(operation.category.id);
     setDate(moment(operation.date));
-    setInputDateValue(moment(operation.date).format(DATE_FORMAT));
     setIsPlanned(operation.isPlanned);
     handleClose();
   }
@@ -107,8 +104,7 @@ const EditOperationDialog: React.FC<EditOperationDialogProps & EditOperationProp
         isPlanned={isPlanned}
         categoryId={categoryId}
         description={description}
-        selectedDate={selectedDate}
-        inputDateValue={inputDateValue}
+        date={date}
         categories={categories}
         handleChangeValue={handleChangeValue}
         handleChangeIsPlanned={handleChangeIsPlanned}
@@ -128,7 +124,7 @@ const EditOperationDialog: React.FC<EditOperationDialogProps & EditOperationProp
           disabled={
             !value
             || !categoryId
-            || (isPlanned && isPastOrToday(selectedDate))
+            || (isPlanned && isPastOrToday(date))
           }
           onClick={handleSave}
           color="inherit"

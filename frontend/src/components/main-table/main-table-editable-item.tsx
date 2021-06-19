@@ -62,7 +62,7 @@ const MainTableEditableItem: React.FC<MainTableEditableItemProps> = ({
     itemColor = classes.secondaryColor;
   }
   const clickableMenu = (
-    <Tooltip title={description || ''}>
+    <Tooltip title={(!operation.isOverdue && description) || ''}>
       <MenuItem
         key={id}
         className={`${classes.menuItem} ${itemColor}`}

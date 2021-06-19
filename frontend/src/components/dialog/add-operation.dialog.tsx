@@ -27,8 +27,7 @@ const AddOperationDialog: React.FC<DialogProps & AddOperationProps> = ({
   const [value, setValue] = useState<number>(100);
   const [description, setDescription] = useState<string>();
   const [categoryId, setCategoryId] = useState<number>(categories && categories.length ? categories[0].id : 0);
-  const [selectedDate, setDate] = useState(moment());
-  const [inputDateValue, setInputDateValue] = useState(moment().format(DATE_FORMAT));
+  const [date, setDate] = useState(moment());
   const [isPlanned, setIsPlanned] = useState<boolean>(false);
 
   const handleChangeValue = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -47,9 +46,8 @@ const AddOperationDialog: React.FC<DialogProps & AddOperationProps> = ({
     setDescription(event.target.value)
   }
 
-  const handleChangeDate = (date: any, value: any) => {
+  const handleChangeDate = (date: any) => {
     setDate(date);
-    setInputDateValue(value);
     if (date && date.isAfter(moment(), 'days')) {
       setIsPlanned(true);
     }
@@ -59,7 +57,7 @@ const AddOperationDialog: React.FC<DialogProps & AddOperationProps> = ({
     try {
       await addOperation({
         categoryId: categoryId,
-        date: inputDateValue,
+        date: date.format(DATE_FORMAT),
         description: description,
         value: value,
         isPlanned: isPlanned
@@ -94,8 +92,7 @@ const AddOperationDialog: React.FC<DialogProps & AddOperationProps> = ({
         isPlanned={isPlanned}
         categoryId={categoryId}
         description={description}
-        selectedDate={selectedDate}
-        inputDateValue={inputDateValue}
+        date={date}
         categories={categories}
         handleChangeValue={handleChangeValue}
         handleChangeIsPlanned={handleChangeIsPlanned}
@@ -109,7 +106,7 @@ const AddOperationDialog: React.FC<DialogProps & AddOperationProps> = ({
           Cancel
         </Button>
         <Button
-          disabled={!value || !categoryId || !inputDateValue}
+          disabled={!value || !categoryId || !date}
           onClick={handleSave}
           color="inherit"
         >
