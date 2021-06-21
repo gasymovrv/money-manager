@@ -15,7 +15,6 @@ function calculateSum(list: Operation[]): number {
 
 type MainTableCellProps = {
   rowId: number,
-  isOverdue: boolean,
   isCurrentPeriod: boolean,
   categories: OperationCategory[],
   itemType: OperationType,
@@ -47,7 +46,6 @@ const useStyles = makeStyles((theme: Theme) =>
 const MainTableCell: React.FC<MainTableCellProps> = ({
                                                        rowId,
                                                        isCurrentPeriod,
-                                                       isOverdue,
                                                        categories,
                                                        itemType,
                                                        items,
@@ -84,6 +82,8 @@ const MainTableCell: React.FC<MainTableCellProps> = ({
 
     let multiplyItemsColor = colorClass;
     const hasPlanned = items.some((i) => i.isPlanned);
+    const isOverdue = items.some((i) => i.isOverdue);
+
     if (hasPlanned && isCurrentPeriod) {
       multiplyItemsColor = classes.paperColor;
     } else if (hasPlanned) {

@@ -106,7 +106,6 @@ const MainTableRow: React.FC<MainTableRowProps> = ({
         showIncomeCategories && incomeLists.map((incomes: Operation[] | undefined, index) => (
           <MainTableCell
             key={'inc_cell_' + index}
-            isOverdue={isOverdue}
             isCurrentPeriod={currentPeriod}
             rowId={id}
             categories={incomeCategories}
@@ -126,7 +125,6 @@ const MainTableRow: React.FC<MainTableRowProps> = ({
         showExpenseCategories && expenseLists.map((expenses: Operation[] | undefined, index) => (
           <MainTableCell
             key={'exp_cell_' + index}
-            isOverdue={isOverdue}
             isCurrentPeriod={currentPeriod}
             rowId={id}
             categories={expenseCategories}
