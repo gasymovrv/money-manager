@@ -9,9 +9,10 @@ The main purpose of the application is to manage income, expenses and savings.
 + Built frontend is in jar resources, single html page will be opened by Spring MVC (spring-boot-starter-web)
 
 ### Frontend
-+ TypeScript, React 17.0.3, Material-UI 4.11.1
++ TypeScript, React 17.0.3, Material-UI 4.11.1, Redux
 + No class components, only functional ones with React Hooks
 + Using Material-UI components for styling
++ Using Redux to store global state in memory and some custom UI configurations in local storage
 
 ### Instructions
 #### Build and run
