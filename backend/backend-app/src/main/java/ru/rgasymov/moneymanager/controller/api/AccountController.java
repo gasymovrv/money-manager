@@ -73,4 +73,10 @@ public class AccountController {
         .sorted()
         .collect(Collectors.toList());
   }
+
+  @PostMapping("/default-categories")
+  public void createDefaultCategories() {
+    log.info("# Create default categories, current user: {}", userService.getCurrentUser());
+    accountService.createDefaultCategories();
+  }
 }
