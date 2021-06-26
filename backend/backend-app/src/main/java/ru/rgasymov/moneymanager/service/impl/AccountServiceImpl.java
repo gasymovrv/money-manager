@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.rgasymov.moneymanager.domain.dto.request.AccountRequestDto;
+import ru.rgasymov.moneymanager.domain.dto.request.OperationCategoryRequestDto;
 import ru.rgasymov.moneymanager.domain.dto.response.AccountResponseDto;
 import ru.rgasymov.moneymanager.domain.entity.Account;
 import ru.rgasymov.moneymanager.mapper.AccountMapper;
@@ -21,6 +22,8 @@ import ru.rgasymov.moneymanager.repository.IncomeRepository;
 import ru.rgasymov.moneymanager.repository.SavingRepository;
 import ru.rgasymov.moneymanager.repository.UserRepository;
 import ru.rgasymov.moneymanager.service.AccountService;
+import ru.rgasymov.moneymanager.service.ExpenseCategoryService;
+import ru.rgasymov.moneymanager.service.IncomeCategoryService;
 import ru.rgasymov.moneymanager.service.UserService;
 
 @Service
@@ -39,6 +42,8 @@ public class AccountServiceImpl implements AccountService {
   private final AccountMapper accountMapper;
 
   private final UserService userService;
+  private final ExpenseCategoryService expenseCategoryService;
+  private final IncomeCategoryService incomeCategoryService;
 
   @Transactional(readOnly = true)
   @Override
@@ -110,6 +115,19 @@ public class AccountServiceImpl implements AccountService {
     var updatedUser = userRepository.save(currentUser);
     userService.updateCurrentUser(updatedUser);
     return accountMapper.toDto(account);
+  }
+
+  @Transactional
+  @Override
+  public void createDefaultCategories() {
+    incomeCategoryService.create(new OperationCategoryRequestDto("Salary"));
+    incomeCategoryService.create(new OperationCategoryRequestDto("Other"));
+
+    expenseCategoryService.create(new OperationCategoryRequestDto("Common"));
+    expenseCategoryService.create(new OperationCategoryRequestDto("Loans"));
+    expenseCategoryService.create(new OperationCategoryRequestDto("Debts"));
+    expenseCategoryService.create(new OperationCategoryRequestDto("Mortgage"));
+    expenseCategoryService.create(new OperationCategoryRequestDto("Other"));
   }
 
   private Account getAccount(Long id) {

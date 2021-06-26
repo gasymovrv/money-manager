@@ -69,6 +69,12 @@ export async function changeAccount(id: number): Promise<Response> {
   }));
 }
 
+export async function createDefaultCategories(): Promise<Response> {
+  return handleErrors(await fetch(`${apiUrl}accounts/default-categories`, {
+    method: 'POST'
+  }));
+}
+
 export async function getExpenseCategories(): Promise<Array<OperationCategory>> {
   const response = handleErrors(await fetch(apiUrl + 'expenses/categories'));
   return await response.json();

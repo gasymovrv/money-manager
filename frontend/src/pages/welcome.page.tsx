@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { Button, Container, Grid, Link, Paper, Typography } from '@material-ui/core';
 import FileUploader from '../components/file-uploader/file-uploader';
-import { addExpenseCategory, addIncomeCategory, downloadTemplateXlsxFile } from '../services/api.service';
+import { createDefaultCategories, downloadTemplateXlsxFile } from '../services/api.service';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import Header from '../components/header/header';
 import PageContainer from '../components/page-container/page-container';
@@ -40,8 +40,7 @@ const WelcomePage: React.FC = () => {
 
   const handleStartFromScratch = async () => {
     try {
-      await addIncomeCategory({name: 'New income category'});
-      await addExpenseCategory({name: 'New expense category'});
+      await createDefaultCategories();
       user.currentAccount.isDraft = false;
       history.push('/');
     } catch (error) {

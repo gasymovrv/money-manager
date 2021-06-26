@@ -15,4 +15,6 @@ public interface AccountService {
   void delete(Long id);
 
   AccountResponseDto changeCurrent(Long id);
+
+  void createDefaultCategories();
 }

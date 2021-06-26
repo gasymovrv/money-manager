@@ -10,11 +10,11 @@ const LoginPage: React.FC = () => (
       direction="column"
       alignItems="center"
       justify="center"
-      style={{minHeight: '100vh'}}
+      style={{minHeight: '90vh'}}
     >
       <Grid item>
         <Typography variant="h4">
-          You can login with:
+          You can log in with:
         </Typography>
       </Grid>
       <Grid item>
