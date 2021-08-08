@@ -86,6 +86,9 @@ public class XlsxGenerationServiceImpl implements XlsxGenerationService {
    */
   private static final int PREVIOUS_SAVINGS_ROW = 2;
 
+  private static final String COLLAPSED_COMMENT = "%s (%s); ";
+  private static final String COLLAPSED_COMMENT_SIMPLE = "%s; ";
+
   @Override
   public Resource generate(String templatePath,
                            XlsxInputData data) throws IOException {
@@ -260,13 +263,7 @@ public class XlsxGenerationServiceImpl implements XlsxGenerationService {
           .stream()
           .flatMap(Collection::stream)
           .forEach((inc) ->
-              incomeMap.merge(inc.getCategory().getName(), inc,
-                  ((dto1, dto2) -> {
-                    dto1.setValue(dto1.getValue().add(dto2.getValue()));
-                    dto1.setDescription(dto1.getDescription() + "; " + (dto2.getDescription()));
-                    return dto1;
-                  }))
-          );
+              incomeMap.merge(inc.getCategory().getName(), inc, this::mergeOperations));
       //Fill income cells
       incomeMap.values().forEach(inc -> {
         Integer colNumByCategory = incColumnMap.get(inc.getCategory().getName());
@@ -290,13 +287,7 @@ public class XlsxGenerationServiceImpl implements XlsxGenerationService {
           .stream()
           .flatMap(Collection::stream)
           .forEach((exp) ->
-              expenseMap.merge(exp.getCategory().getName(), exp,
-                  ((dto1, dto2) -> {
-                    dto1.setValue(dto1.getValue().add(dto2.getValue()));
-                    dto1.setDescription(dto1.getDescription() + "; " + (dto2.getDescription()));
-                    return dto1;
-                  }))
-          );
+              expenseMap.merge(exp.getCategory().getName(), exp, this::mergeOperations));
       //Fill expense cells
       expenseMap.values().forEach(exp -> {
         Integer colNumByCategory = expColumnMap.get(exp.getCategory().getName());
@@ -421,5 +412,48 @@ public class XlsxGenerationServiceImpl implements XlsxGenerationService {
     //Create saving cell
     cell = row.createCell(savingsCol, CellType.NUMERIC);
     cell.setCellStyle(savingsStyle);
+  }
+
+
+  private void collapseComments(OperationResponseDto dto1, OperationResponseDto dto2) {
+    String description = "";
+    if (StringUtils.isNotBlank(dto1.getDescription())
+        && !dto1.isDescriptionCollapsed()) {
+      description = String.format(COLLAPSED_COMMENT,
+          dto1.getDescription(),
+          dto1.getValue());
+    } else if (!dto1.isDescriptionCollapsed()) {
+      description = String.format(COLLAPSED_COMMENT_SIMPLE, dto1.getValue());
+    }
+    if (!dto1.isDescriptionCollapsed()) {
+      dto1.setDescriptionCollapsed(true);
+      dto1.setDescription(null);
+    }
+
+    if (StringUtils.isNotBlank(dto2.getDescription())) {
+      description += String.format(COLLAPSED_COMMENT,
+          dto2.getDescription(),
+          dto2.getValue());
+    } else {
+      description += String.format(COLLAPSED_COMMENT_SIMPLE, dto2.getValue());
+    }
+
+    String resultDescr = null;
+    if (StringUtils.isNotBlank(dto1.getDescription())
+        || StringUtils.isNotBlank(description)) {
+      if (dto1.getDescription() == null) {
+        resultDescr = description;
+      } else {
+        resultDescr = dto1.getDescription() + description;
+      }
+    }
+    dto1.setDescription(resultDescr);
+  }
+
+  private OperationResponseDto mergeOperations(OperationResponseDto dto1,
+                                               OperationResponseDto dto2) {
+    collapseComments(dto1, dto2);
+    dto1.setValue(dto1.getValue().add(dto2.getValue()));
+    return dto1;
   }
 }
