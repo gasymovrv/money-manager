@@ -1,6 +1,7 @@
 package ru.rgasymov.moneymanager.domain.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -39,4 +40,8 @@ public class OperationResponseDto {
   @JsonProperty("isOverdue")
   @Builder.Default
   private boolean isOverdue = false;
+
+  @JsonIgnore
+  @Builder.Default
+  private boolean isDescriptionCollapsed = false;
 }
