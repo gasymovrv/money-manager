@@ -1,9 +1,8 @@
 package ru.rgasymov.moneymanager.config;
 
 import javax.sql.DataSource;
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
@@ -20,14 +19,17 @@ public class DataSourceConfig {
   @Value("${spring.datasource.password}")
   private String password;
 
+  @Value("${use-postgres}")
+  private Boolean usePostgres;
+
   @Bean
-  @ConditionalOnProperty(
-      name = "use-postgres",
-      havingValue = "true")
-  @ConditionalOnMissingBean
-  public DataSource dataSource1() {
+  public DataSource dataSource() {
     DriverManagerDataSource dataSource = new DriverManagerDataSource();
-    dataSource.setDriverClassName("org.postgresql.Driver");
+    if (BooleanUtils.isTrue(usePostgres)) {
+      dataSource.setDriverClassName("org.postgresql.Driver");
+    } else {
+      dataSource.setDriverClassName("org.h2.Driver");
+    }
     dataSource.setUrl(url);
     dataSource.setUsername(username);
     dataSource.setPassword(password);

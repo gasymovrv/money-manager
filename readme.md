@@ -7,6 +7,9 @@ The main purpose of the application is to manage income, expenses and savings.
 + Authentication with Google OAuth2
 + Application has made as a REST API but with session
 + Built frontend is in jar resources, single html page will be opened by Spring MVC (spring-boot-starter-web)
++ There are 2 mode:
+  + server app - deployable from GitHub application, user data stores in dedicated postgresql database
+  + desktop app - installable Windows application, user data stores in the H2 database that in the installed directory
 
 ### Frontend
 + TypeScript, React 17.0.3, Material-UI 4.11.1, Redux
@@ -17,8 +20,9 @@ The main purpose of the application is to manage income, expenses and savings.
 ### Instructions
 #### Build and run
 + Change GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET in .env (or as environment variables) to actual
++ For local build you need Java 16, Maven 3+. NodeJS v14.16.0 and NPM 6.14.11 are only needed for frontend developing
 + Call `mvn clean install` at root of the project to build the application. `-Drevision=1.0.0` can be added to change the version of the project
 + Built result (jar file) will be in 'target' directory at root of the project
 + Call `java -Duser.timezone=UTC -jar money-manager-<version>.jar` to start the application
-+ Optionally. It is possibly to build exe installer for Windows, just run pack_exe_installer.bat after build. Before generating the jar file, all required environment variables must be in the .env file.
++ Optionally. It is possibly to build exe installer for Windows (desktop mode), just run pack_exe_installer.bat after maven build. Before generating the jar file, all required environment variables must be in the .env file
 + Optionally. Call `npm start` at frontend directory to start frontend dev server
