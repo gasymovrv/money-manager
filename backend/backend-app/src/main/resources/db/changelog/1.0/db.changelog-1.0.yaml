@@ -6,3 +6,4 @@ databaseChangeLog:
   - include: { relativeToChangelogFile: true, file: expense_category.yaml }
   - include: { relativeToChangelogFile: true, file: income.yaml }
   - include: { relativeToChangelogFile: true, file: expense.yaml }
+  - include: { relativeToChangelogFile: true, file: spring_session.yaml }
