@@ -33,6 +33,7 @@ export class SavingSearchRequestParams {
   sortDirection: SortDirection;
   pageNum: number;
   pageSize: number;
+  searchText?: string;
 
   constructor(
     pageNum: number,
@@ -45,6 +46,7 @@ export class SavingSearchRequestParams {
     this.sortDirection = filter.sortDirection;
     this.sortBy = filter.sortBy;
     this.groupBy = filter.groupBy;
+    this.searchText = filter.searchText;
   }
 
   public toUrlSearchParams(): URLSearchParams {
@@ -71,6 +73,7 @@ export interface SavingsFilterParams {
   sortBy?: SavingFieldToSort;
   groupBy?: Period;
   sortDirection: SortDirection;
+  searchText?: string;
 }
 
 export const defaultFilter: SavingsFilterParams = {

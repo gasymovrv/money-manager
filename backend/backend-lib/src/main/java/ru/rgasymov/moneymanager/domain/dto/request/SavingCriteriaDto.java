@@ -37,6 +37,8 @@ public class SavingCriteriaDto {
 
   private Period groupBy = Period.DAY;
 
+  private String searchText;
+
   public void setFrom(LocalDate from) {
     if (to != null && to.isBefore(from)) {
       throw new ValidationException("Date 'from' cannot be after 'to'");

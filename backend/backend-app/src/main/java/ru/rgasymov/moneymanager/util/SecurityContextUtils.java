@@ -2,9 +2,12 @@ package ru.rgasymov.moneymanager.util;
 
 import org.springframework.security.core.context.SecurityContextHolder;
 
-public class SecurityContextUtils {
+public final class SecurityContextUtils {
 
   private static final String ROLE_ANONYMOUS = "ROLE_ANONYMOUS";
+
+  private SecurityContextUtils() {
+  }
 
   public static boolean isAnonymous() {
     var authentication = SecurityContextHolder.getContext().getAuthentication();
