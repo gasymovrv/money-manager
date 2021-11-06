@@ -127,7 +127,7 @@ const MainTable: React.FC = () => {
 
   const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
     const newPageSize = +event.target.value;
-    changePgnOptions({...pagination, pageSize: newPageSize})
+    changePgnOptions({...pagination, pageSize: newPageSize, page: 0})
     dispatch(fetchMainTable({page: 0, pageSize: newPageSize}, savingsFilter));
   };
 

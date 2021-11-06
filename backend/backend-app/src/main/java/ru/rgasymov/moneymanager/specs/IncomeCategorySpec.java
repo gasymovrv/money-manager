@@ -5,7 +5,10 @@ import ru.rgasymov.moneymanager.domain.entity.Account_;
 import ru.rgasymov.moneymanager.domain.entity.IncomeCategory;
 import ru.rgasymov.moneymanager.domain.entity.IncomeCategory_;
 
-public class IncomeCategorySpec {
+public final class IncomeCategorySpec {
+
+  private IncomeCategorySpec() {
+  }
 
   public static Specification<IncomeCategory> accountIdEq(Long id) {
     return (category, cq, cb) ->

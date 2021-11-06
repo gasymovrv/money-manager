@@ -5,7 +5,10 @@ import ru.rgasymov.moneymanager.domain.entity.Account_;
 import ru.rgasymov.moneymanager.domain.entity.ExpenseCategory;
 import ru.rgasymov.moneymanager.domain.entity.ExpenseCategory_;
 
-public class ExpenseCategorySpec {
+public final class ExpenseCategorySpec {
+
+  private ExpenseCategorySpec() {
+  }
 
   public static Specification<ExpenseCategory> accountIdEq(Long id) {
     return (category, cq, cb) ->

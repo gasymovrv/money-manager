@@ -1,5 +1,6 @@
-import React from 'react';
-import { Button, makeStyles, MenuItem, TextField, Toolbar } from '@material-ui/core';
+import React, { useState } from 'react';
+import { Button, IconButton, InputAdornment, makeStyles, MenuItem, TextField, Toolbar } from '@material-ui/core';
+import SearchIcon from '@material-ui/icons/Search';
 import { createStyles, Theme } from '@material-ui/core/styles';
 import { DatePicker, MuiPickersUtilsProvider } from '@material-ui/pickers';
 import MomentUtils from '@date-io/moment';
@@ -29,6 +30,8 @@ const SavingsFilter: React.FC = () => {
   const change = (activeFilter: SavingsFilterParams) => dispatch(changeFilter(activeFilter))
   const reset = () => dispatch(resetFilter())
 
+  const [searchText, setSearchText] = useState<string | undefined>(savingsFilter.searchText);
+
   const handleChangeFrom = (date: any) => {
     if (!date) {
       change({...savingsFilter, from: undefined});
@@ -55,6 +58,21 @@ const SavingsFilter: React.FC = () => {
 
   const handleChangeGroupBy = (event: React.ChangeEvent<any>) => {
     change({...savingsFilter, groupBy: event.target.value});
+  }
+
+  const handleChangeSearchText = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchText(event.target.value)
+  }
+
+  const handleClickOnSearch = () => {
+    change({...savingsFilter, searchText: searchText});
+  }
+
+  const handlePressEnterInSearchField = (event: React.KeyboardEvent<any>) => {
+    if (event.key === 'Enter') {
+      change({...savingsFilter, searchText: searchText});
+      event.preventDefault();
+    }
   }
 
   return (
@@ -128,6 +146,28 @@ const SavingsFilter: React.FC = () => {
           <MenuItem key={value} value={value}>{value.replaceAll('_', ' ')}</MenuItem>
         )}
       </TextField>
+
+      <TextField
+        className={classes.inputField}
+        margin="normal"
+        color="secondary"
+        label="Search text"
+        value={searchText}
+        onKeyPress={handlePressEnterInSearchField}
+        onChange={handleChangeSearchText}
+        InputProps={{
+          endAdornment: (
+            <InputAdornment
+              position={'end'}
+              onClick={handleClickOnSearch}
+            >
+              <IconButton>
+                <SearchIcon/>
+              </IconButton>
+            </InputAdornment>
+          )
+        }}
+      />
 
       <Button
         variant="outlined"
