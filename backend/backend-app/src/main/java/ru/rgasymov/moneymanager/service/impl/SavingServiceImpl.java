@@ -22,7 +22,6 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.rgasymov.moneymanager.domain.dto.request.SavingCriteriaDto;
 import ru.rgasymov.moneymanager.domain.dto.response.SavingResponseDto;
 import ru.rgasymov.moneymanager.domain.dto.response.SearchResultDto;
-import ru.rgasymov.moneymanager.domain.entity.BaseOperation;
 import ru.rgasymov.moneymanager.domain.entity.Expense;
 import ru.rgasymov.moneymanager.domain.entity.Income;
 import ru.rgasymov.moneymanager.domain.entity.Saving;
@@ -35,6 +34,8 @@ import ru.rgasymov.moneymanager.repository.SavingRepository;
 import ru.rgasymov.moneymanager.service.SavingService;
 import ru.rgasymov.moneymanager.service.UserService;
 import ru.rgasymov.moneymanager.specs.BaseOperationSpec;
+import ru.rgasymov.moneymanager.specs.ExpenseSpec;
+import ru.rgasymov.moneymanager.specs.IncomeSpec;
 import ru.rgasymov.moneymanager.specs.SavingSpec;
 
 @Service
@@ -60,7 +61,7 @@ public class SavingServiceImpl implements SavingService {
             Sort.by(criteria.getSortDirection(),
                 criteria.getSortBy().getFieldName())));
     var content = page.getContent();
-    replaceUnnecessaryOperations(content, criteria.getSearchText());
+    removeUnnecessaryOperations(content, criteria.getSearchText());
 
     List<SavingResponseDto> result;
     if (criteria.getGroupBy() != Period.DAY) {
@@ -152,20 +153,19 @@ public class SavingServiceImpl implements SavingService {
   /**
    * Replaces incomes and expenses in all savings to remove unnecessary results.
    *
-   * @param content    savings
+   * @param savings    savings
    * @param searchText the search text
    */
-  private void replaceUnnecessaryOperations(List<Saving> content,
-                                            String searchText) {
+  private void removeUnnecessaryOperations(List<Saving> savings,
+                                           String searchText) {
     if (StringUtils.isBlank(searchText)) {
       return;
     }
-    var savingIds = content.stream().map(Saving::getId).toList();
+    var savingIds = savings.stream().map(Saving::getId).toList();
     var incomeMap = new HashMap<Long, List<Income>>();
     var expenseMap = new HashMap<Long, List<Expense>>();
 
-    incomeRepository.findAll(
-            applyOperationCriteria(savingIds, searchText))
+    incomeRepository.findAll(applyIncomeCriteria(savingIds, searchText))
         .forEach(inc -> {
           ArrayList<Income> value = new ArrayList<>();
           value.add(inc);
@@ -176,8 +176,7 @@ public class SavingServiceImpl implements SavingService {
               });
         });
 
-    expenseRepository.findAll(
-            applyOperationCriteria(savingIds, searchText))
+    expenseRepository.findAll(applyExpenseCriteria(savingIds, searchText))
         .forEach(exp -> {
           ArrayList<Expense> value = new ArrayList<>();
           value.add(exp);
@@ -188,7 +187,7 @@ public class SavingServiceImpl implements SavingService {
               });
         });
 
-    content.forEach(saving -> {
+    savings.forEach(saving -> {
       saving.setIncomes(Optional
           .ofNullable(incomeMap.get(saving.getId()))
           .orElse(List.of()));
@@ -217,11 +216,16 @@ public class SavingServiceImpl implements SavingService {
     return criteriaAsSpec;
   }
 
-  private <R extends BaseOperation> Specification<R> applyOperationCriteria(List<Long> savingIds,
-                                                                            String searchText) {
-    Specification<R> spec = BaseOperationSpec.savingIdIn(savingIds);
-    spec = andOptionally(spec, BaseOperationSpec::matchBySearchText, searchText);
-    return spec;
+  private Specification<Income> applyIncomeCriteria(List<Long> savingIds,
+                                                    String searchText) {
+    Specification<Income> incomeSpec = BaseOperationSpec.savingIdIn(savingIds);
+    return andOptionally(incomeSpec, IncomeSpec::matchBySearchText, searchText);
+  }
+
+  private Specification<Expense> applyExpenseCriteria(List<Long> savingIds,
+                                                      String searchText) {
+    Specification<Expense> expenseSpec = BaseOperationSpec.savingIdIn(savingIds);
+    return andOptionally(expenseSpec, ExpenseSpec::matchBySearchText, searchText);
   }
 
   interface RecalculateFunc {

@@ -4,14 +4,15 @@ import java.time.LocalDate;
 import javax.persistence.criteria.JoinType;
 import org.springframework.data.jpa.domain.Specification;
 import ru.rgasymov.moneymanager.domain.entity.Account_;
+import ru.rgasymov.moneymanager.domain.entity.ExpenseCategory_;
 import ru.rgasymov.moneymanager.domain.entity.Expense_;
+import ru.rgasymov.moneymanager.domain.entity.IncomeCategory_;
 import ru.rgasymov.moneymanager.domain.entity.Income_;
 import ru.rgasymov.moneymanager.domain.entity.Saving;
 import ru.rgasymov.moneymanager.domain.entity.Saving_;
+import ru.rgasymov.moneymanager.util.SpecUtils;
 
 public final class SavingSpec {
-
-  private static final String ANY_CHARS = "%";
 
   private SavingSpec() {
   }
@@ -47,20 +48,27 @@ public final class SavingSpec {
   }
 
   public static Specification<Saving> matchBySearchText(String searchText) {
-    String pattern = ANY_CHARS
-        .concat(searchText.toLowerCase().replaceAll("[\\s,]+", ANY_CHARS))
-        .concat(ANY_CHARS);
+    var pattern = SpecUtils.prepareSearchPattern(searchText);
+
     return (saving, cq, cb) -> {
-      var incomeDescriptionPath =
-          saving.join(Saving_.incomes, JoinType.LEFT).get(Income_.description);
-      var expenseDescriptionPath =
-          saving.join(Saving_.expenses, JoinType.LEFT).get(Expense_.description);
-      var incomeDescriptionHandled = cb.lower(incomeDescriptionPath);
-      var expenseDescriptionHandled = cb.lower(expenseDescriptionPath);
+      cq.distinct(true);
+      var incomeListJoin = saving.join(Saving_.incomes, JoinType.LEFT);
+      var expenseListJoin = saving.join(Saving_.expenses, JoinType.LEFT);
+
+      var incomeDescriptionPath = incomeListJoin.get(Income_.description);
+      var expenseDescriptionPath = expenseListJoin.get(Expense_.description);
+
+      var incomeCategoryNamePath =
+          incomeListJoin.join(Income_.category, JoinType.LEFT).get(IncomeCategory_.name);
+      var expenseCategoryNamePath =
+          expenseListJoin.join(Expense_.category, JoinType.LEFT).get(ExpenseCategory_.name);
 
       return cb.or(
-              cb.like(incomeDescriptionHandled, pattern),
-              cb.like(expenseDescriptionHandled, pattern));
+          cb.like(cb.lower(incomeDescriptionPath), pattern),
+          cb.like(cb.lower(expenseDescriptionPath), pattern),
+          cb.like(cb.lower(incomeCategoryNamePath), pattern),
+          cb.like(cb.lower(expenseCategoryNamePath), pattern)
+      );
     };
   }
 }

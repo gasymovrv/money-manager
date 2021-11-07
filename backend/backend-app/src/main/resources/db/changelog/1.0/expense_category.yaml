@@ -37,3 +37,12 @@ databaseChangeLog:
             tableName: expense_category
             columnNames: name, account_id
             constraintName: expense_category_name_unique
+
+  - changeSet:
+      id: 000001-create-constraint-expense_category
+      author: Gasymov Ruslan
+      changes:
+        - addNotNullConstraint:
+            tableName: expense_category
+            columnName: name
+            columnDataType: varchar(255)
