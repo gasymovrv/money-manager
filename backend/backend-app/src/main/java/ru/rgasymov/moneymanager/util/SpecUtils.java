@@ -7,6 +7,8 @@ import org.springframework.data.jpa.domain.Specification;
 
 public final class SpecUtils {
 
+  private static final String ANY_CHARS = "%";
+
   private SpecUtils() {
   }
 
@@ -21,5 +23,11 @@ public final class SpecUtils {
       return sourceSpec.and(spec.apply(arg));
     }
     return sourceSpec;
+  }
+
+  public static String prepareSearchPattern(String searchText) {
+    return ANY_CHARS
+        .concat(searchText.toLowerCase().replaceAll("[\\s,]+", ANY_CHARS))
+        .concat(ANY_CHARS);
   }
 }
