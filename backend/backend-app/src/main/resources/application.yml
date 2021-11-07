@@ -11,10 +11,6 @@ server:
 spring:
   application:
     name: money-manager
-  session:
-    store-type: jdbc
-    jdbc:
-      initialize-schema: never
   main:
     banner-mode: "off"
     allow-bean-definition-overriding: true
@@ -28,6 +24,7 @@ spring:
     date-format: yyyy-MM-dd HH:mm:ss
   datasource:
     url: ${SPRING_DATASOURCE_URL:jdbc:h2:file:./database/money-manager-db;AUTO_SERVER=TRUE}
+    driverClassName: org.h2.Driver
     username: ${SPRING_DATASOURCE_USERNAME:sa}
     password: ${SPRING_DATASOURCE_PASSWORD:password}
   h2:
