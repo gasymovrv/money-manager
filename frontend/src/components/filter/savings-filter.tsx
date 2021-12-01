@@ -39,7 +39,7 @@ const useStyles = makeStyles((theme: Theme) =>
       marginRight: theme.spacing(3)
     },
     categoriesField: {
-      minWidth: 150,
+      minWidth: 170,
       maxWidth: 300,
       marginRight: theme.spacing(3)
     }
@@ -94,11 +94,13 @@ const SavingsFilter: React.FC = () => {
   }
 
   const handleChangeIncomeCategories = (event: React.ChangeEvent<any>) => {
-    setSelectedIncomeCategories(getUpdatedSelectedCategories(event.target.value, selectedIncomeCategories));
+    let updatedNames = event.target.value;
+    setSelectedIncomeCategories(getUpdatedSelectedCategories(updatedNames, selectedIncomeCategories));
   };
 
   const handleChangeExpenseCategories = (event: React.ChangeEvent<any>) => {
-    setSelectedExpenseCategories(getUpdatedSelectedCategories(event.target.value, selectedExpenseCategories));
+    let updatedNames = event.target.value;
+    setSelectedExpenseCategories(getUpdatedSelectedCategories(updatedNames, selectedExpenseCategories));
   };
 
   const handleSelectIncomeCategories = () => {

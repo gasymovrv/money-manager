@@ -1,6 +1,4 @@
 import { Period, SearchResult, SortDirection } from './common.interface';
-import moment from 'moment';
-import { DATE_FORMAT } from '../constants';
 import { OperationCategory } from './operation.interface';
 
 export class SavingSearchResult implements SearchResult<SavingResponse> {
@@ -90,7 +88,6 @@ export interface SavingsFilterParams {
 }
 
 export const defaultFilter: SavingsFilterParams = {
-  to: moment().endOf('month').format(DATE_FORMAT),
   sortBy: SavingFieldToSort.DATE,
   groupBy: Period.DAY,
   sortDirection: SortDirection.DESC,

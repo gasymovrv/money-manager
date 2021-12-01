@@ -257,18 +257,22 @@ const MainTable: React.FC = () => {
 
           <TableBody>
             {rows.map((row: Row, i) => {
-                let nextRowMonth: number | undefined;
-                if (savingsFilter.groupBy === Period.DAY
-                  && savingsFilter.sortBy === SavingFieldToSort.DATE
-                  && rows.length > i + 1) {
-                  nextRowMonth = moment(rows[i + 1].date).month();
+              const nextRowIndex = i + 1;
+                let nextRowPeriod: number | undefined;
+                if (savingsFilter.sortBy === SavingFieldToSort.DATE
+                  && rows.length > nextRowIndex) {
+                  if (savingsFilter.groupBy === Period.DAY) {
+                    nextRowPeriod = moment(rows[nextRowIndex].date).month();
+                  } else if (savingsFilter.groupBy === Period.MONTH) {
+                    nextRowPeriod = moment(rows[nextRowIndex].date).year();
+                  }
                 }
 
                 return (
                   <MainTableRow
                     key={row.id}
                     row={row}
-                    nextRowMonth={nextRowMonth}
+                    nextRowPeriod={nextRowPeriod}
                     incomeCategories={incomeCategories}
                     expenseCategories={expenseCategories}
                     showIncomeCategories={showIncomeCategories}

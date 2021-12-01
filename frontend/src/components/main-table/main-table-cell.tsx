@@ -21,7 +21,7 @@ type MainTableCellProps = {
   items: Operation[] | undefined,
   index: number,
   colorClass: string | undefined,
-  monthSeparatorClass: string | undefined
+  periodSeparatorClass: string | undefined
 }
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -52,7 +52,7 @@ const MainTableCell: React.FC<MainTableCellProps> = ({
                                                        items,
                                                        index,
                                                        colorClass,
-                                                       monthSeparatorClass
+                                                       periodSeparatorClass
                                                      }) => {
   const [expandList, setExpandList] = React.useState(false);
   const classes = useStyles();
@@ -70,7 +70,7 @@ const MainTableCell: React.FC<MainTableCellProps> = ({
 
     if (items.length === 1) {
       return (
-        <StyledTableCell key={rowId + '_' + index} className={monthSeparatorClass}>
+        <StyledTableCell key={rowId + '_' + index} className={periodSeparatorClass}>
           <MainTableEditableItem
             colorClass={colorClass}
             isCurrentPeriod={isCurrentPeriod}
@@ -93,7 +93,7 @@ const MainTableCell: React.FC<MainTableCellProps> = ({
     }
 
     return (
-      <StyledTableCell key={rowId + '_' + index} className={monthSeparatorClass}>
+      <StyledTableCell key={rowId + '_' + index} className={periodSeparatorClass}>
         {expandList ?
           items.map((inc, i) => {
               const menuItem = (
@@ -145,7 +145,7 @@ const MainTableCell: React.FC<MainTableCellProps> = ({
       </StyledTableCell>
     )
   } else {
-    return <StyledTableCell key={rowId + '_' + index} className={`${colorClass} ${monthSeparatorClass}`}/>
+    return <StyledTableCell key={rowId + '_' + index} className={`${colorClass} ${periodSeparatorClass}`}/>
   }
 }
 
