@@ -4,6 +4,7 @@ import java.util.List;
 import javax.persistence.EntityNotFoundException;
 import javax.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.transaction.annotation.Transactional;
 import ru.rgasymov.moneymanager.domain.dto.request.OperationCategoryRequestDto;
 import ru.rgasymov.moneymanager.domain.dto.response.OperationCategoryResponseDto;
@@ -39,6 +40,16 @@ public abstract class AbstractOperationCategoryService<
   }
 
   protected abstract List<C> findAll(Long accountId);
+
+  @Transactional(readOnly = true)
+  @Override
+  public List<OperationCategoryResponseDto> findAllAndSetChecked(List<Long> ids) {
+    var result = findAll();
+    if (CollectionUtils.isNotEmpty(ids)) {
+      result.forEach(category -> category.setChecked(ids.contains(category.getId())));
+    }
+    return result;
+  }
 
   @Transactional
   @Override

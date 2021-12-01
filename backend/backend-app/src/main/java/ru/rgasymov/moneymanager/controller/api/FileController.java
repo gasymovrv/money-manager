@@ -23,7 +23,7 @@ public class FileController {
   @RequestMapping(value = "/xlsx/import",
       method = RequestMethod.POST,
       consumes = "multipart/form-data")
-  public void uploadXlsx(@RequestPart("file") MultipartFile file) {
+  public void importFromXlsx(@RequestPart("file") MultipartFile file) {
     log.info("# Import from xlsx file");
     fileService.importFromXlsx(file);
   }

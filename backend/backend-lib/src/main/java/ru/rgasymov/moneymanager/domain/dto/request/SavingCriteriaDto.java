@@ -2,6 +2,7 @@ package ru.rgasymov.moneymanager.domain.dto.request;
 
 import io.swagger.annotations.ApiParam;
 import java.time.LocalDate;
+import java.util.List;
 import javax.validation.ValidationException;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
@@ -36,6 +37,10 @@ public class SavingCriteriaDto {
   private Integer pageSize = 1000;
 
   private Period groupBy = Period.DAY;
+
+  private List<Long> incomeCategoryIds = List.of();
+
+  private List<Long> expenseCategoryIds = List.of();
 
   private String searchText;
 

@@ -8,6 +8,8 @@ import { Row } from '../../interfaces/main-table.interface';
 import { isCurrentPeriod } from '../../helpers/date.helper';
 import ErrorOutlineIcon from '@material-ui/icons/ErrorOutline';
 import MoneyFormat from '../money-format/money-format';
+import moment from 'moment';
+import { grey } from '@material-ui/core/colors';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -25,6 +27,14 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     currentPeriodRow: {
       backgroundColor: theme.palette.secondary.main
+    },
+    monthSeparatedRow: {
+      borderStyle: 'solid',
+      borderTopWidth: 1,
+      borderRightWidth: 2,
+      borderLeftWidth: 2,
+      borderBottomWidth: 3,
+      borderColor: grey['600'],
     },
     boldFont: {
       fontSize: 14,
@@ -50,6 +60,7 @@ const useStyles = makeStyles((theme: Theme) =>
 
 type MainTableRowProps = {
   row: Row,
+  nextRowMonth?: number,
   incomeCategories: OperationCategory[],
   expenseCategories: OperationCategory[],
   showIncomeCategories: boolean,
@@ -58,6 +69,7 @@ type MainTableRowProps = {
 
 const MainTableRow: React.FC<MainTableRowProps> = ({
                                                      row,
+                                                     nextRowMonth,
                                                      incomeCategories,
                                                      expenseCategories,
                                                      showIncomeCategories,
@@ -84,6 +96,10 @@ const MainTableRow: React.FC<MainTableRowProps> = ({
     rowClass = classes.currentPeriodRow;
     incCellClass = classes.contrastGreen;
     expCellClass = classes.contrastRed;
+  }
+  let monthSeparatorClass = '';
+  if (nextRowMonth && nextRowMonth !== moment(date).month()) {
+    monthSeparatorClass = classes.monthSeparatedRow
   }
 
   return (
@@ -113,11 +129,12 @@ const MainTableRow: React.FC<MainTableRowProps> = ({
             items={incomes}
             index={index}
             colorClass={incCellClass}
+            monthSeparatorClass={monthSeparatorClass}
           />
         ))
       }
 
-      <StyledTableCell key={'inc_sum_' + id} className={`${incCellClass} ${classes.boldFont}`}>
+      <StyledTableCell key={'inc_sum_' + id} className={`${incCellClass} ${classes.boldFont} ${monthSeparatorClass}`}>
         <MoneyFormat value={incomesSum}/>
       </StyledTableCell>
 
@@ -132,17 +149,18 @@ const MainTableRow: React.FC<MainTableRowProps> = ({
             items={expenses}
             index={index}
             colorClass={expCellClass}
+            monthSeparatorClass={monthSeparatorClass}
           />
         ))
       }
 
-      <StyledTableCell key={'exp_sum_' + id} className={`${expCellClass} ${classes.boldFont}`}>
+      <StyledTableCell key={'exp_sum_' + id} className={`${expCellClass} ${classes.boldFont} ${monthSeparatorClass}`}>
         <MoneyFormat value={expensesSum}/>
       </StyledTableCell>
 
       <StyledTableCell
         key={'savings_' + id}
-        className={savings >= 0 ? `${incCellClass} ${classes.boldFont}` : `${expCellClass} ${classes.boldFont}`}
+        className={savings >= 0 ? `${incCellClass} ${classes.boldFont} ${monthSeparatorClass}` : `${expCellClass} ${classes.boldFont} ${monthSeparatorClass}`}
       >
         <MoneyFormat value={savings}/>
       </StyledTableCell>

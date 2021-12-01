@@ -10,7 +10,7 @@ import ru.rgasymov.moneymanager.domain.entity.BaseOperation;
 public interface BaseOperationRepository<T extends BaseOperation>
     extends JpaRepository<T, Long>, JpaSpecificationExecutor<T> {
 
-  Optional<T> findByIdAndAccountId(Long id, Long userId);
+  Optional<T> findByIdAndAccountId(Long id, Long accountId);
 
   void deleteByIdAndAccountId(Long id, Long userId);
 

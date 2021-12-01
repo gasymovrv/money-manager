@@ -1,7 +1,9 @@
 package ru.rgasymov.moneymanager.util;
 
+import java.util.Collection;
 import java.util.function.Function;
 import javax.validation.constraints.NotNull;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.jpa.domain.Specification;
 
@@ -17,6 +19,10 @@ public final class SpecUtils {
                                                       T arg) {
     if (arg instanceof String strArg) {
       if (StringUtils.isNotBlank(strArg)) {
+        return sourceSpec.and(spec.apply(arg));
+      }
+    } else if (arg instanceof Collection collectionArg) {
+      if (CollectionUtils.isNotEmpty(collectionArg)) {
         return sourceSpec.and(spec.apply(arg));
       }
     } else if (arg != null) {

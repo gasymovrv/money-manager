@@ -1,6 +1,7 @@
 export interface OperationCategory {
   id: number,
-  name: string
+  name: string,
+  isChecked: boolean
 }
 
 export interface Operation {

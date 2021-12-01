@@ -1,5 +1,15 @@
 import React, { useState } from 'react';
-import { Button, IconButton, InputAdornment, makeStyles, MenuItem, TextField, Toolbar } from '@material-ui/core';
+import {
+  Button,
+  Checkbox,
+  IconButton,
+  InputAdornment,
+  ListItemText,
+  makeStyles,
+  MenuItem,
+  TextField,
+  Toolbar
+} from '@material-ui/core';
 import SearchIcon from '@material-ui/icons/Search';
 import { createStyles, Theme } from '@material-ui/core/styles';
 import { DatePicker, MuiPickersUtilsProvider } from '@material-ui/pickers';
@@ -10,14 +20,27 @@ import { DATE_FORMAT } from '../../constants';
 import { useDispatch, useSelector } from 'react-redux';
 import { changeFilter, resetFilter } from '../../actions/savings-filter.actions';
 import moment from 'moment/moment';
+import { MainTableState } from '../../interfaces/main-table.interface';
+import { OperationCategory } from '../../interfaces/operation.interface';
+import { arrayEquals } from '../../helpers/common.helper';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
-      minHeight: 30
+      minHeight: 80,
     },
     inputField: {
-      minWidth: 100,
+      width: 110,
+      marginRight: theme.spacing(3)
+    },
+    searchField: {
+      minWidth: 110,
+      maxWidth: 200,
+      marginRight: theme.spacing(3)
+    },
+    categoriesField: {
+      minWidth: 150,
+      maxWidth: 300,
       marginRight: theme.spacing(3)
     }
   })
@@ -25,12 +48,22 @@ const useStyles = makeStyles((theme: Theme) =>
 
 const SavingsFilter: React.FC = () => {
   const classes = useStyles();
+  const {incomeCategories, expenseCategories}: MainTableState = useSelector(({mainTable}: any) => mainTable);
   const savingsFilter: SavingsFilterParams = useSelector(({savingsFilter}: any) => savingsFilter);
+
   const dispatch = useDispatch();
   const change = (activeFilter: SavingsFilterParams) => dispatch(changeFilter(activeFilter))
   const reset = () => dispatch(resetFilter())
 
   const [searchText, setSearchText] = useState<string | undefined>(savingsFilter.searchText);
+  const [selectedIncomeCategories, setSelectedIncomeCategories] = useState<OperationCategory[]>(incomeCategories);
+  const [selectedExpenseCategories, setSelectedExpenseCategories] = useState<OperationCategory[]>(expenseCategories);
+  const checkedIncomeCategoryNames = selectedIncomeCategories
+    .filter(({isChecked}) => isChecked)
+    .map(({name}) => name);
+  const checkedExpenseCategoryNames = selectedExpenseCategories
+    .filter(({isChecked}) => isChecked)
+    .map(({name}) => name);
 
   const handleChangeFrom = (date: any) => {
     if (!date) {
@@ -60,6 +93,34 @@ const SavingsFilter: React.FC = () => {
     change({...savingsFilter, groupBy: event.target.value});
   }
 
+  const handleChangeIncomeCategories = (event: React.ChangeEvent<any>) => {
+    setSelectedIncomeCategories(getUpdatedSelectedCategories(event.target.value, selectedIncomeCategories));
+  };
+
+  const handleChangeExpenseCategories = (event: React.ChangeEvent<any>) => {
+    setSelectedExpenseCategories(getUpdatedSelectedCategories(event.target.value, selectedExpenseCategories));
+  };
+
+  const handleSelectIncomeCategories = () => {
+    const checkedIncCategoryIds = selectedIncomeCategories.filter(({isChecked}) => isChecked).map(({id}) => id);
+    if (!arrayEquals(savingsFilter.incomeCategoryIds, checkedIncCategoryIds)) {
+      change({
+        ...savingsFilter,
+        incomeCategoryIds: checkedIncCategoryIds
+      });
+    }
+  };
+
+  const handleSelectExpenseCategories = () => {
+    const checkedExpCategoryIds = selectedExpenseCategories.filter(({isChecked}) => isChecked).map(({id}) => id);
+    if (!arrayEquals(savingsFilter.expenseCategoryIds, checkedExpCategoryIds)) {
+      change({
+        ...savingsFilter,
+        expenseCategoryIds: checkedExpCategoryIds
+      });
+    }
+  };
+
   const handleChangeSearchText = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchText(event.target.value)
   }
@@ -73,6 +134,12 @@ const SavingsFilter: React.FC = () => {
       change({...savingsFilter, searchText: searchText});
       event.preventDefault();
     }
+  }
+
+  const getUpdatedSelectedCategories = (updatedCategoryNames: string[], categories: OperationCategory[]) => {
+    return categories.map(({id, name}) => {
+      return {id: id, name: name, isChecked: updatedCategoryNames.indexOf(name) > -1}
+    });
   }
 
   return (
@@ -148,7 +215,59 @@ const SavingsFilter: React.FC = () => {
       </TextField>
 
       <TextField
-        className={classes.inputField}
+        className={classes.categoriesField}
+        margin="normal"
+        select
+        color="secondary"
+        label="Income categories"
+        SelectProps={{
+          multiple: true,
+          value: checkedIncomeCategoryNames,
+          onChange: handleChangeIncomeCategories,
+          onClose: handleSelectIncomeCategories,
+          renderValue: (selected: any) => selected.join(', ')
+        }}
+      >
+        {selectedIncomeCategories.map(({id, name, isChecked}) => (
+          <MenuItem
+            key={id}
+            value={name}
+            disabled={isChecked && checkedIncomeCategoryNames.length === 1}
+          >
+            <Checkbox checked={isChecked}/>
+            <ListItemText primary={name}/>
+          </MenuItem>
+        ))}
+      </TextField>
+
+      <TextField
+        className={classes.categoriesField}
+        margin="normal"
+        select
+        color="secondary"
+        label="Expense categories"
+        SelectProps={{
+          multiple: true,
+          value: checkedExpenseCategoryNames,
+          onChange: handleChangeExpenseCategories,
+          onClose: handleSelectExpenseCategories,
+          renderValue: (selected: any) => selected.join(', ')
+        }}
+      >
+        {selectedExpenseCategories.map(({id, name, isChecked}) => (
+          <MenuItem
+            key={id}
+            value={name}
+            disabled={isChecked && checkedExpenseCategoryNames.length === 1}
+          >
+            <Checkbox checked={isChecked}/>
+            <ListItemText primary={name}/>
+          </MenuItem>
+        ))}
+      </TextField>
+
+      <TextField
+        className={classes.searchField}
         margin="normal"
         color="secondary"
         label="Search text"

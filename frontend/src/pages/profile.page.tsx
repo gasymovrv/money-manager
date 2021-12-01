@@ -11,6 +11,7 @@ import DeleteAccountDialog from '../components/dialog/delete-account.dialog';
 import { useDispatch } from 'react-redux';
 import { resetPagination } from '../actions/pagination.actions';
 import { resetShowingCategories } from '../actions/show-categories.actions';
+import { resetFilter } from '../actions/savings-filter.actions';
 import { COMMON_ERROR_MSG } from '../constants';
 import { showError } from '../actions/error.actions';
 
@@ -116,6 +117,7 @@ const ProfilePage: React.FC = () => {
         await changeAccount(account.id);
         dispatch(resetPagination());
         dispatch(resetShowingCategories())
+        dispatch(resetFilter())
       }
       await loadAccountsData();
       refreshUser();

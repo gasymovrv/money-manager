@@ -21,12 +21,14 @@ import { AddExpenseCategoryDialog, AddIncomeCategoryDialog } from '../dialog/add
 import StyledTableCell from './styled-table-cell';
 import MainTableRow from './main-table-row';
 import MainTableEditableCategory from './main-table-editable-category';
-import { OperationType } from '../../interfaces/operation.interface';
+import { OperationCategory, OperationType } from '../../interfaces/operation.interface';
 import { fetchMainTable } from '../../services/async-dispatch.service';
 import { useDispatch, useSelector } from 'react-redux';
-import { SavingsFilterParams } from '../../interfaces/saving.interface';
+import { SavingFieldToSort, SavingsFilterParams } from '../../interfaces/saving.interface';
 import { changePagination } from '../../actions/pagination.actions';
 import { changeShowingCategories } from '../../actions/show-categories.actions';
+import { Period } from '../../interfaces/common.interface';
+import moment from 'moment';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -87,7 +89,15 @@ const MainTable: React.FC = () => {
     incomeCategories,
     expenseCategories,
     totalElements
-  }: MainTableState = useSelector(({mainTable}: any) => mainTable);
+  }: MainTableState = useSelector(({mainTable}: any) => {
+    return {
+      rows: mainTable.rows,
+      incomeCategories: mainTable.incomeCategories.filter(({isChecked}: OperationCategory) => isChecked),
+      expenseCategories: mainTable.expenseCategories.filter(({isChecked}: OperationCategory) => isChecked),
+      totalElements: mainTable.totalElements,
+      isLoading: mainTable.isLoading
+    }
+  });
 
   const dispatch = useDispatch();
   const changePgnOptions = (pp: PaginationParams) => dispatch(changePagination(pp));
@@ -246,15 +256,26 @@ const MainTable: React.FC = () => {
           </TableHead>
 
           <TableBody>
-            {rows.map((row: Row, i) =>
-              <MainTableRow
-                key={row.id}
-                row={row}
-                incomeCategories={incomeCategories}
-                expenseCategories={expenseCategories}
-                showIncomeCategories={showIncomeCategories}
-                showExpenseCategories={showExpenseCategories}
-              />
+            {rows.map((row: Row, i) => {
+                let nextRowMonth: number | undefined;
+                if (savingsFilter.groupBy === Period.DAY
+                  && savingsFilter.sortBy === SavingFieldToSort.DATE
+                  && rows.length > i + 1) {
+                  nextRowMonth = moment(rows[i + 1].date).month();
+                }
+
+                return (
+                  <MainTableRow
+                    key={row.id}
+                    row={row}
+                    nextRowMonth={nextRowMonth}
+                    incomeCategories={incomeCategories}
+                    expenseCategories={expenseCategories}
+                    showIncomeCategories={showIncomeCategories}
+                    showExpenseCategories={showExpenseCategories}
+                  />
+                )
+              }
             )}
           </TableBody>
 

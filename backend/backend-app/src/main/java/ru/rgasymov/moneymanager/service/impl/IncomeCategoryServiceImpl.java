@@ -1,5 +1,7 @@
 package ru.rgasymov.moneymanager.service.impl;
 
+import static ru.rgasymov.moneymanager.spec.IncomeCategorySpec.accountIdEq;
+
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
@@ -12,7 +14,6 @@ import ru.rgasymov.moneymanager.repository.IncomeCategoryRepository;
 import ru.rgasymov.moneymanager.repository.IncomeRepository;
 import ru.rgasymov.moneymanager.service.IncomeCategoryService;
 import ru.rgasymov.moneymanager.service.UserService;
-import ru.rgasymov.moneymanager.specs.IncomeCategorySpec;
 
 @Service
 @Slf4j
@@ -33,7 +34,7 @@ public class IncomeCategoryServiceImpl
   @Override
   protected List<IncomeCategory> findAll(Long accountId) {
     return incomeCategoryRepository.findAll(
-        IncomeCategorySpec.accountIdEq(accountId),
+        accountIdEq(accountId),
         Sort.by(Sort.Order.asc("name").ignoreCase())
     );
   }
