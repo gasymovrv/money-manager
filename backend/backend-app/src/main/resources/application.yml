@@ -52,6 +52,9 @@ spring:
       cache:
         cachecontrol:
           max-age: 365d
+  cache:
+    cache-names: incomeCategories, expenseCategories
+    type: caffeine
 
 springfox:
   documentation:

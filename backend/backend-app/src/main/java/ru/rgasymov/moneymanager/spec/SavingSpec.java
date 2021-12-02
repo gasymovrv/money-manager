@@ -6,6 +6,8 @@ import javax.persistence.criteria.Join;
 import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.ListJoin;
 import javax.persistence.criteria.Root;
+import javax.validation.constraints.NotNull;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.jpa.domain.Specification;
 import ru.rgasymov.moneymanager.domain.entity.Account_;
 import ru.rgasymov.moneymanager.domain.entity.Expense;
@@ -55,45 +57,48 @@ public final class SavingSpec {
         cb.equal(saving.get(Saving_.account).get(Account_.id), id);
   }
 
-  public static Specification<Saving> categoryIdIn(List<Long> incomeIds,
-                                                   List<Long> expenseIds) {
-    return (saving, cq, cb) -> {
-      cq.distinct(true);
-
-      var incomeListJoin = joinIncomes(saving);
-      var incomeCategoryIdPath =
-          joinIncomeCategory(incomeListJoin).get(IncomeCategory_.id);
-
-      var expenseListJoin = joinExpenses(saving);
-      var expenseCategoryIdPath =
-          joinExpenseCategory(expenseListJoin).get(ExpenseCategory_.id);
-
-      return cb.or(incomeCategoryIdPath.in(incomeIds), expenseCategoryIdPath.in(expenseIds));
-    };
-  }
-
-  public static Specification<Saving> matchBySearchText(String searchText) {
-    var pattern = SpecUtils.prepareSearchPattern(searchText);
+  public static Specification<Saving> filterBySearchTextAndCategoryIds(
+      @NotNull List<Long> incCategoryIds,
+      @NotNull List<Long> expCategoryIds,
+      String searchText) {
 
     return (saving, cq, cb) -> {
       cq.distinct(true);
       var incomeListJoin = joinIncomes(saving);
       var expenseListJoin = joinExpenses(saving);
+      var incomeCategoryJoin = joinIncomeCategory(incomeListJoin);
+      var expenseCategoryJoin = joinExpenseCategory(expenseListJoin);
 
-      var incomeDescriptionPath = incomeListJoin.get(Income_.description);
-      var expenseDescriptionPath = expenseListJoin.get(Expense_.description);
+      var incomeCategoryIdPath = incomeCategoryJoin.get(IncomeCategory_.id);
+      var expenseCategoryIdPath = expenseCategoryJoin.get(ExpenseCategory_.id);
 
-      var incomeCategoryNamePath =
-          joinIncomeCategory(incomeListJoin).get(IncomeCategory_.name);
-      var expenseCategoryNamePath =
-          joinExpenseCategory(expenseListJoin).get(ExpenseCategory_.name);
+      if (StringUtils.isNotBlank(searchText)) {
+        var pattern = SpecUtils.prepareSearchPattern(searchText);
+        var incomeDescriptionPath = incomeListJoin.get(Income_.description);
+        var expenseDescriptionPath = expenseListJoin.get(Expense_.description);
+        var incomeCategoryNamePath = incomeCategoryJoin.get(IncomeCategory_.name);
+        var expenseCategoryNamePath = expenseCategoryJoin.get(ExpenseCategory_.name);
 
-      return cb.or(
-          cb.like(cb.lower(incomeDescriptionPath), pattern),
-          cb.like(cb.lower(expenseDescriptionPath), pattern),
-          cb.like(cb.lower(incomeCategoryNamePath), pattern),
-          cb.like(cb.lower(expenseCategoryNamePath), pattern)
-      );
+        return cb.or(
+            cb.and(
+                incomeCategoryIdPath.in(incCategoryIds),
+                cb.or(
+                    cb.like(cb.lower(incomeDescriptionPath), pattern),
+                    cb.like(cb.lower(incomeCategoryNamePath), pattern))),
+            cb.and(
+                expenseCategoryIdPath.in(expCategoryIds),
+                cb.or(
+                    cb.like(cb.lower(expenseDescriptionPath), pattern),
+                    cb.like(cb.lower(expenseCategoryNamePath), pattern))),
+            cb.and(incomeListJoin.isNull(), expenseListJoin.isNull())
+        );
+      } else {
+        return cb.or(
+            incomeCategoryIdPath.in(incCategoryIds),
+            expenseCategoryIdPath.in(expCategoryIds),
+            cb.and(incomeListJoin.isNull(), expenseListJoin.isNull())
+        );
+      }
     };
   }
 

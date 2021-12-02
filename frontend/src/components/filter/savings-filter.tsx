@@ -30,16 +30,16 @@ const useStyles = makeStyles((theme: Theme) =>
       minHeight: 80,
     },
     inputField: {
-      width: 110,
+      minWidth: 100,
       marginRight: theme.spacing(3)
     },
     searchField: {
-      minWidth: 110,
+      minWidth: 150,
       maxWidth: 200,
       marginRight: theme.spacing(3)
     },
     categoriesField: {
-      minWidth: 170,
+      minWidth: 200,
       maxWidth: 300,
       marginRight: theme.spacing(3)
     }
@@ -104,24 +104,34 @@ const SavingsFilter: React.FC = () => {
   };
 
   const handleSelectIncomeCategories = () => {
-    const checkedIncCategoryIds = selectedIncomeCategories.filter(({isChecked}) => isChecked).map(({id}) => id);
-    if (!arrayEquals(savingsFilter.incomeCategoryIds, checkedIncCategoryIds)) {
-      change({
-        ...savingsFilter,
-        incomeCategoryIds: checkedIncCategoryIds
-      });
-    }
+    handleSelectCategories(selectedIncomeCategories, incomeCategories, 'incomeCategoryIds');
   };
 
   const handleSelectExpenseCategories = () => {
-    const checkedExpCategoryIds = selectedExpenseCategories.filter(({isChecked}) => isChecked).map(({id}) => id);
-    if (!arrayEquals(savingsFilter.expenseCategoryIds, checkedExpCategoryIds)) {
+    handleSelectCategories(selectedExpenseCategories, expenseCategories, 'expenseCategoryIds');
+  };
+
+  const handleSelectCategories = (selectedCategories: OperationCategory[],
+                                  categories: OperationCategory[],
+                                  categoriesKey: string) => {
+    const checkedExpCategoryIds = selectedCategories.filter(({isChecked}) => isChecked).map(({id}) => id);
+    const categoryIds = categories.map(({id}) => id);
+    const filterCategoryIds = savingsFilter[categoriesKey as keyof SavingsFilterParams] as number[];
+
+    if (arrayEquals(categoryIds, checkedExpCategoryIds)) {
+      if (filterCategoryIds.length > 0) {
+        change({
+          ...savingsFilter,
+          [categoriesKey]: []
+        });
+      }
+    } else if (!arrayEquals(filterCategoryIds, checkedExpCategoryIds)) {
       change({
         ...savingsFilter,
-        expenseCategoryIds: checkedExpCategoryIds
+        [categoriesKey]: checkedExpCategoryIds
       });
     }
-  };
+  }
 
   const handleChangeSearchText = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchText(event.target.value)

@@ -12,6 +12,7 @@ import java.util.function.BiFunction;
 import javax.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -61,19 +62,8 @@ public class SavingServiceImpl implements SavingService {
     var expCategories =
         expenseCategoryService.findAllAndSetChecked(criteria.getExpenseCategoryIds());
 
-    if (CollectionUtils.isEmpty(criteria.getIncomeCategoryIds())) {
-      criteria.setIncomeCategoryIds(incCategories.stream()
-          .filter(OperationCategoryResponseDto::isChecked)
-          .map(OperationCategoryResponseDto::getId)
-          .toList());
-    }
-    if (CollectionUtils.isEmpty(criteria.getExpenseCategoryIds())) {
-      criteria.setExpenseCategoryIds(expCategories.stream()
-          .filter(OperationCategoryResponseDto::isChecked)
-          .map(OperationCategoryResponseDto::getId)
-          .toList());
-    }
-    Specification<Saving> criteriaAsSpec = applySavingCriteria(criteria);
+    Specification<Saving> criteriaAsSpec =
+        applySavingCriteria(criteria, incCategories, expCategories);
 
     Page<Saving> page = savingRepository.findAll(criteriaAsSpec,
         PageRequest.of(
@@ -81,19 +71,22 @@ public class SavingServiceImpl implements SavingService {
             criteria.getPageSize(),
             Sort.by(criteria.getSortDirection(),
                 criteria.getSortBy().getFieldName())));
-    var content = page.getContent();
+    var savings = page.getContent();
 
-    fillOperationsInSavingsExplicitly(content, criteria);
+    // Saving search filters only by savings and returns all operations of each found saving,
+    // even they don't match with the search text.
+    // Find operations by saving ids and the criteria and set explicitly
+    fillOperationsExplicitlyForSearchByText(savings, criteria);
 
     List<SavingResponseDto> result;
     if (criteria.getGroupBy() != Period.DAY) {
-      result = savingGroupMapper.toGroupDtos(content, criteria.getGroupBy());
+      result = savingGroupMapper.toGroupDtos(savings, criteria.getGroupBy());
     } else {
-      result = savingMapper.toDtos(content);
+      result = savingMapper.toDtos(savings);
     }
 
     return SavingSearchResultDto
-        .<SavingResponseDto>builder()
+        .builder()
         .result(result)
         .totalElements(page.getTotalElements())
         .incomeCategories(incCategories)
@@ -174,14 +167,12 @@ public class SavingServiceImpl implements SavingService {
     recalculateOthersFunc.recalculate(value, date, currentAccountId);
   }
 
-  /**
-   * Fill incomes and expenses in all savings explicitly to remove unnecessary results.
-   *
-   * @param savings    savings
-   * @param criteriaDto the criteria
-   */
-  private void fillOperationsInSavingsExplicitly(List<Saving> savings,
-                                                 SavingCriteriaDto criteriaDto) {
+  private void fillOperationsExplicitlyForSearchByText(List<Saving> savings,
+                                                       SavingCriteriaDto criteriaDto) {
+    if (StringUtils.isBlank(criteriaDto.getSearchText())) {
+      return;
+    }
+
     var savingIds = savings.stream().map(Saving::getId).toList();
     var incomeMap = new HashMap<Long, List<Income>>();
     var expenseMap = new HashMap<Long, List<Expense>>();
@@ -218,20 +209,35 @@ public class SavingServiceImpl implements SavingService {
     });
   }
 
-  private Specification<Saving> applySavingCriteria(SavingCriteriaDto criteria) {
+  private Specification<Saving> applySavingCriteria(
+      SavingCriteriaDto criteria,
+      List<OperationCategoryResponseDto> incCategories,
+      List<OperationCategoryResponseDto> expCategories) {
     var currentUser = userService.getCurrentUser();
     var currentAccountId = currentUser.getCurrentAccount().getId();
 
     Specification<Saving> criteriaAsSpec = SavingSpec.accountIdEq(currentAccountId);
 
-    criteriaAsSpec = criteriaAsSpec.and(SavingSpec.categoryIdIn(
-        criteria.getIncomeCategoryIds(),
-        criteria.getExpenseCategoryIds()));
+    if (CollectionUtils.isNotEmpty(criteria.getIncomeCategoryIds())
+        || CollectionUtils.isNotEmpty(criteria.getExpenseCategoryIds())
+        || StringUtils.isNotBlank(criteria.getSearchText())) {
 
-    criteriaAsSpec = andOptionally(
-        criteriaAsSpec,
-        SavingSpec::matchBySearchText,
-        criteria.getSearchText());
+      var selectedIncCategoryIds = incCategories.stream()
+          .filter(OperationCategoryResponseDto::isChecked)
+          .map(OperationCategoryResponseDto::getId)
+          .toList();
+
+      var selectedExpCategoryIds = expCategories.stream()
+          .filter(OperationCategoryResponseDto::isChecked)
+          .map(OperationCategoryResponseDto::getId)
+          .toList();
+
+      criteriaAsSpec = criteriaAsSpec.and(SavingSpec.filterBySearchTextAndCategoryIds(
+          selectedIncCategoryIds,
+          selectedExpCategoryIds,
+          criteria.getSearchText())
+      );
+    }
 
     LocalDate from = criteria.getFrom();
     LocalDate to = criteria.getTo();
