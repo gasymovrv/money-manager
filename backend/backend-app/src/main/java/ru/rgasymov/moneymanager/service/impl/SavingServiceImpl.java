@@ -73,10 +73,7 @@ public class SavingServiceImpl implements SavingService {
                 criteria.getSortBy().getFieldName())));
     var savings = page.getContent();
 
-    // Saving search filters only by savings and returns all operations of each found saving,
-    // even they don't match with the search text.
-    // Find operations by saving ids and the criteria and set explicitly
-    fillOperationsExplicitlyForSearchByText(savings, criteria);
+    fillOperationsExplicitly(savings, criteria);
 
     List<SavingResponseDto> result;
     if (criteria.getGroupBy() != Period.DAY) {
@@ -167,9 +164,21 @@ public class SavingServiceImpl implements SavingService {
     recalculateOthersFunc.recalculate(value, date, currentAccountId);
   }
 
-  private void fillOperationsExplicitlyForSearchByText(List<Saving> savings,
-                                                       SavingCriteriaDto criteriaDto) {
-    if (StringUtils.isBlank(criteriaDto.getSearchText())) {
+  /**
+   * Search criteria like filter by categories or search by text require to
+   * remove some results (operations) from rows (savings).
+   * <br/>
+   * This method helps to remove unnecessary operations through
+   * searching operations explicitly and replacing them in found savings.
+   *
+   * @param savings  filtered list of savings
+   * @param criteria search criteria
+   */
+  private void fillOperationsExplicitly(List<Saving> savings,
+                                        SavingCriteriaDto criteria) {
+    if (CollectionUtils.isEmpty(criteria.getIncomeCategoryIds())
+        && CollectionUtils.isEmpty(criteria.getExpenseCategoryIds())
+        && StringUtils.isBlank(criteria.getSearchText())) {
       return;
     }
 
@@ -177,7 +186,7 @@ public class SavingServiceImpl implements SavingService {
     var incomeMap = new HashMap<Long, List<Income>>();
     var expenseMap = new HashMap<Long, List<Expense>>();
 
-    incomeRepository.findAll(applyIncomeCriteria(savingIds, criteriaDto))
+    incomeRepository.findAll(applyIncomeCriteria(savingIds, criteria))
         .forEach(inc -> {
           ArrayList<Income> value = new ArrayList<>();
           value.add(inc);
@@ -188,7 +197,7 @@ public class SavingServiceImpl implements SavingService {
               });
         });
 
-    expenseRepository.findAll(applyExpenseCriteria(savingIds, criteriaDto))
+    expenseRepository.findAll(applyExpenseCriteria(savingIds, criteria))
         .forEach(exp -> {
           ArrayList<Expense> value = new ArrayList<>();
           value.add(exp);
@@ -249,20 +258,20 @@ public class SavingServiceImpl implements SavingService {
   }
 
   private Specification<Income> applyIncomeCriteria(List<Long> savingIds,
-                                                    SavingCriteriaDto criteriaDto) {
+                                                    SavingCriteriaDto criteria) {
     Specification<Income> incomeSpec = BaseOperationSpec.savingIdIn(savingIds);
     incomeSpec =
-        andOptionally(incomeSpec, IncomeSpec::matchBySearchText, criteriaDto.getSearchText());
-    return andOptionally(incomeSpec, IncomeSpec::categoryIdIn, criteriaDto.getIncomeCategoryIds());
+        andOptionally(incomeSpec, IncomeSpec::matchBySearchText, criteria.getSearchText());
+    return andOptionally(incomeSpec, IncomeSpec::categoryIdIn, criteria.getIncomeCategoryIds());
   }
 
   private Specification<Expense> applyExpenseCriteria(List<Long> savingIds,
-                                                      SavingCriteriaDto criteriaDto) {
+                                                      SavingCriteriaDto criteria) {
     Specification<Expense> expenseSpec = BaseOperationSpec.savingIdIn(savingIds);
     expenseSpec =
-        andOptionally(expenseSpec, ExpenseSpec::matchBySearchText, criteriaDto.getSearchText());
+        andOptionally(expenseSpec, ExpenseSpec::matchBySearchText, criteria.getSearchText());
     return andOptionally(expenseSpec, ExpenseSpec::categoryIdIn,
-        criteriaDto.getExpenseCategoryIds());
+        criteria.getExpenseCategoryIds());
   }
 
   interface RecalculateFunc {
