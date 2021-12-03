@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import {
   Button,
   Checkbox,
@@ -15,14 +15,15 @@ import { createStyles, Theme } from '@material-ui/core/styles';
 import { DatePicker, MuiPickersUtilsProvider } from '@material-ui/pickers';
 import MomentUtils from '@date-io/moment';
 import { Period, SortDirection } from '../../interfaces/common.interface';
-import { SavingFieldToSort, SavingsFilterParams } from '../../interfaces/saving.interface';
+import { SavingFieldToSort, SavingsFilterParams, SavingsFilterParamsMap } from '../../interfaces/saving.interface';
 import { DATE_FORMAT } from '../../constants';
 import { useDispatch, useSelector } from 'react-redux';
 import { changeFilter, resetFilter } from '../../actions/savings-filter.actions';
 import moment from 'moment/moment';
 import { MainTableState } from '../../interfaces/main-table.interface';
 import { OperationCategory } from '../../interfaces/operation.interface';
-import { arrayEquals } from '../../helpers/common.helper';
+import { arrayEquals, getSavingsFilter } from '../../helpers/common.helper';
+import { AuthContext } from '../../interfaces/auth-context.interface';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -48,11 +49,13 @@ const useStyles = makeStyles((theme: Theme) =>
 
 const SavingsFilter: React.FC = () => {
   const classes = useStyles();
+  const accountId = useContext(AuthContext).user.currentAccount.id;
   const {incomeCategories, expenseCategories}: MainTableState = useSelector(({mainTable}: any) => mainTable);
-  const savingsFilter: SavingsFilterParams = useSelector(({savingsFilter}: any) => savingsFilter);
+  const savingsFilterMap: SavingsFilterParamsMap = useSelector(({savingsFilterMap}: any) => savingsFilterMap);
+  const savingsFilter = getSavingsFilter(accountId, savingsFilterMap);
 
   const dispatch = useDispatch();
-  const change = (activeFilter: SavingsFilterParams) => dispatch(changeFilter(activeFilter))
+  const change = (activeFilter: SavingsFilterParamsMap) => dispatch(changeFilter(activeFilter))
   const reset = () => dispatch(resetFilter())
 
   const [searchText, setSearchText] = useState<string | undefined>(savingsFilter.searchText);
@@ -66,31 +69,43 @@ const SavingsFilter: React.FC = () => {
     .map(({name}) => name);
 
   const handleChangeFrom = (date: any) => {
+    const newFilterMap = {...savingsFilterMap};
     if (!date) {
-      change({...savingsFilter, from: undefined});
+      newFilterMap[accountId] = {...savingsFilter, from: undefined};
+      change(newFilterMap);
     } else {
-      change({...savingsFilter, from: moment(date).format(DATE_FORMAT)});
+      newFilterMap[accountId] = {...savingsFilter, from: moment(date).format(DATE_FORMAT)};
+      change(newFilterMap);
     }
   }
 
   const handleChangeTo = (date: any) => {
+    const newFilterMap = {...savingsFilterMap};
     if (!date) {
-      change({...savingsFilter, to: undefined});
+      newFilterMap[accountId] = {...savingsFilter, to: undefined};
+      change(newFilterMap);
     } else {
-      change({...savingsFilter, to: moment(date).format(DATE_FORMAT)});
+      newFilterMap[accountId] = {...savingsFilter, to: moment(date).format(DATE_FORMAT)};
+      change(newFilterMap);
     }
   }
 
   const handleChangeSortDirection = (event: React.ChangeEvent<any>) => {
-    change({...savingsFilter, sortDirection: event.target.value});
+    const newFilterMap = {...savingsFilterMap};
+    newFilterMap[accountId] = {...savingsFilter, sortDirection: event.target.value};
+    change(newFilterMap);
   }
 
   const handleSortBy = (event: React.ChangeEvent<any>) => {
-    change({...savingsFilter, sortBy: event.target.value});
+    const newFilterMap = {...savingsFilterMap};
+    newFilterMap[accountId] = {...savingsFilter, sortBy: event.target.value};
+    change(newFilterMap);
   }
 
   const handleChangeGroupBy = (event: React.ChangeEvent<any>) => {
-    change({...savingsFilter, groupBy: event.target.value});
+    const newFilterMap = {...savingsFilterMap};
+    newFilterMap[accountId] = {...savingsFilter, groupBy: event.target.value};
+    change(newFilterMap);
   }
 
   const handleChangeIncomeCategories = (event: React.ChangeEvent<any>) => {
@@ -114,22 +129,25 @@ const SavingsFilter: React.FC = () => {
   const handleSelectCategories = (selectedCategories: OperationCategory[],
                                   categories: OperationCategory[],
                                   categoriesKey: string) => {
-    const checkedExpCategoryIds = selectedCategories.filter(({isChecked}) => isChecked).map(({id}) => id);
+    const checkedCategoryIds = selectedCategories.filter(({isChecked}) => isChecked).map(({id}) => id);
     const categoryIds = categories.map(({id}) => id);
     const filterCategoryIds = savingsFilter[categoriesKey as keyof SavingsFilterParams] as number[];
 
-    if (arrayEquals(categoryIds, checkedExpCategoryIds)) {
+    const newFilterMap = {...savingsFilterMap};
+    if (arrayEquals(categoryIds, checkedCategoryIds)) {
       if (filterCategoryIds.length > 0) {
-        change({
+        newFilterMap[accountId] = {
           ...savingsFilter,
           [categoriesKey]: []
-        });
+        };
+        change(newFilterMap);
       }
-    } else if (!arrayEquals(filterCategoryIds, checkedExpCategoryIds)) {
-      change({
+    } else if (!arrayEquals(filterCategoryIds, checkedCategoryIds)) {
+      newFilterMap[accountId] = {
         ...savingsFilter,
-        [categoriesKey]: checkedExpCategoryIds
-      });
+        [categoriesKey]: checkedCategoryIds
+      };
+      change(newFilterMap);
     }
   }
 
@@ -138,12 +156,16 @@ const SavingsFilter: React.FC = () => {
   }
 
   const handleClickOnSearch = () => {
-    change({...savingsFilter, searchText: searchText});
+    const newFilterMap = {...savingsFilterMap};
+    newFilterMap[accountId] = {...savingsFilter, searchText: searchText};
+    change(newFilterMap);
   }
 
   const handlePressEnterInSearchField = (event: React.KeyboardEvent<any>) => {
     if (event.key === 'Enter') {
-      change({...savingsFilter, searchText: searchText});
+      const newFilterMap = {...savingsFilterMap};
+      newFilterMap[accountId] = {...savingsFilter, searchText: searchText};
+      change(newFilterMap);
       event.preventDefault();
     }
   }

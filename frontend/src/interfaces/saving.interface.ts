@@ -87,6 +87,10 @@ export interface SavingsFilterParams {
   searchText?: string;
 }
 
+export interface SavingsFilterParamsMap {
+  [id: number]: SavingsFilterParams
+}
+
 export const defaultFilter: SavingsFilterParams = {
   sortBy: SavingFieldToSort.DATE,
   groupBy: Period.DAY,
@@ -94,3 +98,5 @@ export const defaultFilter: SavingsFilterParams = {
   incomeCategoryIds: [],
   expenseCategoryIds: []
 }
+
+export const defaultFilterMap: SavingsFilterParamsMap = {}

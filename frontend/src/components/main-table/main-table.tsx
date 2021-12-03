@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import {
   Grid,
   IconButton,
@@ -24,11 +24,13 @@ import MainTableEditableCategory from './main-table-editable-category';
 import { OperationCategory, OperationType } from '../../interfaces/operation.interface';
 import { fetchMainTable } from '../../services/async-dispatch.service';
 import { useDispatch, useSelector } from 'react-redux';
-import { SavingFieldToSort, SavingsFilterParams } from '../../interfaces/saving.interface';
+import { SavingFieldToSort, SavingsFilterParamsMap } from '../../interfaces/saving.interface';
 import { changePagination } from '../../actions/pagination.actions';
 import { changeShowingCategories } from '../../actions/show-categories.actions';
 import { Period } from '../../interfaces/common.interface';
 import moment from 'moment';
+import { AuthContext } from '../../interfaces/auth-context.interface';
+import { getSavingsFilter } from '../../helpers/common.helper';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -78,7 +80,10 @@ const useStyles = makeStyles((theme: Theme) =>
 const MainTable: React.FC = () => {
   const classes = useStyles();
 
-  const savingsFilter: SavingsFilterParams = useSelector(({savingsFilter}: any) => savingsFilter);
+  const accountId = useContext(AuthContext).user.currentAccount.id;
+  const savingsFilterMap: SavingsFilterParamsMap = useSelector(({savingsFilterMap}: any) => savingsFilterMap);
+  const savingsFilter = getSavingsFilter(accountId, savingsFilterMap);
+
   const pagination: PaginationParams = useSelector(({pagination}: any) => pagination);
   const {
     showExpenseCategories,
@@ -257,7 +262,7 @@ const MainTable: React.FC = () => {
 
           <TableBody>
             {rows.map((row: Row, i) => {
-              const nextRowIndex = i + 1;
+                const nextRowIndex = i + 1;
                 let nextRowPeriod: number | undefined;
                 if (savingsFilter.sortBy === SavingFieldToSort.DATE
                   && rows.length > nextRowIndex) {

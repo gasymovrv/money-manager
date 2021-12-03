@@ -1,15 +1,17 @@
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField } from '@material-ui/core';
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { AddOperationCategoryProps, DialogProps } from '../../interfaces/common.interface';
 import { WithAddIncomeCategoryActions } from '../../hocs/with-add-income-category-actions';
 import { WithAddExpenseCategoryActions } from '../../hocs/with-add-expense-category-actions';
 import { useDispatch, useSelector } from 'react-redux';
-import { SavingsFilterParams } from '../../interfaces/saving.interface';
+import { SavingsFilterParamsMap } from '../../interfaces/saving.interface';
 import { PaginationParams } from '../../interfaces/main-table.interface';
 import { fetchMainTable } from '../../services/async-dispatch.service';
 import { showSuccess } from '../../actions/success.actions';
 import { showError } from '../../actions/error.actions';
 import { COMMON_ERROR_MSG } from '../../constants';
+import { AuthContext } from '../../interfaces/auth-context.interface';
+import { getSavingsFilter } from '../../helpers/common.helper';
 
 const AddOperationCategoryDialog: React.FC<DialogProps & AddOperationCategoryProps> = ({
                                                                                          open,
@@ -17,8 +19,10 @@ const AddOperationCategoryDialog: React.FC<DialogProps & AddOperationCategoryPro
                                                                                          addOperationCategory
                                                                                        }) => {
   const dispatch = useDispatch();
-  const savingsFilter: SavingsFilterParams = useSelector(({savingsFilter}: any) => savingsFilter);
   const paginationParams: PaginationParams = useSelector(({pagination}: any) => pagination);
+  const accountId = useContext(AuthContext).user.currentAccount.id;
+  const savingsFilterMap: SavingsFilterParamsMap = useSelector(({savingsFilterMap}: any) => savingsFilterMap);
+  const savingsFilter = getSavingsFilter(accountId, savingsFilterMap);
 
   const [name, setName] = useState<string>('New category');
 

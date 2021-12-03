@@ -1,5 +1,5 @@
 import { Button, Dialog, DialogActions, DialogTitle } from '@material-ui/core';
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { EditOperationDialogProps, EditOperationProps } from '../../interfaces/common.interface';
 import moment from 'moment';
 import CommonOperationDialog from './common-operation.dialog';
@@ -8,11 +8,13 @@ import { WithEditExpenseActions } from '../../hocs/with-edit-expense-actions';
 import { COMMON_ERROR_MSG, DATE_FORMAT } from '../../constants';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchMainTable } from '../../services/async-dispatch.service';
-import { SavingsFilterParams } from '../../interfaces/saving.interface';
+import { SavingsFilterParamsMap } from '../../interfaces/saving.interface';
 import { PaginationParams } from '../../interfaces/main-table.interface';
 import { showSuccess } from '../../actions/success.actions';
 import { showError } from '../../actions/error.actions';
 import { isPastOrToday } from '../../helpers/date.helper';
+import { AuthContext } from '../../interfaces/auth-context.interface';
+import { getSavingsFilter } from '../../helpers/common.helper';
 
 const EditOperationDialog: React.FC<EditOperationDialogProps & EditOperationProps> = ({
                                                                                         operation,
@@ -23,8 +25,10 @@ const EditOperationDialog: React.FC<EditOperationDialogProps & EditOperationProp
                                                                                         deleteOperation
                                                                                       }) => {
   const dispatch = useDispatch();
-  const savingsFilter: SavingsFilterParams = useSelector(({savingsFilter}: any) => savingsFilter);
   const paginationParams: PaginationParams = useSelector(({pagination}: any) => pagination);
+  const accountId = useContext(AuthContext).user.currentAccount.id;
+  const savingsFilterMap: SavingsFilterParamsMap = useSelector(({savingsFilterMap}: any) => savingsFilterMap);
+  const savingsFilter = getSavingsFilter(accountId, savingsFilterMap);
 
   const [value, setValue] = useState<number>(operation.value);
   const [description, setDescription] = useState<string>(operation.description || '');
