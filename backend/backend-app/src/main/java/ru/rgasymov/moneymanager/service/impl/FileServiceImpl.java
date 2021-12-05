@@ -2,7 +2,6 @@ package ru.rgasymov.moneymanager.service.impl;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -16,18 +15,14 @@ import org.springframework.web.multipart.MultipartFile;
 import ru.rgasymov.moneymanager.domain.XlsxInputData;
 import ru.rgasymov.moneymanager.domain.XlsxParsingResult;
 import ru.rgasymov.moneymanager.domain.dto.request.SavingCriteriaDto;
-import ru.rgasymov.moneymanager.domain.dto.response.OperationCategoryResponseDto;
-import ru.rgasymov.moneymanager.domain.dto.response.SavingResponseDto;
 import ru.rgasymov.moneymanager.domain.entity.ExpenseCategory;
 import ru.rgasymov.moneymanager.domain.entity.IncomeCategory;
 import ru.rgasymov.moneymanager.exception.EmptyDataGenerationException;
 import ru.rgasymov.moneymanager.exception.UploadFileException;
 import ru.rgasymov.moneymanager.repository.ExpenseCategoryRepository;
 import ru.rgasymov.moneymanager.repository.IncomeCategoryRepository;
-import ru.rgasymov.moneymanager.service.ExpenseCategoryService;
 import ru.rgasymov.moneymanager.service.ExpenseService;
 import ru.rgasymov.moneymanager.service.FileService;
-import ru.rgasymov.moneymanager.service.IncomeCategoryService;
 import ru.rgasymov.moneymanager.service.IncomeService;
 import ru.rgasymov.moneymanager.service.SavingService;
 import ru.rgasymov.moneymanager.service.UserService;
@@ -52,10 +47,6 @@ public class FileServiceImpl implements FileService {
   private final IncomeService incomeService;
 
   private final ExpenseService expenseService;
-
-  private final IncomeCategoryService incomeCategoryService;
-
-  private final ExpenseCategoryService expenseCategoryService;
 
   @Transactional(propagation = Propagation.NEVER)
   @Override
@@ -108,14 +99,17 @@ public class FileServiceImpl implements FileService {
   public ResponseEntity<Resource> exportToXlsx() {
     var criteria = new SavingCriteriaDto();
     criteria.setPageSize(MAX_SAVINGS);
-    List<SavingResponseDto> savings = savingService.search(criteria).getResult();
-    List<OperationCategoryResponseDto> incCategories = incomeCategoryService.findAll();
-    List<OperationCategoryResponseDto> expCategories = expenseCategoryService.findAll();
+    var result = savingService.search(criteria);
+    var savings = result.getResult();
     if (CollectionUtils.isEmpty(savings)) {
       throw new EmptyDataGenerationException("There is no data in current account to export");
     }
 
-    return xlsxFileService.generate(new XlsxInputData(savings, incCategories, expCategories));
+    return xlsxFileService.generate(
+        new XlsxInputData(
+            savings,
+            result.getIncomeCategories(),
+            result.getExpenseCategories()));
   }
 
   @Override

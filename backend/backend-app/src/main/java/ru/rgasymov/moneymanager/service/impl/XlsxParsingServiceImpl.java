@@ -14,9 +14,13 @@ import java.util.List;
 import java.util.Optional;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
@@ -68,6 +72,13 @@ public class XlsxParsingServiceImpl implements XlsxParsingService {
    * Savings column name.
    */
   private static final String SAVINGS_COLUMN_NAME = "Savings";
+
+  /**
+   * Pattern to parse complex comment
+   * created for several operations with the same date.
+   */
+  private static final Pattern MULTI_OPERATIONS_COMMENT_PATTERN =
+      Pattern.compile("(.*?)\\(?([0-9.]+)\\)?;");
 
   private final UserService userService;
 
@@ -149,26 +160,31 @@ public class XlsxParsingServiceImpl implements XlsxParsingService {
 
         var today = LocalDate.now();
         if (incomeCategory != null && cellValue != 0) {
-          var inc = Income.builder()
-              .date(date)
-              .value(new BigDecimal(cellValue))
-              .isPlanned(date.isAfter(today))
-              .category(incomeCategory)
-              .description(cellComment)
-              .account(currentAccount)
-              .build();
-          incomes.add(inc);
-
+          var incomesPerDay = buildOperationDrafts(cellValue, cellComment)
+              .stream()
+              .map(od -> Income.builder()
+                  .date(date)
+                  .value(od.value())
+                  .isPlanned(date.isAfter(today))
+                  .category(incomeCategory)
+                  .description(od.comment())
+                  .account(currentAccount)
+                  .build())
+              .toList();
+          incomes.addAll(incomesPerDay);
         } else if (expenseCategory != null && cellValue != 0) {
-          var exp = Expense.builder()
-              .date(date)
-              .value(new BigDecimal(cellValue))
-              .isPlanned(date.isAfter(today))
-              .category(expenseCategory)
-              .description(cellComment)
-              .account(currentAccount)
-              .build();
-          expenses.add(exp);
+          var expensesPerDay = buildOperationDrafts(cellValue, cellComment)
+              .stream()
+              .map(od -> Expense.builder()
+                  .date(date)
+                  .value(od.value())
+                  .isPlanned(date.isAfter(today))
+                  .category(expenseCategory)
+                  .description(od.comment())
+                  .account(currentAccount)
+                  .build())
+              .toList();
+          expenses.addAll(expensesPerDay);
         }
       }
     }
@@ -269,5 +285,54 @@ public class XlsxParsingServiceImpl implements XlsxParsingService {
         return;
       }
     }
+  }
+
+  private List<OperationDraft> buildOperationDrafts(double rawValue,
+                                                    String cellComment) {
+    var value = new BigDecimal(rawValue);
+
+    if (StringUtils.isNotBlank(cellComment)) {
+      var valuesFromComment = getValuesFromComment(cellComment);
+
+      //Make sure the sum of the values from the comment is equal to the cell value
+      if (CollectionUtils.isNotEmpty(valuesFromComment)
+          && value.compareTo(
+          valuesFromComment
+              .stream()
+              .map(OperationDraft::value)
+              .reduce(BigDecimal.ZERO, BigDecimal::add)) == 0) {
+        return valuesFromComment
+            .stream()
+            .map(cu -> new OperationDraft(cu.comment(), cu.value()))
+            .toList();
+      }
+    }
+    return List.of(new OperationDraft(cellComment, value));
+  }
+
+  private List<OperationDraft> getValuesFromComment(String cellComment) {
+    final Matcher matcher = MULTI_OPERATIONS_COMMENT_PATTERN.matcher(cellComment.trim());
+    final int textGroup = 1;
+    final int valueGroup = 2;
+
+    try {
+      List<OperationDraft> values = new ArrayList<>();
+      while (matcher.find()) {
+        var text = matcher.group(textGroup).trim();
+        values.add(
+            new OperationDraft(
+                text.isEmpty() ? null : text,
+                new BigDecimal(matcher.group(valueGroup))));
+      }
+      return values;
+    } catch (Exception e) {
+      log.error(
+          String.format("# XlsxParsingService: failed to parse comment of cell '%s'", cellComment),
+          e);
+      return List.of();
+    }
+  }
+
+  private static record OperationDraft(String comment, BigDecimal value) {
   }
 }

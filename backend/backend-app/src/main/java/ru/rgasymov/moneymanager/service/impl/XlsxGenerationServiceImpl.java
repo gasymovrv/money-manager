@@ -2,7 +2,6 @@ package ru.rgasymov.moneymanager.service.impl;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.temporal.ChronoField;
@@ -31,7 +30,6 @@ import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.core.io.ByteArrayResource;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import ru.rgasymov.moneymanager.domain.XlsxInputData;
@@ -90,10 +88,9 @@ public class XlsxGenerationServiceImpl implements XlsxGenerationService {
   private static final String COLLAPSED_COMMENT_SIMPLE = "%s; ";
 
   @Override
-  public Resource generate(String templatePath,
+  public Resource generate(Resource xlsxFile,
                            XlsxInputData data) throws IOException {
-    InputStream template = new ClassPathResource(templatePath).getInputStream();
-    var wb = new XSSFWorkbook(template);
+    var wb = new XSSFWorkbook(xlsxFile.getInputStream());
 
     //------- Set sheet name -------
     var minYearSaving = data.savings()
