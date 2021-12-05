@@ -6,7 +6,6 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.temporal.ChronoField;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -23,7 +22,6 @@ import org.apache.poi.ss.usermodel.Drawing;
 import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFRow;
@@ -41,6 +39,8 @@ import ru.rgasymov.moneymanager.service.XlsxGenerationService;
 @Service
 @Slf4j
 public class XlsxGenerationServiceImpl implements XlsxGenerationService {
+
+  private static final int TEMPLATE_SHEET_INDEX = 0;
 
   private static final int FIRST_ROW = 0;
 
@@ -92,21 +92,31 @@ public class XlsxGenerationServiceImpl implements XlsxGenerationService {
                            XlsxInputData data) throws IOException {
     var wb = new XSSFWorkbook(xlsxFile.getInputStream());
 
-    //------- Set sheet name -------
-    var minYearSaving = data.savings()
+    //------- Create sheets -------
+    data.savings()
         .stream()
-        .min(Comparator.comparing(SavingResponseDto::getDate));
-    var maxYearSaving = data.savings()
-        .stream()
-        .max(Comparator.comparing(SavingResponseDto::getDate));
-    if (minYearSaving.isPresent() && maxYearSaving.isPresent()) {
-      int minYear = minYearSaving.get().getDate().get(ChronoField.YEAR);
-      int maxYear = maxYearSaving.get().getDate().get(ChronoField.YEAR);
-      String sheetName = minYear == maxYear ? String.valueOf(minYear) : minYear + "-" + maxYear;
-      wb.setSheetName(0, sheetName);
-    }
-    var sheet = wb.getSheetAt(0);
+        .collect(Collectors.groupingBy(item -> item.getDate().get(ChronoField.YEAR)))
+        .forEach((year, savings) -> {
+          var sheet = wb.cloneSheet(TEMPLATE_SHEET_INDEX, year.toString());
 
+          fillSheet(
+              sheet,
+              data.incomeCategories(),
+              data.expenseCategories(),
+              savings);
+        });
+    wb.removeSheetAt(TEMPLATE_SHEET_INDEX);
+
+    try (wb; ByteArrayOutputStream os = new ByteArrayOutputStream()) {
+      wb.write(os);
+      return new ByteArrayResource(os.toByteArray());
+    }
+  }
+
+  private void fillSheet(XSSFSheet sheet,
+                         List<OperationCategoryResponseDto> incomeCategories,
+                         List<OperationCategoryResponseDto> expenseCategories,
+                         List<SavingResponseDto> savings) {
     XSSFRow firstRow = sheet.getRow(FIRST_ROW);
     XSSFRow categoriesRow = sheet.getRow(CATEGORIES_ROW);
     CellStyle headerStyle = firstRow.getCell(DATE_COL).getCellStyle();
@@ -116,7 +126,7 @@ public class XlsxGenerationServiceImpl implements XlsxGenerationService {
     var incColumnMap = new HashMap<String, Integer>();
     int incCategoryLastCol = createCategoriesHeader(
         START_DATA_COLUMN,
-        data.incomeCategories()
+        incomeCategories
             .stream()
             .map(OperationCategoryResponseDto::getName)
             .sorted()
@@ -133,7 +143,7 @@ public class XlsxGenerationServiceImpl implements XlsxGenerationService {
     var expColumnMap = new HashMap<String, Integer>();
     int expCategoryLastCol = createCategoriesHeader(
         incCategoryLastCol + 1,
-        data.expenseCategories()
+        expenseCategories
             .stream()
             .map(OperationCategoryResponseDto::getName)
             .sorted()
@@ -160,11 +170,11 @@ public class XlsxGenerationServiceImpl implements XlsxGenerationService {
     sheet.addMergedRegion(
         new CellRangeAddress(FIRST_ROW, CATEGORIES_ROW, savingsCol, savingsCol));
 
+
     //------------------------------ Create data rows --------------------------------------------
     createDataRows(
-        wb,
-        data,
         sheet,
+        savings,
         headerStyle,
         incCategoryLastCol,
         expCategoryLastCol,
@@ -172,16 +182,10 @@ public class XlsxGenerationServiceImpl implements XlsxGenerationService {
         incColumnMap,
         expColumnMap
     );
-
-    try (wb; ByteArrayOutputStream os = new ByteArrayOutputStream()) {
-      wb.write(os);
-      return new ByteArrayResource(os.toByteArray());
-    }
   }
 
-  private void createDataRows(Workbook workbook,
-                              XlsxInputData data,
-                              XSSFSheet sheet,
+  private void createDataRows(XSSFSheet sheet,
+                              List<SavingResponseDto> savings,
                               CellStyle headerStyle,
                               int incCategoryLastCol,
                               int expCategoryLastCol,
@@ -216,8 +220,8 @@ public class XlsxGenerationServiceImpl implements XlsxGenerationService {
     cell.setCellValue(PREV_SAVINGS_COLUMN_NAME);
     cell.setCellStyle(headerStyle);
     BigDecimal previousSavings = BigDecimal.ZERO;
-    for (SavingResponseDto saving : data.savings()) {
-      if (isPreviuosSaving(saving)) {
+    for (SavingResponseDto saving : savings) {
+      if (isPreviousSaving(saving)) {
         previousSavings = previousSavings.add(saving.getValue());
       }
     }
@@ -226,9 +230,11 @@ public class XlsxGenerationServiceImpl implements XlsxGenerationService {
 
 
     //------- Create incomes and expenses rows -------
+    var workbook = sheet.getWorkbook();
     int startRow = START_DATA_ROW;
-    for (SavingResponseDto dto : data.savings()) {
-      if (isPreviuosSaving(dto)) {
+
+    for (SavingResponseDto dto : savings) {
+      if (isPreviousSaving(dto)) {
         continue;
       }
       var row = sheet.createRow(startRow++);
@@ -261,17 +267,9 @@ public class XlsxGenerationServiceImpl implements XlsxGenerationService {
           .flatMap(Collection::stream)
           .forEach((inc) ->
               incomeMap.merge(inc.getCategory().getName(), inc, this::mergeOperations));
-      //Fill income cells
-      incomeMap.values().forEach(inc -> {
-        Integer colNumByCategory = incColumnMap.get(inc.getCategory().getName());
-        var incCell = row.getCell(colNumByCategory);
-        incCell.setCellValue(inc.getValue().doubleValue());
 
-        String description = inc.getDescription();
-        if (StringUtils.isNoneBlank(description)) {
-          addComment(workbook, sheet, incCell, description);
-        }
-      });
+      //Fill income cells
+      incomeMap.values().forEach(inc -> fillOperationCell(sheet, row, incColumnMap, inc));
 
       //Fill incomes sum cell
       cell = row.getCell(incCategoryLastCol);
@@ -285,17 +283,9 @@ public class XlsxGenerationServiceImpl implements XlsxGenerationService {
           .flatMap(Collection::stream)
           .forEach((exp) ->
               expenseMap.merge(exp.getCategory().getName(), exp, this::mergeOperations));
-      //Fill expense cells
-      expenseMap.values().forEach(exp -> {
-        Integer colNumByCategory = expColumnMap.get(exp.getCategory().getName());
-        var expCell = row.getCell(colNumByCategory);
-        expCell.setCellValue(exp.getValue().doubleValue());
 
-        String description = exp.getDescription();
-        if (StringUtils.isNoneBlank(description)) {
-          addComment(workbook, sheet, expCell, description);
-        }
-      });
+      //Fill expense cells
+      expenseMap.values().forEach(exp -> fillOperationCell(sheet, row, expColumnMap, exp));
 
       //Fill expenses sum cell
       cell = row.getCell(expCategoryLastCol);
@@ -317,18 +307,31 @@ public class XlsxGenerationServiceImpl implements XlsxGenerationService {
     }
   }
 
-  private boolean isPreviuosSaving(SavingResponseDto saving) {
+  private void fillOperationCell(XSSFSheet sheet,
+                                 XSSFRow row,
+                                 HashMap<String, Integer> operationColumnMap,
+                                 OperationResponseDto operation) {
+    Integer colNumByCategory = operationColumnMap.get(operation.getCategory().getName());
+    var cell = row.getCell(colNumByCategory);
+    cell.setCellValue(operation.getValue().doubleValue());
+
+    String description = operation.getDescription();
+    if (StringUtils.isNoneBlank(description)) {
+      addComment(sheet, cell, description);
+    }
+  }
+
+  private boolean isPreviousSaving(SavingResponseDto saving) {
     return MapUtils.isEmpty(saving.getIncomesByCategory())
         && MapUtils.isEmpty(saving.getExpensesByCategory());
   }
 
-  public void addComment(Workbook workbook,
-                         Sheet sheet,
+  public void addComment(Sheet sheet,
                          Cell cell,
                          String commentText) {
-    CreationHelper factory = workbook.getCreationHelper();
+    CreationHelper factory = sheet.getWorkbook().getCreationHelper();
     ClientAnchor anchor = factory.createClientAnchor();
-    //Show the comment box at the bottom right corner
+    //Show comment box in bottom right corner
     anchor
         .setCol1(cell.getColumnIndex() + 1); //the box of the comment starts at this given column...
     anchor.setCol2(cell.getColumnIndex() + 3); //...and ends at that given column
