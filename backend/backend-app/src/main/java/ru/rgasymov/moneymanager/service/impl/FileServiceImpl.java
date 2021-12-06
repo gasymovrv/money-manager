@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections.CollectionUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -32,7 +33,8 @@ import ru.rgasymov.moneymanager.service.XlsxFileService;
 @RequiredArgsConstructor
 public class FileServiceImpl implements FileService {
 
-  public static final int MAX_SAVINGS = 1_000_000;
+  @Value("${xlsx.max-exported-rows}")
+  private int maxExportedRows;
 
   private final XlsxFileService xlsxFileService;
 
@@ -98,7 +100,7 @@ public class FileServiceImpl implements FileService {
   @Override
   public ResponseEntity<Resource> exportToXlsx() {
     var criteria = new SavingCriteriaDto();
-    criteria.setPageSize(MAX_SAVINGS);
+    criteria.setPageSize(maxExportedRows);
     var result = savingService.search(criteria);
     var savings = result.getResult();
     if (CollectionUtils.isEmpty(savings)) {

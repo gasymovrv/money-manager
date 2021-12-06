@@ -7,6 +7,6 @@ import ru.rgasymov.moneymanager.domain.XlsxInputData;
 
 public interface XlsxGenerationService {
 
-  Resource generate(Resource xlsxFile,
+  Resource generate(Resource xlsxTemplateFile,
                     XlsxInputData data) throws IOException, InvalidFormatException;
 }

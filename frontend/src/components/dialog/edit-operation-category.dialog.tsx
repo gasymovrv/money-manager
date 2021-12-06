@@ -66,7 +66,7 @@ const EditOperationCategoryDialog:
   return (
     <Dialog maxWidth="xs" open={open} onClose={handleClose}>
 
-      <DialogTitle>Add category</DialogTitle>
+      <DialogTitle>Edit category</DialogTitle>
 
       <DialogContent>
         <TextField

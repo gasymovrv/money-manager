@@ -39,15 +39,15 @@ export const fetchMainTable = (paginationParams: PaginationParams,
       expenseCategories
         .filter(({isChecked}) => isChecked)
         .forEach(({name}: OperationCategory) => {
-        const expenses = expensesByCategory.get(name);
-        expenseLists.push(expenses);
-      })
+          const expenses = expensesByCategory.get(name);
+          expenseLists.push(expenses);
+        })
       incomeCategories
         .filter(({isChecked}) => isChecked)
         .forEach(({name}: OperationCategory) => {
-        const incomes = incomesByCategory.get(name);
-        incomeLists.push(incomes);
-      });
+          const incomes = incomesByCategory.get(name);
+          incomeLists.push(incomes);
+        });
 
       return {
         id,

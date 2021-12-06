@@ -1,13 +1,19 @@
-package ru.rgasymov.moneymanager.service.impl;
+package ru.rgasymov.moneymanager.service.impl.xlsx;
+
+import static ru.rgasymov.moneymanager.util.DateUtil.getDatesBetweenInclusive;
+import static ru.rgasymov.moneymanager.util.DateUtil.getFirstDateOfMonth;
+import static ru.rgasymov.moneymanager.util.DateUtil.getLastDateOfMonth;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.temporal.ChronoField;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.MapUtils;
@@ -15,18 +21,14 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.CellType;
-import org.apache.poi.ss.usermodel.ClientAnchor;
-import org.apache.poi.ss.usermodel.Comment;
-import org.apache.poi.ss.usermodel.CreationHelper;
-import org.apache.poi.ss.usermodel.Drawing;
 import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.util.CellRangeAddress;
-import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
@@ -40,12 +42,15 @@ import ru.rgasymov.moneymanager.service.XlsxGenerationService;
 @Slf4j
 public class XlsxGenerationServiceImpl implements XlsxGenerationService {
 
+  @Value("${xlsx.show-empty-rows}")
+  private boolean showEmptyRows;
+
   private static final int TEMPLATE_SHEET_INDEX = 0;
 
   private static final int FIRST_ROW = 0;
 
   /**
-   * Indexes of columns with style examples.
+   * Indexes of columns with style samples.
    */
   private static final int DATE_COL = 0;
   private static final int START_INC_COL = 1;
@@ -55,17 +60,18 @@ public class XlsxGenerationServiceImpl implements XlsxGenerationService {
   private static final int START_SAVING_COL = 5;
 
   /**
-   * Index of row with category names.
+   * Index of the row with category names.
    */
   private static final int CATEGORIES_ROW = 1;
 
   /**
-   * Index of first row with income or expense.
+   * Index of sample rows for income and expense.
    */
-  private static final int START_DATA_ROW = 3;
+  private static final int START_DATA_ROW_SAMPLE = 3;
+  private static final int START_DATA_ROW_BORDER_SAMPLE = 4;
 
   /**
-   * Index of first incomes column.
+   * Index of the first income column.
    */
   private static final int START_DATA_COLUMN = 1;
 
@@ -80,7 +86,7 @@ public class XlsxGenerationServiceImpl implements XlsxGenerationService {
   private static final String PREV_SAVINGS_COLUMN_NAME = "Previous savings";
 
   /**
-   * Index of previous savings row.
+   * Index of the previous savings row.
    */
   private static final int PREVIOUS_SAVINGS_ROW = 2;
 
@@ -88,9 +94,9 @@ public class XlsxGenerationServiceImpl implements XlsxGenerationService {
   private static final String COLLAPSED_COMMENT_SIMPLE = "%s; ";
 
   @Override
-  public Resource generate(Resource xlsxFile,
+  public Resource generate(Resource xlsxTemplateFile,
                            XlsxInputData data) throws IOException {
-    var wb = new XSSFWorkbook(xlsxFile.getInputStream());
+    final var wb = new XSSFWorkbook(xlsxTemplateFile.getInputStream());
 
     //------- Create sheets -------
     data.savings()
@@ -104,6 +110,11 @@ public class XlsxGenerationServiceImpl implements XlsxGenerationService {
               data.incomeCategories(),
               data.expenseCategories(),
               savings);
+
+          //Remove sample row if it's visible
+          if (savings.size() < 2 && !showEmptyRows) {
+            sheet.removeRow(sheet.getRow(START_DATA_ROW_BORDER_SAMPLE));
+          }
         });
     wb.removeSheetAt(TEMPLATE_SHEET_INDEX);
 
@@ -117,14 +128,14 @@ public class XlsxGenerationServiceImpl implements XlsxGenerationService {
                          List<OperationCategoryResponseDto> incomeCategories,
                          List<OperationCategoryResponseDto> expenseCategories,
                          List<SavingResponseDto> savings) {
-    XSSFRow firstRow = sheet.getRow(FIRST_ROW);
-    XSSFRow categoriesRow = sheet.getRow(CATEGORIES_ROW);
-    CellStyle headerStyle = firstRow.getCell(DATE_COL).getCellStyle();
+    final XSSFRow firstRow = sheet.getRow(FIRST_ROW);
+    final XSSFRow categoriesRow = sheet.getRow(CATEGORIES_ROW);
+    final CellStyle headerStyle = firstRow.getCell(DATE_COL).getCellStyle();
 
     //------------------------------ Create head rows --------------------------------------------
     //------- Create head columns for Incomes -----------
-    var incColumnMap = new HashMap<String, Integer>();
-    int incCategoryLastCol = createCategoriesHeader(
+    final var incColumnMap = new HashMap<String, Integer>();
+    final int incCategoryLastCol = createCategoriesHeader(
         START_DATA_COLUMN,
         incomeCategories
             .stream()
@@ -140,8 +151,8 @@ public class XlsxGenerationServiceImpl implements XlsxGenerationService {
     );
 
     //------- Create head columns for Expenses -----------
-    var expColumnMap = new HashMap<String, Integer>();
-    int expCategoryLastCol = createCategoriesHeader(
+    final var expColumnMap = new HashMap<String, Integer>();
+    final int expCategoryLastCol = createCategoriesHeader(
         incCategoryLastCol + 1,
         expenseCategories
             .stream()
@@ -157,8 +168,8 @@ public class XlsxGenerationServiceImpl implements XlsxGenerationService {
     );
 
     //------- Create head column for Savings -----------
-    int savingsCol = expCategoryLastCol + 1;
-    var headCell = firstRow.createCell(savingsCol, CellType.STRING);
+    final int savingsCol = expCategoryLastCol + 1;
+    final var headCell = firstRow.createCell(savingsCol, CellType.STRING);
     headCell.setCellValue(SAVINGS_COLUMN_NAME);
     headCell.setCellStyle(headerStyle);
 
@@ -169,7 +180,6 @@ public class XlsxGenerationServiceImpl implements XlsxGenerationService {
         new CellRangeAddress(FIRST_ROW, FIRST_ROW, incCategoryLastCol + 1, expCategoryLastCol));
     sheet.addMergedRegion(
         new CellRangeAddress(FIRST_ROW, CATEGORIES_ROW, savingsCol, savingsCol));
-
 
     //------------------------------ Create data rows --------------------------------------------
     createDataRows(
@@ -193,51 +203,42 @@ public class XlsxGenerationServiceImpl implements XlsxGenerationService {
                               HashMap<String, Integer> incColumnMap,
                               HashMap<String, Integer> expColumnMap) {
     //------- Get rows styles -------
-    CellStyle dateStyle = sheet.getRow(START_DATA_ROW).getCell(DATE_COL).getCellStyle();
-    CellStyle incStyle = sheet.getRow(START_DATA_ROW).getCell(START_INC_COL).getCellStyle();
-    CellStyle incSumStyle = sheet.getRow(START_DATA_ROW).getCell(START_INC_SUM_COL).getCellStyle();
-    CellStyle expStyle = sheet.getRow(START_DATA_ROW).getCell(START_EXP_COL).getCellStyle();
-    CellStyle expSumStyle = sheet.getRow(START_DATA_ROW).getCell(START_EXP_SUM_COL).getCellStyle();
-    CellStyle savingsStyle = sheet.getRow(START_DATA_ROW).getCell(START_SAVING_COL).getCellStyle();
+    final var styles = getStyles(sheet.getWorkbook(), START_DATA_ROW_SAMPLE);
 
     //------- Fill previous savings row -------
-    var prevSavingRow = sheet.createRow(PREVIOUS_SAVINGS_ROW);
+    final var prevSavingRow = sheet.createRow(PREVIOUS_SAVINGS_ROW);
     createStyledCells(
         prevSavingRow,
         savingsCol,
         incCategoryLastCol,
         expCategoryLastCol,
-        dateStyle,
-        savingsStyle,
-        incSumStyle,
-        expSumStyle,
-        incStyle,
-        expStyle,
+        styles,
         incColumnMap,
         expColumnMap
     );
-    XSSFCell cell = prevSavingRow.createCell(DATE_COL, CellType.STRING);
+    var cell = prevSavingRow.createCell(DATE_COL, CellType.STRING);
     cell.setCellValue(PREV_SAVINGS_COLUMN_NAME);
     cell.setCellStyle(headerStyle);
-    BigDecimal previousSavings = BigDecimal.ZERO;
-    for (SavingResponseDto saving : savings) {
-      if (isPreviousSaving(saving)) {
-        previousSavings = previousSavings.add(saving.getValue());
-      }
-    }
+
+    final var previousSavings = savings.stream()
+        .filter(this::isPreviousSaving)
+        .map(SavingResponseDto::getValue)
+        .reduce(BigDecimal.ZERO, BigDecimal::add);
+
     cell = prevSavingRow.getCell(savingsCol);
     cell.setCellValue(previousSavings.doubleValue());
 
-
     //------- Create incomes and expenses rows -------
-    var workbook = sheet.getWorkbook();
-    int startRow = START_DATA_ROW;
+    final var savingRows = handleSavings(savings, previousSavings);
 
-    for (SavingResponseDto dto : savings) {
-      if (isPreviousSaving(dto)) {
-        continue;
-      }
-      var row = sheet.createRow(startRow++);
+    var startRow = START_DATA_ROW_SAMPLE;
+    for (int i = 0; i < savingRows.size(); i++) {
+      final var savingRow = savingRows.get(i);
+      final var savingRowDate = savingRow.getDate();
+      final var row = sheet.createRow(startRow++);
+
+      //Define bottom borders of months
+      var isEndOfMonth = isEndOfMonth(savingRows, i, savingRowDate);
 
       //Create styled cells
       createStyledCells(
@@ -245,77 +246,75 @@ public class XlsxGenerationServiceImpl implements XlsxGenerationService {
           savingsCol,
           incCategoryLastCol,
           expCategoryLastCol,
-          dateStyle,
-          savingsStyle,
-          incSumStyle,
-          expSumStyle,
-          incStyle,
-          expStyle,
+          isEndOfMonth
+              ? getStyles(sheet.getWorkbook(), START_DATA_ROW_BORDER_SAMPLE)
+              : styles,
           incColumnMap,
           expColumnMap
       );
 
       //Fill date cell
-      cell = row.getCell(DATE_COL);
-      cell.setCellValue(dto.getDate());
-
-      //Get incomes by categories
-      var incomeMap = new HashMap<String, OperationResponseDto>();
-      dto.getIncomesByCategory()
-          .values()
-          .stream()
-          .flatMap(Collection::stream)
-          .forEach((inc) ->
-              incomeMap.merge(inc.getCategory().getName(), inc, this::mergeOperations));
+      var dataCell = row.getCell(DATE_COL);
+      dataCell.setCellValue(savingRowDate);
 
       //Fill income cells
-      incomeMap.values().forEach(inc -> fillOperationCell(sheet, row, incColumnMap, inc));
+      fillOperationCells(sheet, row, incColumnMap, savingRow.getIncomesByCategory());
 
       //Fill incomes sum cell
-      cell = row.getCell(incCategoryLastCol);
-      cell.setCellValue(dto.getIncomesSum().doubleValue());
-
-      //Get expenses by categories
-      var expenseMap = new HashMap<String, OperationResponseDto>();
-      dto.getExpensesByCategory()
-          .values()
-          .stream()
-          .flatMap(Collection::stream)
-          .forEach((exp) ->
-              expenseMap.merge(exp.getCategory().getName(), exp, this::mergeOperations));
+      dataCell = row.getCell(incCategoryLastCol);
+      dataCell.setCellValue(savingRow.getIncomesSum().doubleValue());
 
       //Fill expense cells
-      expenseMap.values().forEach(exp -> fillOperationCell(sheet, row, expColumnMap, exp));
+      fillOperationCells(sheet, row, expColumnMap, savingRow.getExpensesByCategory());
 
       //Fill expenses sum cell
-      cell = row.getCell(expCategoryLastCol);
-      cell.setCellValue(dto.getExpensesSum().doubleValue());
+      dataCell = row.getCell(expCategoryLastCol);
+      dataCell.setCellValue(savingRow.getExpensesSum().doubleValue());
 
       //Fill saving cell
-      cell = row.getCell(savingsCol);
-      cell.setCellValue(dto.getValue().doubleValue());
+      dataCell = row.getCell(savingsCol);
+      dataCell.setCellValue(savingRow.getValue().doubleValue());
 
-      if (dto.getDate().equals(LocalDate.now())) {
-        cell = row.createCell(savingsCol + 1, CellType.STRING);
-        cell.setCellValue("Download date");
+      //Mark current date
+      if (savingRowDate.equals(LocalDate.now())) {
+        dataCell = row.createCell(savingsCol + 1, CellType.STRING);
+        dataCell.setCellValue("Download date");
 
-        CellStyle style = workbook.createCellStyle();
+        final var style = sheet.getWorkbook().createCellStyle();
         style.setFillForegroundColor(IndexedColors.RED.getIndex());
         style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-        cell.setCellStyle(style);
+        dataCell.setCellStyle(style);
       }
     }
+  }
+
+  private void fillOperationCells(XSSFSheet sheet,
+                                  XSSFRow row,
+                                  HashMap<String, Integer> operationsColumnMap,
+                                  Map<String, List<OperationResponseDto>> operationsByCategory) {
+    //Get incomes by categories
+    final var operationsFlatMap = new HashMap<String, OperationResponseDto>();
+    operationsByCategory
+        .values()
+        .stream()
+        .flatMap(Collection::stream)
+        .forEach((inc) ->
+            operationsFlatMap.merge(inc.getCategory().getName(), inc, this::mergeOperations));
+
+    //Fill income cells
+    operationsFlatMap.values()
+        .forEach(inc -> fillOperationCell(sheet, row, operationsColumnMap, inc));
   }
 
   private void fillOperationCell(XSSFSheet sheet,
                                  XSSFRow row,
                                  HashMap<String, Integer> operationColumnMap,
                                  OperationResponseDto operation) {
-    Integer colNumByCategory = operationColumnMap.get(operation.getCategory().getName());
-    var cell = row.getCell(colNumByCategory);
+    final var colNumByCategory = operationColumnMap.get(operation.getCategory().getName());
+    final var cell = row.getCell(colNumByCategory);
     cell.setCellValue(operation.getValue().doubleValue());
 
-    String description = operation.getDescription();
+    final var description = operation.getDescription();
     if (StringUtils.isNoneBlank(description)) {
       addComment(sheet, cell, description);
     }
@@ -329,8 +328,8 @@ public class XlsxGenerationServiceImpl implements XlsxGenerationService {
   public void addComment(Sheet sheet,
                          Cell cell,
                          String commentText) {
-    CreationHelper factory = sheet.getWorkbook().getCreationHelper();
-    ClientAnchor anchor = factory.createClientAnchor();
+    final var factory = sheet.getWorkbook().getCreationHelper();
+    final var anchor = factory.createClientAnchor();
     //Show comment box in bottom right corner
     anchor
         .setCol1(cell.getColumnIndex() + 1); //the box of the comment starts at this given column...
@@ -338,8 +337,8 @@ public class XlsxGenerationServiceImpl implements XlsxGenerationService {
     anchor.setRow1(cell.getRowIndex() + 1); //one row below the cell...
     anchor.setRow2(cell.getRowIndex() + 5); //...and 4 rows high
 
-    Drawing<?> drawing = sheet.createDrawingPatriarch();
-    Comment comment = drawing.createCellComment(anchor);
+    final var drawing = sheet.createDrawingPatriarch();
+    final var comment = drawing.createCellComment(anchor);
     //set the comment text and author
     comment.setString(factory.createRichTextString(commentText));
 
@@ -374,14 +373,15 @@ public class XlsxGenerationServiceImpl implements XlsxGenerationService {
                                  int savingsCol,
                                  int incCategoryCol,
                                  int expCategoryCol,
-                                 CellStyle dateStyle,
-                                 CellStyle savingsStyle,
-                                 CellStyle incSumStyle,
-                                 CellStyle expSumStyle,
-                                 CellStyle incStyle,
-                                 CellStyle expStyle,
+                                 Styles styles,
                                  HashMap<String, Integer> incColumnMap,
                                  HashMap<String, Integer> expColumnMap) {
+    final CellStyle dateStyle = styles.dateStyle();
+    final CellStyle savingsStyle = styles.savingsStyle();
+    final CellStyle incSumStyle = styles.incSumStyle();
+    final CellStyle expSumStyle = styles.expSumStyle();
+    final CellStyle incStyle = styles.incStyle();
+    final CellStyle expStyle = styles.expStyle();
     int startColNum = DATE_COL;
 
     //Create date cell
@@ -455,5 +455,116 @@ public class XlsxGenerationServiceImpl implements XlsxGenerationService {
     collapseComments(dto1, dto2);
     dto1.setValue(dto1.getValue().add(dto2.getValue()));
     return dto1;
+  }
+
+  private List<SavingResponseDto> handleSavings(
+      final List<SavingResponseDto> savings, BigDecimal previousSavings) {
+    //Remove previous saving value to resolve possible conflicts between empty rows
+    var savingRows = savings.stream()
+        .filter(dto -> !isPreviousSaving(dto))
+        .toList();
+    if (!showEmptyRows) {
+      return savingRows;
+    }
+
+    //------- Add empty rows to fill every day in month -------
+    var savingRowsByDate = savingRows
+        .stream()
+        .collect(Collectors.groupingBy(SavingResponseDto::getDate));
+
+    final var firstDate =
+        savingRows.stream().map(SavingResponseDto::getDate)
+            .min(LocalDate::compareTo)
+            .orElse(LocalDate.now());
+
+    final var lastDate =
+        savingRows.stream().map(SavingResponseDto::getDate)
+            .max(LocalDate::compareTo)
+            .orElse(LocalDate.now());
+
+    var allDates = getDatesBetweenInclusive(
+        getFirstDateOfMonth(firstDate),
+        getLastDateOfMonth(lastDate));
+
+    //It's for filling the 'Savings' column in empty rows
+    var lastSavingValue = previousSavings.compareTo(BigDecimal.ZERO) == 0
+        ? savingRowsByDate.get(firstDate)
+        .stream()
+        .findFirst()
+        .map(SavingResponseDto::getValue)
+        .orElse(BigDecimal.ZERO)
+        : previousSavings;
+
+    var result = new ArrayList<SavingResponseDto>();
+
+    for (var date : allDates) {
+      final var savingsPerDay = savingRowsByDate.get(date);
+
+      if (savingsPerDay == null) {
+        //Empty row
+        result.add(
+            SavingResponseDto.builder()
+                .date(date)
+                .value(lastSavingValue)
+                .incomesByCategory(Map.of())
+                .expensesByCategory(Map.of())
+                .build());
+      } else {
+        lastSavingValue = savingsPerDay
+            .stream()
+            .findFirst()
+            .map(SavingResponseDto::getValue)
+            .orElse(lastSavingValue);
+        //Filled row (savings in list have only one date and will be merged)
+        result.addAll(savingsPerDay);
+      }
+    }
+    return result;
+  }
+
+  private Styles getStyles(XSSFWorkbook wb, int sampleRowIndex) {
+    final CellStyle dateStyle = wb.getSheetAt(TEMPLATE_SHEET_INDEX)
+        .getRow(sampleRowIndex).getCell(DATE_COL).getCellStyle();
+
+    final CellStyle incStyle = wb.getSheetAt(TEMPLATE_SHEET_INDEX)
+        .getRow(sampleRowIndex).getCell(START_INC_COL).getCellStyle();
+
+    final CellStyle incSumStyle = wb.getSheetAt(TEMPLATE_SHEET_INDEX)
+        .getRow(sampleRowIndex).getCell(START_INC_SUM_COL).getCellStyle();
+
+    final CellStyle expStyle = wb.getSheetAt(TEMPLATE_SHEET_INDEX)
+        .getRow(sampleRowIndex).getCell(START_EXP_COL).getCellStyle();
+
+    final CellStyle expSumStyle = wb.getSheetAt(TEMPLATE_SHEET_INDEX)
+        .getRow(sampleRowIndex).getCell(START_EXP_SUM_COL).getCellStyle();
+
+    final CellStyle savingsStyle = wb.getSheetAt(TEMPLATE_SHEET_INDEX)
+        .getRow(sampleRowIndex).getCell(START_SAVING_COL).getCellStyle();
+
+    return new Styles(dateStyle, incStyle, incSumStyle, expStyle, expSumStyle, savingsStyle);
+  }
+
+  private boolean isEndOfMonth(List<SavingResponseDto> savingRows,
+                               int currentIndex,
+                               LocalDate savingRowDate) {
+    if (showEmptyRows) {
+      return savingRowDate.isEqual(getLastDateOfMonth(savingRowDate));
+    }
+
+    if (currentIndex < savingRows.size() - 1) {
+      final var nextRow = savingRows.get(currentIndex + 1);
+      return nextRow.getDate().getMonth().getValue() != savingRowDate.getMonth().getValue();
+    }
+    return currentIndex == savingRows.size() - 1;
+  }
+
+  private static record Styles(
+      CellStyle dateStyle,
+      CellStyle incStyle,
+      CellStyle incSumStyle,
+      CellStyle expStyle,
+      CellStyle expSumStyle,
+      CellStyle savingsStyle
+  ) {
   }
 }

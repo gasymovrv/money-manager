@@ -1,4 +1,4 @@
-package ru.rgasymov.moneymanager.service.impl;
+package ru.rgasymov.moneymanager.service.impl.xlsx;
 
 import java.io.File;
 import java.io.IOException;
@@ -43,17 +43,17 @@ import ru.rgasymov.moneymanager.service.XlsxParsingService;
 public class XlsxParsingServiceImpl implements XlsxParsingService {
 
   /**
-   * Index of row with category names.
+   * Index of the row with category names.
    */
   private static final int CATEGORIES_ROW = 1;
 
   /**
-   * Index of first row with income or expense.
+   * Index of the first row with income and expense.
    */
   private static final int START_ROW = 3;
 
   /**
-   * Index of first incomes column.
+   * Index of the first income column.
    */
   private static final int START_COLUMN = 1;
 
@@ -64,7 +64,7 @@ public class XlsxParsingServiceImpl implements XlsxParsingService {
   private static final String EXPENSES_SUM_COLUMN_NAME = "Expenses sum";
 
   /**
-   * Index of previous savings row.
+   * Index of the previous savings row.
    */
   private static final int PREVIOUS_SAVINGS_ROW = 2;
 
@@ -126,6 +126,9 @@ public class XlsxParsingServiceImpl implements XlsxParsingService {
     //Iterate by data rows
     for (int i = START_ROW; i <= sheet.getLastRowNum(); i++) {
       var row = sheet.getRow(i);
+      if (row == null) {
+        continue;
+      }
       var firstCell = row.getCell(0);
 
       if (CellType.NUMERIC != firstCell.getCellType()) {
