@@ -3,6 +3,7 @@ package ru.rgasymov.moneymanager.service.impl.xlsx;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoField;
@@ -79,6 +80,8 @@ public class XlsxParsingServiceImpl implements XlsxParsingService {
    */
   private static final Pattern MULTI_OPERATIONS_COMMENT_PATTERN =
       Pattern.compile("(.*?)\\(?([0-9.]+)\\)?;");
+
+  private static final int SCALE = 2;
 
   private final UserService userService;
 
@@ -264,7 +267,9 @@ public class XlsxParsingServiceImpl implements XlsxParsingService {
 
         if (prevSavingsValue != 0) {
           //Set previous savings value
-          result.setPreviousSavings(new BigDecimal(prevSavingsValue));
+          result.setPreviousSavings(
+              BigDecimal.valueOf(prevSavingsValue)
+                  .setScale(SCALE, RoundingMode.HALF_UP));
 
           //Calculate min year of incomes and expenses and set to previousSavingsDate
           List<LocalDate> dates = result.getIncomes()
@@ -292,7 +297,7 @@ public class XlsxParsingServiceImpl implements XlsxParsingService {
 
   private List<OperationDraft> buildOperationDrafts(double rawValue,
                                                     String cellComment) {
-    var value = new BigDecimal(rawValue);
+    var value = BigDecimal.valueOf(rawValue).setScale(SCALE, RoundingMode.HALF_UP);
 
     if (StringUtils.isNotBlank(cellComment)) {
       var valuesFromComment = getValuesFromComment(cellComment);
@@ -325,7 +330,7 @@ public class XlsxParsingServiceImpl implements XlsxParsingService {
         values.add(
             new OperationDraft(
                 text.isEmpty() ? null : text,
-                new BigDecimal(matcher.group(valueGroup))));
+                new BigDecimal(matcher.group(valueGroup)).setScale(SCALE, RoundingMode.HALF_UP)));
       }
       return values;
     } catch (Exception e) {
