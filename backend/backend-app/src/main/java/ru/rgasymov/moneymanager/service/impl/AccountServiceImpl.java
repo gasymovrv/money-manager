@@ -24,9 +24,9 @@ import ru.rgasymov.moneymanager.repository.IncomeRepository;
 import ru.rgasymov.moneymanager.repository.SavingRepository;
 import ru.rgasymov.moneymanager.repository.UserRepository;
 import ru.rgasymov.moneymanager.service.AccountService;
-import ru.rgasymov.moneymanager.service.ExpenseCategoryService;
-import ru.rgasymov.moneymanager.service.IncomeCategoryService;
 import ru.rgasymov.moneymanager.service.UserService;
+import ru.rgasymov.moneymanager.service.expense.ExpenseCategoryService;
+import ru.rgasymov.moneymanager.service.income.IncomeCategoryService;
 
 @Service
 @RequiredArgsConstructor

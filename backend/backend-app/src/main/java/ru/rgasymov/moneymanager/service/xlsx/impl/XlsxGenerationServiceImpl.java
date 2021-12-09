@@ -1,4 +1,4 @@
-package ru.rgasymov.moneymanager.service.impl.xlsx;
+package ru.rgasymov.moneymanager.service.xlsx.impl;
 
 import static ru.rgasymov.moneymanager.util.DateUtil.getDatesBetweenInclusive;
 import static ru.rgasymov.moneymanager.util.DateUtil.getFirstDateOfMonth;
@@ -36,19 +36,14 @@ import ru.rgasymov.moneymanager.domain.XlsxInputData;
 import ru.rgasymov.moneymanager.domain.dto.response.OperationCategoryResponseDto;
 import ru.rgasymov.moneymanager.domain.dto.response.OperationResponseDto;
 import ru.rgasymov.moneymanager.domain.dto.response.SavingResponseDto;
-import ru.rgasymov.moneymanager.service.XlsxGenerationService;
+import ru.rgasymov.moneymanager.service.xlsx.XlsxGenerationService;
 
 @Service
 @Slf4j
 public class XlsxGenerationServiceImpl implements XlsxGenerationService {
 
-  @Value("${xlsx.show-empty-rows}")
-  private boolean showEmptyRows;
-
   private static final int TEMPLATE_SHEET_INDEX = 0;
-
   private static final int FIRST_ROW = 0;
-
   /**
    * Indexes of columns with style samples.
    */
@@ -58,23 +53,19 @@ public class XlsxGenerationServiceImpl implements XlsxGenerationService {
   private static final int START_EXP_COL = 3;
   private static final int START_EXP_SUM_COL = 4;
   private static final int START_SAVING_COL = 5;
-
   /**
    * Index of the row with category names.
    */
   private static final int CATEGORIES_ROW = 1;
-
   /**
    * Index of sample rows for income and expense.
    */
   private static final int START_DATA_ROW_SAMPLE = 3;
   private static final int START_DATA_ROW_BORDER_SAMPLE = 4;
-
   /**
    * Index of the first income column.
    */
   private static final int START_DATA_COLUMN = 1;
-
   /**
    * Column names.
    */
@@ -84,14 +75,14 @@ public class XlsxGenerationServiceImpl implements XlsxGenerationService {
   private static final String EXPENSES_SUM_COLUMN_NAME = "Expenses sum";
   private static final String SAVINGS_COLUMN_NAME = "Savings";
   private static final String PREV_SAVINGS_COLUMN_NAME = "Previous savings";
-
   /**
    * Index of the previous savings row.
    */
   private static final int PREVIOUS_SAVINGS_ROW = 2;
-
   private static final String COLLAPSED_COMMENT = "%s (%s); ";
   private static final String COLLAPSED_COMMENT_SIMPLE = "%s; ";
+  @Value("${xlsx.show-empty-rows}")
+  private boolean showEmptyRows;
 
   @Override
   public Resource generate(Resource xlsxTemplateFile,

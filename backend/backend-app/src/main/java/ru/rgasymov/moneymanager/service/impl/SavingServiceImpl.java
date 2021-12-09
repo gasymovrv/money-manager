@@ -32,10 +32,10 @@ import ru.rgasymov.moneymanager.mapper.SavingMapper;
 import ru.rgasymov.moneymanager.repository.ExpenseRepository;
 import ru.rgasymov.moneymanager.repository.IncomeRepository;
 import ru.rgasymov.moneymanager.repository.SavingRepository;
-import ru.rgasymov.moneymanager.service.ExpenseCategoryService;
-import ru.rgasymov.moneymanager.service.IncomeCategoryService;
 import ru.rgasymov.moneymanager.service.SavingService;
 import ru.rgasymov.moneymanager.service.UserService;
+import ru.rgasymov.moneymanager.service.expense.ExpenseCategoryService;
+import ru.rgasymov.moneymanager.service.income.IncomeCategoryService;
 import ru.rgasymov.moneymanager.spec.BaseOperationSpec;
 import ru.rgasymov.moneymanager.spec.ExpenseSpec;
 import ru.rgasymov.moneymanager.spec.IncomeSpec;
@@ -48,8 +48,10 @@ public class SavingServiceImpl implements SavingService {
   private final SavingRepository savingRepository;
   private final IncomeRepository incomeRepository;
   private final ExpenseRepository expenseRepository;
+
   private final SavingMapper savingMapper;
   private final SavingGroupMapper savingGroupMapper;
+
   private final UserService userService;
   private final IncomeCategoryService incomeCategoryService;
   private final ExpenseCategoryService expenseCategoryService;

@@ -1,4 +1,4 @@
-package ru.rgasymov.moneymanager.service.impl;
+package ru.rgasymov.moneymanager.service;
 
 import static ru.rgasymov.moneymanager.util.ComparingUtils.isChanged;
 
@@ -15,8 +15,6 @@ import ru.rgasymov.moneymanager.domain.entity.User;
 import ru.rgasymov.moneymanager.mapper.BaseOperationMapper;
 import ru.rgasymov.moneymanager.repository.BaseOperationCategoryRepository;
 import ru.rgasymov.moneymanager.repository.BaseOperationRepository;
-import ru.rgasymov.moneymanager.service.BaseOperationService;
-import ru.rgasymov.moneymanager.service.UserService;
 
 @RequiredArgsConstructor
 public abstract class AbstractOperationService<

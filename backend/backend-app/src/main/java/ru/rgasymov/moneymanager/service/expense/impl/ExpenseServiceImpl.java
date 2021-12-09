@@ -1,4 +1,4 @@
-package ru.rgasymov.moneymanager.service.impl;
+package ru.rgasymov.moneymanager.service.expense.impl;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -13,9 +13,10 @@ import ru.rgasymov.moneymanager.domain.entity.User;
 import ru.rgasymov.moneymanager.mapper.ExpenseMapper;
 import ru.rgasymov.moneymanager.repository.ExpenseCategoryRepository;
 import ru.rgasymov.moneymanager.repository.ExpenseRepository;
-import ru.rgasymov.moneymanager.service.ExpenseService;
+import ru.rgasymov.moneymanager.service.AbstractOperationService;
 import ru.rgasymov.moneymanager.service.SavingService;
 import ru.rgasymov.moneymanager.service.UserService;
+import ru.rgasymov.moneymanager.service.expense.ExpenseService;
 
 @Service
 @Slf4j

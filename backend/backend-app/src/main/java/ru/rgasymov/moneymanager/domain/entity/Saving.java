@@ -14,9 +14,10 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import lombok.Builder;
-import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.Fetch;
@@ -24,7 +25,8 @@ import org.hibernate.annotations.FetchMode;
 
 @Entity
 @Table(name = "saving")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @SuperBuilder
 public class Saving {

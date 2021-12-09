@@ -1,4 +1,4 @@
-package ru.rgasymov.moneymanager.service.impl.xlsx;
+package ru.rgasymov.moneymanager.service.xlsx.impl;
 
 import java.io.File;
 import java.io.IOException;
@@ -36,7 +36,7 @@ import ru.rgasymov.moneymanager.domain.entity.ExpenseCategory;
 import ru.rgasymov.moneymanager.domain.entity.Income;
 import ru.rgasymov.moneymanager.domain.entity.IncomeCategory;
 import ru.rgasymov.moneymanager.service.UserService;
-import ru.rgasymov.moneymanager.service.XlsxParsingService;
+import ru.rgasymov.moneymanager.service.xlsx.XlsxParsingService;
 
 @Service
 @RequiredArgsConstructor

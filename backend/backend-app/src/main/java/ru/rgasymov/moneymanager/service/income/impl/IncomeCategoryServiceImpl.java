@@ -1,4 +1,4 @@
-package ru.rgasymov.moneymanager.service.impl;
+package ru.rgasymov.moneymanager.service.income.impl;
 
 import static ru.rgasymov.moneymanager.spec.IncomeCategorySpec.accountIdEq;
 
@@ -21,8 +21,9 @@ import ru.rgasymov.moneymanager.domain.entity.User;
 import ru.rgasymov.moneymanager.mapper.IncomeCategoryMapper;
 import ru.rgasymov.moneymanager.repository.IncomeCategoryRepository;
 import ru.rgasymov.moneymanager.repository.IncomeRepository;
-import ru.rgasymov.moneymanager.service.IncomeCategoryService;
+import ru.rgasymov.moneymanager.service.AbstractOperationCategoryService;
 import ru.rgasymov.moneymanager.service.UserService;
+import ru.rgasymov.moneymanager.service.income.IncomeCategoryService;
 
 @Service
 @Slf4j

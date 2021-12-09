@@ -1,4 +1,4 @@
-package ru.rgasymov.moneymanager.service.impl;
+package ru.rgasymov.moneymanager.service;
 
 import javax.persistence.EntityNotFoundException;
 import javax.validation.ValidationException;
@@ -12,8 +12,6 @@ import ru.rgasymov.moneymanager.domain.entity.User;
 import ru.rgasymov.moneymanager.mapper.BaseOperationCategoryMapper;
 import ru.rgasymov.moneymanager.repository.BaseOperationCategoryRepository;
 import ru.rgasymov.moneymanager.repository.BaseOperationRepository;
-import ru.rgasymov.moneymanager.service.BaseOperationCategoryService;
-import ru.rgasymov.moneymanager.service.UserService;
 
 @RequiredArgsConstructor
 public abstract class AbstractOperationCategoryService<

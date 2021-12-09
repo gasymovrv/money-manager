@@ -1,4 +1,4 @@
-package ru.rgasymov.moneymanager.service.impl;
+package ru.rgasymov.moneymanager.service.expense.impl;
 
 import static ru.rgasymov.moneymanager.spec.ExpenseCategorySpec.accountIdEq;
 
@@ -21,8 +21,9 @@ import ru.rgasymov.moneymanager.domain.entity.User;
 import ru.rgasymov.moneymanager.mapper.ExpenseCategoryMapper;
 import ru.rgasymov.moneymanager.repository.ExpenseCategoryRepository;
 import ru.rgasymov.moneymanager.repository.ExpenseRepository;
-import ru.rgasymov.moneymanager.service.ExpenseCategoryService;
+import ru.rgasymov.moneymanager.service.AbstractOperationCategoryService;
 import ru.rgasymov.moneymanager.service.UserService;
+import ru.rgasymov.moneymanager.service.expense.ExpenseCategoryService;
 
 @Service
 @Slf4j

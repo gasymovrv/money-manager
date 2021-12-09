@@ -1,4 +1,4 @@
-package ru.rgasymov.moneymanager.service;
+package ru.rgasymov.moneymanager.service.xlsx;
 
 import java.io.IOException;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
