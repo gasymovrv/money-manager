@@ -11,6 +11,7 @@ import java.time.LocalDate;
 import java.time.temporal.ChronoField;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -90,23 +91,34 @@ public class XlsxGenerationServiceImpl implements XlsxGenerationService {
     final var wb = new XSSFWorkbook(xlsxTemplateFile.getInputStream());
 
     //------- Create sheets -------
-    data.savings()
+    var savingsMap = data.savings()
         .stream()
-        .collect(Collectors.groupingBy(item -> item.getDate().get(ChronoField.YEAR)))
-        .forEach((year, savings) -> {
-          var sheet = wb.cloneSheet(TEMPLATE_SHEET_INDEX, year.toString());
+        .collect(Collectors.groupingBy(item -> item.getDate().get(ChronoField.YEAR)));
 
-          fillSheet(
-              sheet,
-              data.incomeCategories(),
-              data.expenseCategories(),
-              savings);
+    var lastYearSaving = BigDecimal.ZERO;
+    for (var entry : savingsMap.entrySet()) {
+      final var year = entry.getKey();
+      final var savingsOfYear = entry.getValue();
+      final var sheet = wb.cloneSheet(TEMPLATE_SHEET_INDEX, year.toString());
 
-          //Remove sample row if it's visible
-          if (savings.size() < 2 && !showEmptyRows) {
-            sheet.removeRow(sheet.getRow(START_DATA_ROW_BORDER_SAMPLE));
-          }
-        });
+      fillSheet(
+          sheet,
+          data.incomeCategories(),
+          data.expenseCategories(),
+          savingsOfYear,
+          lastYearSaving);
+
+      //Remove sample row if it's visible
+      if (savingsOfYear.size() < 2 && !showEmptyRows) {
+        sheet.removeRow(sheet.getRow(START_DATA_ROW_BORDER_SAMPLE));
+      }
+
+      lastYearSaving =
+          savingsOfYear.stream()
+              .max(Comparator.comparing(SavingResponseDto::getDate))
+              .map(SavingResponseDto::getValue)
+              .orElse(BigDecimal.ZERO);
+    }
     wb.removeSheetAt(TEMPLATE_SHEET_INDEX);
 
     try (wb; ByteArrayOutputStream os = new ByteArrayOutputStream()) {
@@ -118,7 +130,8 @@ public class XlsxGenerationServiceImpl implements XlsxGenerationService {
   private void fillSheet(XSSFSheet sheet,
                          List<OperationCategoryResponseDto> incomeCategories,
                          List<OperationCategoryResponseDto> expenseCategories,
-                         List<SavingResponseDto> savings) {
+                         List<SavingResponseDto> savings,
+                         BigDecimal lastYearSaving) {
     final XSSFRow firstRow = sheet.getRow(FIRST_ROW);
     final XSSFRow categoriesRow = sheet.getRow(CATEGORIES_ROW);
     final CellStyle headerStyle = firstRow.getCell(DATE_COL).getCellStyle();
@@ -181,7 +194,8 @@ public class XlsxGenerationServiceImpl implements XlsxGenerationService {
         expCategoryLastCol,
         savingsCol,
         incColumnMap,
-        expColumnMap
+        expColumnMap,
+        lastYearSaving
     );
   }
 
@@ -192,7 +206,8 @@ public class XlsxGenerationServiceImpl implements XlsxGenerationService {
                               int expCategoryLastCol,
                               int savingsCol,
                               HashMap<String, Integer> incColumnMap,
-                              HashMap<String, Integer> expColumnMap) {
+                              HashMap<String, Integer> expColumnMap,
+                              BigDecimal lastYearSaving) {
     //------- Get rows styles -------
     final var styles = getStyles(sheet.getWorkbook(), START_DATA_ROW_SAMPLE);
 
@@ -220,7 +235,8 @@ public class XlsxGenerationServiceImpl implements XlsxGenerationService {
     cell.setCellValue(previousSavings.doubleValue());
 
     //------- Create incomes and expenses rows -------
-    final var savingRows = handleSavings(savings, previousSavings);
+    final var savingRows = handleSavings(
+        savings, previousSavings, lastYearSaving);
 
     var startRow = START_DATA_ROW_SAMPLE;
     for (int i = 0; i < savingRows.size(); i++) {
@@ -448,8 +464,9 @@ public class XlsxGenerationServiceImpl implements XlsxGenerationService {
     return dto1;
   }
 
-  private List<SavingResponseDto> handleSavings(
-      final List<SavingResponseDto> savings, BigDecimal previousSavings) {
+  private List<SavingResponseDto> handleSavings(final List<SavingResponseDto> savings,
+                                                final BigDecimal previousSavings,
+                                                final BigDecimal lastYearSaving) {
     //Remove previous saving value to resolve possible conflicts between empty rows
     var savingRows = savings.stream()
         .filter(dto -> !isPreviousSaving(dto))
@@ -478,13 +495,9 @@ public class XlsxGenerationServiceImpl implements XlsxGenerationService {
         getLastDateOfMonth(lastDate));
 
     //It's for filling the 'Savings' column in empty rows
-    var lastSavingValue = previousSavings.compareTo(BigDecimal.ZERO) == 0
-        ? savingRowsByDate.get(firstDate)
-        .stream()
-        .findFirst()
-        .map(SavingResponseDto::getValue)
-        .orElse(BigDecimal.ZERO)
-        : previousSavings;
+    var lastSavingValue = previousSavings.compareTo(BigDecimal.ZERO) != 0
+        ? previousSavings
+        : lastYearSaving;
 
     var result = new ArrayList<SavingResponseDto>();
 
