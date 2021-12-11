@@ -35,7 +35,7 @@ import { getSavingsFilter } from '../../helpers/common.helper';
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     container: {
-      maxHeight: '75vh'
+      maxHeight: '78vh'
     },
     paddings: {
       paddingLeft: 5,
