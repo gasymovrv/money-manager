@@ -56,10 +56,10 @@ spring:
     cache-names: incomeCategories, expenseCategories
     type: caffeine
 
-springfox:
-  documentation:
-    swagger-ui:
-      enabled: ${ENABLE_SWAGGER:true}
+springdoc:
+  swagger-ui:
+    enabled: ${ENABLE_SWAGGER:true}
+    path: /swagger-ui
 
 logging:
   level:

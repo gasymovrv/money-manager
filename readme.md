@@ -3,7 +3,7 @@ The main purpose of the application is to manage income, expenses and savings.
 [Demo](https://gasymovrv-money-manager.herokuapp.com/)
 
 ### Backend
-+ Java 16, Spring Boot
++ Java 17, Spring Boot 2.6.2
 + Authentication with Google OAuth2
 + Application has made as a REST API but with session
 + Built frontend is in jar resources, single html page will be opened by Spring MVC (spring-boot-starter-web)
@@ -12,7 +12,7 @@ The main purpose of the application is to manage income, expenses and savings.
   + desktop app - installable Windows application, user data stores in the H2 database that in the installed directory
 
 ### Frontend
-+ TypeScript, React 17.0.3, Material-UI 4.11.1, Redux
++ TypeScript, React 17.0.2, Material-UI 4.11.1, Redux
 + No class components, only functional ones with React Hooks
 + Using Material-UI components for styling
 + Using Redux to store global state in memory and some custom UI configurations in local storage
