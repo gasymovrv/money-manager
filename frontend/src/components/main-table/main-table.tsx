@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import {
   Grid,
   IconButton,
@@ -21,17 +21,21 @@ import { AddExpenseCategoryDialog, AddIncomeCategoryDialog } from '../dialog/add
 import StyledTableCell from './styled-table-cell';
 import MainTableRow from './main-table-row';
 import MainTableEditableCategory from './main-table-editable-category';
-import { OperationType } from '../../interfaces/operation.interface';
+import { OperationCategory, OperationType } from '../../interfaces/operation.interface';
 import { fetchMainTable } from '../../services/async-dispatch.service';
 import { useDispatch, useSelector } from 'react-redux';
-import { SavingsFilterParams } from '../../interfaces/saving.interface';
+import { SavingFieldToSort, SavingsFilterParamsMap } from '../../interfaces/saving.interface';
 import { changePagination } from '../../actions/pagination.actions';
 import { changeShowingCategories } from '../../actions/show-categories.actions';
+import { Period } from '../../interfaces/common.interface';
+import moment from 'moment';
+import { AuthContext } from '../../interfaces/auth-context.interface';
+import { getSavingsFilter } from '../../helpers/common.helper';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     container: {
-      maxHeight: '75vh'
+      maxHeight: '78vh'
     },
     paddings: {
       paddingLeft: 5,
@@ -76,7 +80,10 @@ const useStyles = makeStyles((theme: Theme) =>
 const MainTable: React.FC = () => {
   const classes = useStyles();
 
-  const savingsFilter: SavingsFilterParams = useSelector(({savingsFilter}: any) => savingsFilter);
+  const accountId = useContext(AuthContext).user.currentAccount.id;
+  const savingsFilterMap: SavingsFilterParamsMap = useSelector(({savingsFilterMap}: any) => savingsFilterMap);
+  const savingsFilter = getSavingsFilter(accountId, savingsFilterMap);
+
   const pagination: PaginationParams = useSelector(({pagination}: any) => pagination);
   const {
     showExpenseCategories,
@@ -87,7 +94,15 @@ const MainTable: React.FC = () => {
     incomeCategories,
     expenseCategories,
     totalElements
-  }: MainTableState = useSelector(({mainTable}: any) => mainTable);
+  }: MainTableState = useSelector(({mainTable}: any) => {
+    return {
+      rows: mainTable.rows,
+      incomeCategories: mainTable.incomeCategories.filter(({isChecked}: OperationCategory) => isChecked),
+      expenseCategories: mainTable.expenseCategories.filter(({isChecked}: OperationCategory) => isChecked),
+      totalElements: mainTable.totalElements,
+      isLoading: mainTable.isLoading
+    }
+  });
 
   const dispatch = useDispatch();
   const changePgnOptions = (pp: PaginationParams) => dispatch(changePagination(pp));
@@ -246,15 +261,30 @@ const MainTable: React.FC = () => {
           </TableHead>
 
           <TableBody>
-            {rows.map((row: Row, i) =>
-              <MainTableRow
-                key={row.id}
-                row={row}
-                incomeCategories={incomeCategories}
-                expenseCategories={expenseCategories}
-                showIncomeCategories={showIncomeCategories}
-                showExpenseCategories={showExpenseCategories}
-              />
+            {rows.map((row: Row, i) => {
+                const nextRowIndex = i + 1;
+                let nextRowPeriod: number | undefined;
+                if (savingsFilter.sortBy === SavingFieldToSort.DATE
+                  && rows.length > nextRowIndex) {
+                  if (savingsFilter.groupBy === Period.DAY) {
+                    nextRowPeriod = moment(rows[nextRowIndex].date).month();
+                  } else if (savingsFilter.groupBy === Period.MONTH) {
+                    nextRowPeriod = moment(rows[nextRowIndex].date).year();
+                  }
+                }
+
+                return (
+                  <MainTableRow
+                    key={row.id}
+                    row={row}
+                    nextRowPeriod={nextRowPeriod}
+                    incomeCategories={incomeCategories}
+                    expenseCategories={expenseCategories}
+                    showIncomeCategories={showIncomeCategories}
+                    showExpenseCategories={showExpenseCategories}
+                  />
+                )
+              }
             )}
           </TableBody>
 

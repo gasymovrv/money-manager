@@ -16,9 +16,9 @@ import ru.rgasymov.moneymanager.domain.dto.request.OperationCategoryRequestDto;
 import ru.rgasymov.moneymanager.domain.dto.request.OperationRequestDto;
 import ru.rgasymov.moneymanager.domain.dto.response.OperationCategoryResponseDto;
 import ru.rgasymov.moneymanager.domain.dto.response.OperationResponseDto;
-import ru.rgasymov.moneymanager.service.ExpenseCategoryService;
-import ru.rgasymov.moneymanager.service.ExpenseService;
 import ru.rgasymov.moneymanager.service.UserService;
+import ru.rgasymov.moneymanager.service.expense.ExpenseCategoryService;
+import ru.rgasymov.moneymanager.service.expense.ExpenseService;
 
 @RestController
 @RequiredArgsConstructor

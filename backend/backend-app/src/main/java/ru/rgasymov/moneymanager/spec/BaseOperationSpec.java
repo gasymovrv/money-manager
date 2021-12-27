@@ -1,4 +1,4 @@
-package ru.rgasymov.moneymanager.specs;
+package ru.rgasymov.moneymanager.spec;
 
 import java.util.List;
 import org.springframework.data.jpa.domain.Specification;

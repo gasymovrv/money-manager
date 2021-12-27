@@ -8,6 +8,8 @@ public interface BaseOperationCategoryService {
 
   List<OperationCategoryResponseDto> findAll();
 
+  List<OperationCategoryResponseDto> findAllAndSetChecked(List<Long> ids);
+
   OperationCategoryResponseDto create(OperationCategoryRequestDto dto);
 
   OperationCategoryResponseDto update(Long id, OperationCategoryRequestDto dto);

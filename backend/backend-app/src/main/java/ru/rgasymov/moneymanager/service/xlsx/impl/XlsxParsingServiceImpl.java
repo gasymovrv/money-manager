@@ -1,8 +1,9 @@
-package ru.rgasymov.moneymanager.service.impl;
+package ru.rgasymov.moneymanager.service.xlsx.impl;
 
 import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoField;
@@ -14,9 +15,13 @@ import java.util.List;
 import java.util.Optional;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
@@ -31,7 +36,7 @@ import ru.rgasymov.moneymanager.domain.entity.ExpenseCategory;
 import ru.rgasymov.moneymanager.domain.entity.Income;
 import ru.rgasymov.moneymanager.domain.entity.IncomeCategory;
 import ru.rgasymov.moneymanager.service.UserService;
-import ru.rgasymov.moneymanager.service.XlsxParsingService;
+import ru.rgasymov.moneymanager.service.xlsx.XlsxParsingService;
 
 @Service
 @RequiredArgsConstructor
@@ -39,17 +44,17 @@ import ru.rgasymov.moneymanager.service.XlsxParsingService;
 public class XlsxParsingServiceImpl implements XlsxParsingService {
 
   /**
-   * Index of row with category names.
+   * Index of the row with category names.
    */
   private static final int CATEGORIES_ROW = 1;
 
   /**
-   * Index of first row with income or expense.
+   * Index of the first row with income and expense.
    */
   private static final int START_ROW = 3;
 
   /**
-   * Index of first incomes column.
+   * Index of the first income column.
    */
   private static final int START_COLUMN = 1;
 
@@ -60,7 +65,7 @@ public class XlsxParsingServiceImpl implements XlsxParsingService {
   private static final String EXPENSES_SUM_COLUMN_NAME = "Expenses sum";
 
   /**
-   * Index of previous savings row.
+   * Index of the previous savings row.
    */
   private static final int PREVIOUS_SAVINGS_ROW = 2;
 
@@ -68,6 +73,15 @@ public class XlsxParsingServiceImpl implements XlsxParsingService {
    * Savings column name.
    */
   private static final String SAVINGS_COLUMN_NAME = "Savings";
+
+  /**
+   * Pattern to parse complex comment
+   * created for several operations with the same date.
+   */
+  private static final Pattern MULTI_OPERATIONS_COMMENT_PATTERN =
+      Pattern.compile("(.*?)\\(?([0-9.]+)\\)?;");
+
+  private static final int SCALE = 2;
 
   private final UserService userService;
 
@@ -115,6 +129,9 @@ public class XlsxParsingServiceImpl implements XlsxParsingService {
     //Iterate by data rows
     for (int i = START_ROW; i <= sheet.getLastRowNum(); i++) {
       var row = sheet.getRow(i);
+      if (row == null) {
+        continue;
+      }
       var firstCell = row.getCell(0);
 
       if (CellType.NUMERIC != firstCell.getCellType()) {
@@ -149,26 +166,31 @@ public class XlsxParsingServiceImpl implements XlsxParsingService {
 
         var today = LocalDate.now();
         if (incomeCategory != null && cellValue != 0) {
-          var inc = Income.builder()
-              .date(date)
-              .value(new BigDecimal(cellValue))
-              .isPlanned(date.isAfter(today))
-              .category(incomeCategory)
-              .description(cellComment)
-              .account(currentAccount)
-              .build();
-          incomes.add(inc);
-
+          var incomesPerDay = buildOperationDrafts(cellValue, cellComment)
+              .stream()
+              .map(od -> Income.builder()
+                  .date(date)
+                  .value(od.value())
+                  .isPlanned(date.isAfter(today))
+                  .category(incomeCategory)
+                  .description(od.comment())
+                  .account(currentAccount)
+                  .build())
+              .toList();
+          incomes.addAll(incomesPerDay);
         } else if (expenseCategory != null && cellValue != 0) {
-          var exp = Expense.builder()
-              .date(date)
-              .value(new BigDecimal(cellValue))
-              .isPlanned(date.isAfter(today))
-              .category(expenseCategory)
-              .description(cellComment)
-              .account(currentAccount)
-              .build();
-          expenses.add(exp);
+          var expensesPerDay = buildOperationDrafts(cellValue, cellComment)
+              .stream()
+              .map(od -> Expense.builder()
+                  .date(date)
+                  .value(od.value())
+                  .isPlanned(date.isAfter(today))
+                  .category(expenseCategory)
+                  .description(od.comment())
+                  .account(currentAccount)
+                  .build())
+              .toList();
+          expenses.addAll(expensesPerDay);
         }
       }
     }
@@ -245,7 +267,9 @@ public class XlsxParsingServiceImpl implements XlsxParsingService {
 
         if (prevSavingsValue != 0) {
           //Set previous savings value
-          result.setPreviousSavings(new BigDecimal(prevSavingsValue));
+          result.setPreviousSavings(
+              BigDecimal.valueOf(prevSavingsValue)
+                  .setScale(SCALE, RoundingMode.HALF_UP));
 
           //Calculate min year of incomes and expenses and set to previousSavingsDate
           List<LocalDate> dates = result.getIncomes()
@@ -269,5 +293,54 @@ public class XlsxParsingServiceImpl implements XlsxParsingService {
         return;
       }
     }
+  }
+
+  private List<OperationDraft> buildOperationDrafts(double rawValue,
+                                                    String cellComment) {
+    var value = BigDecimal.valueOf(rawValue).setScale(SCALE, RoundingMode.HALF_UP);
+
+    if (StringUtils.isNotBlank(cellComment)) {
+      var valuesFromComment = getValuesFromComment(cellComment);
+
+      //Make sure the sum of the values from the comment is equal to the cell value
+      if (CollectionUtils.isNotEmpty(valuesFromComment)
+          && value.compareTo(
+          valuesFromComment
+              .stream()
+              .map(OperationDraft::value)
+              .reduce(BigDecimal.ZERO, BigDecimal::add)) == 0) {
+        return valuesFromComment
+            .stream()
+            .map(cu -> new OperationDraft(cu.comment(), cu.value()))
+            .toList();
+      }
+    }
+    return List.of(new OperationDraft(cellComment, value));
+  }
+
+  private List<OperationDraft> getValuesFromComment(String cellComment) {
+    final Matcher matcher = MULTI_OPERATIONS_COMMENT_PATTERN.matcher(cellComment.trim());
+    final int textGroup = 1;
+    final int valueGroup = 2;
+
+    try {
+      List<OperationDraft> values = new ArrayList<>();
+      while (matcher.find()) {
+        var text = matcher.group(textGroup).trim();
+        values.add(
+            new OperationDraft(
+                text.isEmpty() ? null : text,
+                new BigDecimal(matcher.group(valueGroup)).setScale(SCALE, RoundingMode.HALF_UP)));
+      }
+      return values;
+    } catch (Exception e) {
+      log.error(
+          String.format("# XlsxParsingService: failed to parse comment of cell '%s'", cellComment),
+          e);
+      return List.of();
+    }
+  }
+
+  private static record OperationDraft(String comment, BigDecimal value) {
   }
 }

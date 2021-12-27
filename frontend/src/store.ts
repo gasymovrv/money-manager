@@ -16,7 +16,7 @@ const store = createStore(
   composeEnhancers(
     applyMiddleware(thunk),
     applyMiddleware(save({
-      states: ["savingsFilter", "pagination", "showCategories"],
+      states: ['savingsFilterMap', 'pagination', 'showCategories'],
       namespace: 'money-manager'
     }))
   ),

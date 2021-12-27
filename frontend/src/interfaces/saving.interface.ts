@@ -1,15 +1,20 @@
 import { Period, SearchResult, SortDirection } from './common.interface';
-import moment from 'moment';
-import { DATE_FORMAT } from '../constants';
+import { OperationCategory } from './operation.interface';
 
 export class SavingSearchResult implements SearchResult<SavingResponse> {
   result: SavingResponse[];
   totalElements: number;
+  incomeCategories: OperationCategory[];
+  expenseCategories: OperationCategory[];
 
   constructor(result: SavingResponse[],
-              totalElements: number) {
+              totalElements: number,
+              incomeCategories: OperationCategory[],
+              expenseCategories: OperationCategory[]) {
     this.result = result;
     this.totalElements = totalElements;
+    this.incomeCategories = incomeCategories;
+    this.expenseCategories = expenseCategories;
   }
 }
 
@@ -33,6 +38,8 @@ export class SavingSearchRequestParams {
   sortDirection: SortDirection;
   pageNum: number;
   pageSize: number;
+  incomeCategoryIds: number[];
+  expenseCategoryIds: number[];
   searchText?: string;
 
   constructor(
@@ -46,6 +53,8 @@ export class SavingSearchRequestParams {
     this.sortDirection = filter.sortDirection;
     this.sortBy = filter.sortBy;
     this.groupBy = filter.groupBy;
+    this.incomeCategoryIds = filter.incomeCategoryIds;
+    this.expenseCategoryIds = filter.expenseCategoryIds;
     this.searchText = filter.searchText;
   }
 
@@ -73,12 +82,21 @@ export interface SavingsFilterParams {
   sortBy?: SavingFieldToSort;
   groupBy?: Period;
   sortDirection: SortDirection;
+  incomeCategoryIds: number[];
+  expenseCategoryIds: number[];
   searchText?: string;
 }
 
+export interface SavingsFilterParamsMap {
+  [id: number]: SavingsFilterParams
+}
+
 export const defaultFilter: SavingsFilterParams = {
-  to: moment().endOf('month').format(DATE_FORMAT),
   sortBy: SavingFieldToSort.DATE,
   groupBy: Period.DAY,
   sortDirection: SortDirection.DESC,
+  incomeCategoryIds: [],
+  expenseCategoryIds: []
 }
+
+export const defaultFilterMap: SavingsFilterParamsMap = {}

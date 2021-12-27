@@ -39,4 +39,6 @@ public interface SavingRepository
                                       @Param("accountId") Long accountId);
 
   void deleteAllByAccountId(Long accountId);
+
+  boolean existsByAccountId(Long accountId);
 }

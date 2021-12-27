@@ -2,12 +2,14 @@ package ru.rgasymov.moneymanager.domain.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.annotations.ApiModel;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
-@ApiModel
+@Schema
 @Data
 @NoArgsConstructor
 @SuperBuilder
@@ -18,4 +20,9 @@ public class OperationCategoryResponseDto {
   private Long id;
 
   private String name;
+
+
+  @JsonProperty("isChecked")
+  @Builder.Default
+  private boolean isChecked = true;
 }

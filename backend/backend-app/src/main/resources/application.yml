@@ -52,11 +52,14 @@ spring:
       cache:
         cachecontrol:
           max-age: 365d
+  cache:
+    cache-names: incomeCategories, expenseCategories
+    type: caffeine
 
-springfox:
-  documentation:
-    swagger-ui:
-      enabled: ${ENABLE_SWAGGER:true}
+springdoc:
+  swagger-ui:
+    enabled: ${ENABLE_SWAGGER:true}
+    path: /swagger-ui
 
 logging:
   level:
@@ -78,3 +81,7 @@ file-service:
   delete-import-files: ${DELETE_IMPORT_FILES:true}
 
 use-postgres: ${USE_POSTGRES:false}
+
+xlsx:
+  max-exported-rows: ${MAX_EXPORTED_ROWS:1000000}
+  show-empty-rows: ${SHOW_EMPTY_ROWS:true} # Add empty savings in the exported xlsx to fill months

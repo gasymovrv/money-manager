@@ -20,8 +20,9 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.rgasymov.moneymanager.domain.dto.request.SavingCriteriaDto;
+import ru.rgasymov.moneymanager.domain.dto.response.OperationCategoryResponseDto;
 import ru.rgasymov.moneymanager.domain.dto.response.SavingResponseDto;
-import ru.rgasymov.moneymanager.domain.dto.response.SearchResultDto;
+import ru.rgasymov.moneymanager.domain.dto.response.SavingSearchResultDto;
 import ru.rgasymov.moneymanager.domain.entity.Expense;
 import ru.rgasymov.moneymanager.domain.entity.Income;
 import ru.rgasymov.moneymanager.domain.entity.Saving;
@@ -33,10 +34,12 @@ import ru.rgasymov.moneymanager.repository.IncomeRepository;
 import ru.rgasymov.moneymanager.repository.SavingRepository;
 import ru.rgasymov.moneymanager.service.SavingService;
 import ru.rgasymov.moneymanager.service.UserService;
-import ru.rgasymov.moneymanager.specs.BaseOperationSpec;
-import ru.rgasymov.moneymanager.specs.ExpenseSpec;
-import ru.rgasymov.moneymanager.specs.IncomeSpec;
-import ru.rgasymov.moneymanager.specs.SavingSpec;
+import ru.rgasymov.moneymanager.service.expense.ExpenseCategoryService;
+import ru.rgasymov.moneymanager.service.income.IncomeCategoryService;
+import ru.rgasymov.moneymanager.spec.BaseOperationSpec;
+import ru.rgasymov.moneymanager.spec.ExpenseSpec;
+import ru.rgasymov.moneymanager.spec.IncomeSpec;
+import ru.rgasymov.moneymanager.spec.SavingSpec;
 
 @Service
 @RequiredArgsConstructor
@@ -45,14 +48,24 @@ public class SavingServiceImpl implements SavingService {
   private final SavingRepository savingRepository;
   private final IncomeRepository incomeRepository;
   private final ExpenseRepository expenseRepository;
+
   private final SavingMapper savingMapper;
   private final SavingGroupMapper savingGroupMapper;
+
   private final UserService userService;
+  private final IncomeCategoryService incomeCategoryService;
+  private final ExpenseCategoryService expenseCategoryService;
 
   @Transactional(readOnly = true)
   @Override
-  public SearchResultDto<SavingResponseDto> search(SavingCriteriaDto criteria) {
-    Specification<Saving> criteriaAsSpec = applySavingCriteria(criteria);
+  public SavingSearchResultDto search(SavingCriteriaDto criteria) {
+    var incCategories =
+        incomeCategoryService.findAllAndSetChecked(criteria.getIncomeCategoryIds());
+    var expCategories =
+        expenseCategoryService.findAllAndSetChecked(criteria.getExpenseCategoryIds());
+
+    Specification<Saving> criteriaAsSpec =
+        applySavingCriteria(criteria, incCategories, expCategories);
 
     Page<Saving> page = savingRepository.findAll(criteriaAsSpec,
         PageRequest.of(
@@ -60,20 +73,23 @@ public class SavingServiceImpl implements SavingService {
             criteria.getPageSize(),
             Sort.by(criteria.getSortDirection(),
                 criteria.getSortBy().getFieldName())));
-    var content = page.getContent();
-    removeUnnecessaryOperations(content, criteria.getSearchText());
+    var savings = page.getContent();
+
+    fillOperationsExplicitly(savings, criteria);
 
     List<SavingResponseDto> result;
     if (criteria.getGroupBy() != Period.DAY) {
-      result = savingGroupMapper.toGroupDtos(content, criteria.getGroupBy());
+      result = savingGroupMapper.toGroupDtos(savings, criteria.getGroupBy());
     } else {
-      result = savingMapper.toDtos(content);
+      result = savingMapper.toDtos(savings);
     }
 
-    return SearchResultDto
-        .<SavingResponseDto>builder()
+    return SavingSearchResultDto
+        .builder()
         .result(result)
         .totalElements(page.getTotalElements())
+        .incomeCategories(incCategories)
+        .expenseCategories(expCategories)
         .build();
   }
 
@@ -151,21 +167,28 @@ public class SavingServiceImpl implements SavingService {
   }
 
   /**
-   * Replaces incomes and expenses in all savings to remove unnecessary results.
+   * Search criteria like filter by categories or search by text require to
+   * remove some results (operations) from rows (savings).
+   * <br/>
+   * This method helps to remove unnecessary operations through
+   * searching operations explicitly and replacing them in found savings.
    *
-   * @param savings    savings
-   * @param searchText the search text
+   * @param savings  filtered list of savings
+   * @param criteria search criteria
    */
-  private void removeUnnecessaryOperations(List<Saving> savings,
-                                           String searchText) {
-    if (StringUtils.isBlank(searchText)) {
+  private void fillOperationsExplicitly(List<Saving> savings,
+                                        SavingCriteriaDto criteria) {
+    if (CollectionUtils.isEmpty(criteria.getIncomeCategoryIds())
+        && CollectionUtils.isEmpty(criteria.getExpenseCategoryIds())
+        && StringUtils.isBlank(criteria.getSearchText())) {
       return;
     }
+
     var savingIds = savings.stream().map(Saving::getId).toList();
     var incomeMap = new HashMap<Long, List<Income>>();
     var expenseMap = new HashMap<Long, List<Expense>>();
 
-    incomeRepository.findAll(applyIncomeCriteria(savingIds, searchText))
+    incomeRepository.findAll(applyIncomeCriteria(savingIds, criteria))
         .forEach(inc -> {
           ArrayList<Income> value = new ArrayList<>();
           value.add(inc);
@@ -176,7 +199,7 @@ public class SavingServiceImpl implements SavingService {
               });
         });
 
-    expenseRepository.findAll(applyExpenseCriteria(savingIds, searchText))
+    expenseRepository.findAll(applyExpenseCriteria(savingIds, criteria))
         .forEach(exp -> {
           ArrayList<Expense> value = new ArrayList<>();
           value.add(exp);
@@ -197,15 +220,35 @@ public class SavingServiceImpl implements SavingService {
     });
   }
 
-  private Specification<Saving> applySavingCriteria(SavingCriteriaDto criteria) {
+  private Specification<Saving> applySavingCriteria(
+      SavingCriteriaDto criteria,
+      List<OperationCategoryResponseDto> incCategories,
+      List<OperationCategoryResponseDto> expCategories) {
     var currentUser = userService.getCurrentUser();
     var currentAccountId = currentUser.getCurrentAccount().getId();
 
     Specification<Saving> criteriaAsSpec = SavingSpec.accountIdEq(currentAccountId);
-    criteriaAsSpec = andOptionally(
-        criteriaAsSpec,
-        SavingSpec::matchBySearchText,
-        criteria.getSearchText());
+
+    if (CollectionUtils.isNotEmpty(criteria.getIncomeCategoryIds())
+        || CollectionUtils.isNotEmpty(criteria.getExpenseCategoryIds())
+        || StringUtils.isNotBlank(criteria.getSearchText())) {
+
+      var selectedIncCategoryIds = incCategories.stream()
+          .filter(OperationCategoryResponseDto::isChecked)
+          .map(OperationCategoryResponseDto::getId)
+          .toList();
+
+      var selectedExpCategoryIds = expCategories.stream()
+          .filter(OperationCategoryResponseDto::isChecked)
+          .map(OperationCategoryResponseDto::getId)
+          .toList();
+
+      criteriaAsSpec = criteriaAsSpec.and(SavingSpec.filterBySearchTextAndCategoryIds(
+          selectedIncCategoryIds,
+          selectedExpCategoryIds,
+          criteria.getSearchText())
+      );
+    }
 
     LocalDate from = criteria.getFrom();
     LocalDate to = criteria.getTo();
@@ -217,15 +260,20 @@ public class SavingServiceImpl implements SavingService {
   }
 
   private Specification<Income> applyIncomeCriteria(List<Long> savingIds,
-                                                    String searchText) {
+                                                    SavingCriteriaDto criteria) {
     Specification<Income> incomeSpec = BaseOperationSpec.savingIdIn(savingIds);
-    return andOptionally(incomeSpec, IncomeSpec::matchBySearchText, searchText);
+    incomeSpec =
+        andOptionally(incomeSpec, IncomeSpec::matchBySearchText, criteria.getSearchText());
+    return andOptionally(incomeSpec, IncomeSpec::categoryIdIn, criteria.getIncomeCategoryIds());
   }
 
   private Specification<Expense> applyExpenseCriteria(List<Long> savingIds,
-                                                      String searchText) {
+                                                      SavingCriteriaDto criteria) {
     Specification<Expense> expenseSpec = BaseOperationSpec.savingIdIn(savingIds);
-    return andOptionally(expenseSpec, ExpenseSpec::matchBySearchText, searchText);
+    expenseSpec =
+        andOptionally(expenseSpec, ExpenseSpec::matchBySearchText, criteria.getSearchText());
+    return andOptionally(expenseSpec, ExpenseSpec::categoryIdIn,
+        criteria.getExpenseCategoryIds());
   }
 
   interface RecalculateFunc {

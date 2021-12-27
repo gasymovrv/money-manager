@@ -1,7 +1,8 @@
 package ru.rgasymov.moneymanager.domain.dto.request;
 
-import io.swagger.annotations.ApiParam;
+import io.swagger.v3.oas.annotations.Parameter;
 import java.time.LocalDate;
+import java.util.List;
 import javax.validation.ValidationException;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
@@ -27,15 +28,19 @@ public class SavingCriteriaDto {
 
   private Sort.Direction sortDirection = Sort.Direction.ASC;
 
-  @ApiParam(value = "Page number starting at 0", example = "0")
+  @Parameter(description = "Page number starting at 0", example = "0")
   @PositiveOrZero
   private Integer pageNum = 0;
 
-  @ApiParam(example = "1000")
+  @Parameter(example = "1000")
   @Positive
   private Integer pageSize = 1000;
 
   private Period groupBy = Period.DAY;
+
+  private List<Long> incomeCategoryIds = List.of();
+
+  private List<Long> expenseCategoryIds = List.of();
 
   private String searchText;
 

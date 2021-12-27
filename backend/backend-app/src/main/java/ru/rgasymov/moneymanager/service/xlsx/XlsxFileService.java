@@ -1,4 +1,4 @@
-package ru.rgasymov.moneymanager.service;
+package ru.rgasymov.moneymanager.service.xlsx;
 
 import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;

@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.swagger.annotations.ApiModel;
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
@@ -18,7 +18,7 @@ import lombok.experimental.SuperBuilder;
 import ru.rgasymov.moneymanager.constant.DateTimeFormats;
 import ru.rgasymov.moneymanager.domain.enums.Period;
 
-@ApiModel
+@Schema
 @Data
 @NoArgsConstructor
 @SuperBuilder

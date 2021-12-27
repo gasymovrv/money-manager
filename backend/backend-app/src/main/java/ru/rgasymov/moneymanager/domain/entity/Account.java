@@ -11,16 +11,18 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 import ru.rgasymov.moneymanager.domain.enums.AccountTheme;
 
 @Entity
 @Table(name = "account")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @SuperBuilder
 public class Account implements Serializable {
