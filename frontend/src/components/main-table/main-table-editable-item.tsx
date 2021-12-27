@@ -40,8 +40,7 @@ const MainTableEditableItem: React.FC<MainTableEditableItemProps> = ({
                                                                        colorClass,
                                                                        isCurrentPeriod,
                                                                        operation,
-                                                                       operationType,
-                                                                       categories
+                                                                       operationType
                                                                      }) => {
   const {id, value, isPlanned, description} = operation;
   const [openEditOperation, setOpenEditOperation] = React.useState(false);
@@ -85,7 +84,6 @@ const MainTableEditableItem: React.FC<MainTableEditableItemProps> = ({
           {clickableMenu}
           <EditIncomeDialog
             operation={operation}
-            categories={categories}
             open={openEditOperation}
             handleClose={handleCloseEditOperation}
           />
@@ -97,7 +95,6 @@ const MainTableEditableItem: React.FC<MainTableEditableItemProps> = ({
           {clickableMenu}
           <EditExpenseDialog
             operation={operation}
-            categories={categories}
             open={openEditOperation}
             handleClose={handleCloseEditOperation}
           />

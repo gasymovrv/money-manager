@@ -3,6 +3,8 @@ import { deleteIncome, editIncome } from '../services/api.service';
 import { EditOperationProps } from '../interfaces/common.interface';
 import { AddOrEditOperationRequest } from '../interfaces/operation.interface';
 import { getHocDisplayName } from '../helpers/hoc.helper';
+import { MainTableState } from '../interfaces/main-table.interface';
+import { useSelector } from 'react-redux';
 
 export function WithEditIncomeActions<P>(
   WrappedComponent: React.ComponentType<P & EditOperationProps>
@@ -17,9 +19,12 @@ export function WithEditIncomeActions<P>(
   }
 
   const ResultComponent = (props: P) => {
+    const {incomeCategories}: MainTableState = useSelector(({mainTable}: any) => mainTable);
+
     return (
       <WrappedComponent
         {...props}
+        categories={incomeCategories}
         deleteOperation={handleDeleteOperation}
         editOperation={handleEditOperation}
       />

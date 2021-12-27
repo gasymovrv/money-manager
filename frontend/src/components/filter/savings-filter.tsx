@@ -16,7 +16,7 @@ import { DatePicker, MuiPickersUtilsProvider } from '@material-ui/pickers';
 import MomentUtils from '@date-io/moment';
 import { Period, SortDirection } from '../../interfaces/common.interface';
 import { SavingFieldToSort, SavingsFilterParams, SavingsFilterParamsMap } from '../../interfaces/saving.interface';
-import { DATE_FORMAT } from '../../constants';
+import { DATE_FORMAT, SELECT_ALL_OPTION } from '../../constants';
 import { useDispatch, useSelector } from 'react-redux';
 import { changeFilter, resetFilter } from '../../actions/savings-filter.actions';
 import moment from 'moment/moment';
@@ -43,6 +43,11 @@ const useStyles = makeStyles((theme: Theme) =>
       minWidth: 200,
       maxWidth: 300,
       marginRight: theme.spacing(3)
+    },
+    selectAllOption: {
+      borderBottomWidth: 2,
+      borderBottomColor: theme.palette.secondary.dark,
+      borderBottomStyle: 'solid'
     }
   })
 );
@@ -152,7 +157,7 @@ const SavingsFilter: React.FC = () => {
   }
 
   const handleChangeSearchText = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchText(event.target.value)
+    setSearchText(event.target.value);
   }
 
   const handleClickOnSearch = () => {
@@ -162,6 +167,9 @@ const SavingsFilter: React.FC = () => {
   }
 
   const handlePressEnterInSearchField = (event: React.KeyboardEvent<any>) => {
+    if (searchText === savingsFilter.searchText) {
+      return;
+    }
     if (event.key === 'Enter') {
       const newFilterMap = {...savingsFilterMap};
       newFilterMap[accountId] = {...savingsFilter, searchText: searchText};
@@ -170,7 +178,21 @@ const SavingsFilter: React.FC = () => {
     }
   }
 
+  const handleOnBlurSearchField = () => {
+    if (searchText === savingsFilter.searchText) {
+      return;
+    }
+    const newFilterMap = {...savingsFilterMap};
+    newFilterMap[accountId] = {...savingsFilter, searchText: searchText};
+    change(newFilterMap);
+  }
+
   const getUpdatedSelectedCategories = (updatedCategoryNames: string[], categories: OperationCategory[]) => {
+    if (updatedCategoryNames[updatedCategoryNames.length - 1] === SELECT_ALL_OPTION) {
+      return categories.map(({id, name}) => {
+        return {id: id, name: name, isChecked: true}
+      });
+    }
     return categories.map(({id, name}) => {
       return {id: id, name: name, isChecked: updatedCategoryNames.indexOf(name) > -1}
     });
@@ -262,6 +284,14 @@ const SavingsFilter: React.FC = () => {
           renderValue: (selected: any) => selected.join(', ')
         }}
       >
+        <MenuItem key={SELECT_ALL_OPTION}
+                  value={SELECT_ALL_OPTION}
+                  disabled={checkedIncomeCategoryNames.length === incomeCategories.length}
+                  className={classes.selectAllOption}
+        >
+          <Checkbox checked={checkedIncomeCategoryNames.length === incomeCategories.length}/>
+          <ListItemText primary="Select all"/>
+        </MenuItem>
         {selectedIncomeCategories.map(({id, name, isChecked}) => (
           <MenuItem
             key={id}
@@ -288,6 +318,14 @@ const SavingsFilter: React.FC = () => {
           renderValue: (selected: any) => selected.join(', ')
         }}
       >
+        <MenuItem key={SELECT_ALL_OPTION}
+                  value={SELECT_ALL_OPTION}
+                  disabled={checkedExpenseCategoryNames.length === expenseCategories.length}
+                  className={classes.selectAllOption}
+        >
+          <Checkbox checked={checkedExpenseCategoryNames.length === expenseCategories.length}/>
+          <ListItemText primary="Select all"/>
+        </MenuItem>
         {selectedExpenseCategories.map(({id, name, isChecked}) => (
           <MenuItem
             key={id}
@@ -307,6 +345,7 @@ const SavingsFilter: React.FC = () => {
         label="Search text"
         value={searchText}
         onKeyPress={handlePressEnterInSearchField}
+        onBlur={handleOnBlurSearchField}
         onChange={handleChangeSearchText}
         InputProps={{
           endAdornment: (
