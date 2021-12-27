@@ -7,8 +7,10 @@ import javax.persistence.EntityNotFoundException;
 import javax.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.rgasymov.moneymanager.constant.CacheNames;
 import ru.rgasymov.moneymanager.domain.dto.request.AccountRequestDto;
 import ru.rgasymov.moneymanager.domain.dto.request.OperationCategoryRequestDto;
 import ru.rgasymov.moneymanager.domain.dto.response.AccountResponseDto;
@@ -22,9 +24,9 @@ import ru.rgasymov.moneymanager.repository.IncomeRepository;
 import ru.rgasymov.moneymanager.repository.SavingRepository;
 import ru.rgasymov.moneymanager.repository.UserRepository;
 import ru.rgasymov.moneymanager.service.AccountService;
-import ru.rgasymov.moneymanager.service.ExpenseCategoryService;
-import ru.rgasymov.moneymanager.service.IncomeCategoryService;
 import ru.rgasymov.moneymanager.service.UserService;
+import ru.rgasymov.moneymanager.service.expense.ExpenseCategoryService;
+import ru.rgasymov.moneymanager.service.income.IncomeCategoryService;
 
 @Service
 @RequiredArgsConstructor
@@ -105,6 +107,9 @@ public class AccountServiceImpl implements AccountService {
     accountRepository.deleteById(id);
   }
 
+  @CacheEvict(
+      cacheNames = {CacheNames.INCOME_CATEGORIES, CacheNames.EXPENSE_CATEGORIES},
+      allEntries = true)
   @Transactional
   @Override
   public AccountResponseDto changeCurrent(Long id) {

@@ -1,4 +1,4 @@
-package ru.rgasymov.moneymanager.service.impl;
+package ru.rgasymov.moneymanager.service.xlsx.impl;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -26,9 +26,9 @@ import ru.rgasymov.moneymanager.exception.DataExtractionException;
 import ru.rgasymov.moneymanager.exception.DataGenerationException;
 import ru.rgasymov.moneymanager.exception.FileReadingException;
 import ru.rgasymov.moneymanager.exception.IncorrectFileStorageRootException;
-import ru.rgasymov.moneymanager.service.XlsxFileService;
-import ru.rgasymov.moneymanager.service.XlsxGenerationService;
-import ru.rgasymov.moneymanager.service.XlsxParsingService;
+import ru.rgasymov.moneymanager.service.xlsx.XlsxFileService;
+import ru.rgasymov.moneymanager.service.xlsx.XlsxGenerationService;
+import ru.rgasymov.moneymanager.service.xlsx.XlsxParsingService;
 
 @Service
 @RequiredArgsConstructor
@@ -88,10 +88,11 @@ public class XlsxFileServiceImpl implements XlsxFileService {
     log.info("# XlsxFileService: file generation has started");
 
     try {
-      Resource result = xlsxGenerationService.generate(PATH_TO_GENERATION_TEMPLATE, data);
+      var template = new ClassPathResource(PATH_TO_GENERATION_TEMPLATE);
+      var result = xlsxGenerationService.generate(template, data);
       log.info("# XlsxFileService: file generation has successfully completed");
 
-      String fileName = String.format(DOWNLOADED_FILE_NAME_PATTERN,
+      var fileName = String.format(DOWNLOADED_FILE_NAME_PATTERN,
           LocalDateTime.now()
               .format(DateTimeFormatter
                   .ofPattern(DateTimeFormats.FILE_NAME_DATE_TIME_FORMAT)));

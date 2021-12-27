@@ -37,12 +37,20 @@ const useStyles = makeStyles((theme: Theme) =>
       display: 'flex',
       justifyContent: 'space-between',
       alignItems: 'center',
-      height: 50,
+      height: '5vh'
+    },
+    appName: {
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      minWidth: 190,
+      marginRight: theme.spacing(1)
     },
     buttonsBox: {
-      minWidth: 400,
       display: 'flex',
-      justifyContent: 'center',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      minWidth: 270,
     },
     greenText: {
       color: theme.palette.greenText.main
@@ -51,7 +59,7 @@ const useStyles = makeStyles((theme: Theme) =>
       color: theme.palette.redText.main
     },
     appBar: {
-      marginBottom: theme.spacing(1)
+      marginBottom: '1vh'
     },
     cursor: {
       cursor: 'pointer'
@@ -93,7 +101,7 @@ const Header: React.FC<HeaderProps> = ({hasActions, children}) => {
     <AppBar position="static" className={classes.appBar}>
       <Toolbar className={classes.root}>
 
-        <Box className={classes.root}>
+        <Box className={classes.appName}>
           <IconButton
             edge="start"
             color="inherit"
@@ -128,7 +136,7 @@ const Header: React.FC<HeaderProps> = ({hasActions, children}) => {
                     className={classes.greenText}
                     onClick={() => setOpenAddIncome(true)}
                 >
-                    Add income
+                    Income
                 </Button>
                 <AddIncomeDialog
                     open={openAddIncome}
@@ -142,7 +150,7 @@ const Header: React.FC<HeaderProps> = ({hasActions, children}) => {
                     className={classes.redText}
                     onClick={() => setOpenAddExpense(true)}
                 >
-                    Add expense
+                    Expense
                 </Button>
                 <AddExpenseDialog
                     open={openAddExpense}

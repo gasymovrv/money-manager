@@ -1,13 +1,13 @@
 package ru.rgasymov.moneymanager.domain.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.annotations.ApiModel;
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
-@ApiModel
+@Schema
 @Data
 @SuperBuilder
 @NoArgsConstructor

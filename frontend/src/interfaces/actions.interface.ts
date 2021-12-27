@@ -13,21 +13,21 @@ import {
   SHOW_SUCCESS,
   SUCCESS_MAIN_TABLE
 } from '../constants';
-import { SavingsFilterParams } from './saving.interface';
+import { SavingsFilterParamsMap } from './saving.interface';
 import { OperationCategory } from './operation.interface';
 import { PaginationParams, Row, ShowingCategoriesParams } from './main-table.interface';
 
 interface ChangeFilterAction {
   type: typeof CHANGE_FILTER,
   payload: {
-    activeFilter: SavingsFilterParams,
+    activeFilter: SavingsFilterParamsMap,
   }
 }
 
 interface ResetFilterAction {
   type: typeof RESET_FILTER
   payload: {
-    activeFilter: SavingsFilterParams,
+    activeFilter: SavingsFilterParamsMap,
   }
 }
 

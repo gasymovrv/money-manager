@@ -1,6 +1,6 @@
 package ru.rgasymov.moneymanager.controller.api;
 
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.info.BuildProperties;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,7 +14,7 @@ public class VersionController {
 
   private final BuildProperties buildProperties;
 
-  @ApiOperation("Get current version")
+  @Operation(summary = "Get current version")
   @GetMapping
   public String version() {
     return buildProperties.getVersion();

@@ -9,7 +9,8 @@ import Footer from '../footer/footer';
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     container: {
-      minWidth: 700
+      width: '98vw',
+      minWidth: 550
     }
   })
 );
@@ -20,7 +21,7 @@ const PageContainer: React.FC<any> = ({children}) => {
   const error = useSelector(({error}: any) => error);
 
   return (
-    <Container maxWidth="xl" className={classes.container}>
+    <Container maxWidth={false} disableGutters={true} className={classes.container}>
       {children}
       {error && <ErrorNotification text={error}/>}
       {success && <SuccessNotification text={success}/>}

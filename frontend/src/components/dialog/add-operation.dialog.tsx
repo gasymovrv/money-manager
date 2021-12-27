@@ -1,5 +1,5 @@
 import { Button, Dialog, DialogActions, DialogTitle } from '@material-ui/core';
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import moment from 'moment';
 import { AddOperationProps, DialogProps } from '../../interfaces/common.interface';
 import CommonModal from '../modal/common.modal';
@@ -9,10 +9,12 @@ import { WithAddExpenseActions } from '../../hocs/with-add-expense-actions';
 import { COMMON_ERROR_MSG, DATE_FORMAT } from '../../constants';
 import { PaginationParams } from '../../interfaces/main-table.interface';
 import { useDispatch, useSelector } from 'react-redux';
-import { SavingsFilterParams } from '../../interfaces/saving.interface';
+import { SavingsFilterParamsMap } from '../../interfaces/saving.interface';
 import { fetchMainTable } from '../../services/async-dispatch.service';
 import { showError } from '../../actions/error.actions';
 import { showSuccess } from '../../actions/success.actions';
+import { AuthContext } from '../../interfaces/auth-context.interface';
+import { getSavingsFilter } from '../../helpers/common.helper';
 
 const AddOperationDialog: React.FC<DialogProps & AddOperationProps> = ({
                                                                          open,
@@ -21,8 +23,10 @@ const AddOperationDialog: React.FC<DialogProps & AddOperationProps> = ({
                                                                          addOperation
                                                                        }) => {
   const dispatch = useDispatch();
-  const savingsFilter: SavingsFilterParams = useSelector(({savingsFilter}: any) => savingsFilter);
   const paginationParams: PaginationParams = useSelector(({pagination}: any) => pagination);
+  const accountId = useContext(AuthContext).user.currentAccount.id;
+  const savingsFilterMap: SavingsFilterParamsMap = useSelector(({savingsFilterMap}: any) => savingsFilterMap);
+  const savingsFilter = getSavingsFilter(accountId, savingsFilterMap);
 
   const [value, setValue] = useState<number>(100);
   const [description, setDescription] = useState<string>();

@@ -1,6 +1,5 @@
-package ru.rgasymov.moneymanager.service.impl;
+package ru.rgasymov.moneymanager.service;
 
-import java.util.List;
 import javax.persistence.EntityNotFoundException;
 import javax.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
@@ -13,8 +12,6 @@ import ru.rgasymov.moneymanager.domain.entity.User;
 import ru.rgasymov.moneymanager.mapper.BaseOperationCategoryMapper;
 import ru.rgasymov.moneymanager.repository.BaseOperationCategoryRepository;
 import ru.rgasymov.moneymanager.repository.BaseOperationRepository;
-import ru.rgasymov.moneymanager.service.BaseOperationCategoryService;
-import ru.rgasymov.moneymanager.service.UserService;
 
 @RequiredArgsConstructor
 public abstract class AbstractOperationCategoryService<
@@ -28,17 +25,6 @@ public abstract class AbstractOperationCategoryService<
   private final BaseOperationCategoryMapper<C> operationCategoryMapper;
 
   private final UserService userService;
-
-  @Transactional(readOnly = true)
-  @Override
-  public List<OperationCategoryResponseDto> findAll() {
-    var currentUser = userService.getCurrentUser();
-    var currentAccountId = currentUser.getCurrentAccount().getId();
-    List<C> result = findAll(currentAccountId);
-    return operationCategoryMapper.toDtos(result);
-  }
-
-  protected abstract List<C> findAll(Long accountId);
 
   @Transactional
   @Override
@@ -54,6 +40,8 @@ public abstract class AbstractOperationCategoryService<
 
     C newOperationCategory = buildNewOperationCategory(currentUser, dto.getName());
     C saved = operationCategoryRepository.save(newOperationCategory);
+
+    clearCachedCategories();
     return operationCategoryMapper.toDto(saved);
   }
 
@@ -76,6 +64,8 @@ public abstract class AbstractOperationCategoryService<
                     id)));
     operationCategory.setName(dto.getName());
     C saved = operationCategoryRepository.save(operationCategory);
+
+    clearCachedCategories();
     return operationCategoryMapper.toDto(saved);
   }
 
@@ -90,7 +80,10 @@ public abstract class AbstractOperationCategoryService<
           "Could not delete an operation category while it is being referenced by any expenses");
     }
     operationCategoryRepository.deleteByIdAndAccountId(id, currentAccountId);
+    clearCachedCategories();
   }
 
   protected abstract C buildNewOperationCategory(User currentUser, String name);
+
+  protected abstract void clearCachedCategories();
 }

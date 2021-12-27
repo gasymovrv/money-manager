@@ -10,7 +10,7 @@ const useStyles = makeStyles((theme: Theme) =>
       display: 'flex',
       justifyContent: 'center',
       alignItems: 'center',
-      marginTop: theme.spacing(3),
+      marginTop: '2vh',
       color: theme.palette.type === 'dark'
         ? theme.palette.secondary.dark
         : theme.palette.secondary.light,

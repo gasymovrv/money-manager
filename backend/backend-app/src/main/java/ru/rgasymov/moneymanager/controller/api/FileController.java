@@ -23,15 +23,18 @@ public class FileController {
   @RequestMapping(value = "/xlsx/import",
       method = RequestMethod.POST,
       consumes = "multipart/form-data")
-  public void uploadXlsx(@RequestPart("file") MultipartFile file) {
+  public void importFromXlsx(@RequestPart("file") MultipartFile file) {
     log.info("# Import from xlsx file");
     fileService.importFromXlsx(file);
+    log.info("# Import from the file has successfully completed");
   }
 
   @GetMapping("/xlsx/export")
   public ResponseEntity<Resource> exportToXlsx() {
     log.info("# Export to xlsx file");
-    return fileService.exportToXlsx();
+    var result = fileService.exportToXlsx();
+    log.info("# Export to the file has successfully completed");
+    return result;
   }
 
   @GetMapping("/xlsx/template")

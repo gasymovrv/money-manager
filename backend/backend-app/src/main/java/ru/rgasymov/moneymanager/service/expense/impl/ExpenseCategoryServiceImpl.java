@@ -1,0 +1,96 @@
+package ru.rgasymov.moneymanager.service.expense.impl;
+
+import static ru.rgasymov.moneymanager.spec.ExpenseCategorySpec.accountIdEq;
+
+import java.util.List;
+import java.util.Optional;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import ru.rgasymov.moneymanager.constant.CacheNames;
+import ru.rgasymov.moneymanager.domain.dto.response.OperationCategoryResponseDto;
+import ru.rgasymov.moneymanager.domain.entity.Expense;
+import ru.rgasymov.moneymanager.domain.entity.ExpenseCategory;
+import ru.rgasymov.moneymanager.domain.entity.ExpenseCategory_;
+import ru.rgasymov.moneymanager.domain.entity.User;
+import ru.rgasymov.moneymanager.mapper.ExpenseCategoryMapper;
+import ru.rgasymov.moneymanager.repository.ExpenseCategoryRepository;
+import ru.rgasymov.moneymanager.repository.ExpenseRepository;
+import ru.rgasymov.moneymanager.service.AbstractOperationCategoryService;
+import ru.rgasymov.moneymanager.service.UserService;
+import ru.rgasymov.moneymanager.service.expense.ExpenseCategoryService;
+
+@Service
+@Slf4j
+public class ExpenseCategoryServiceImpl
+    extends AbstractOperationCategoryService<Expense, ExpenseCategory>
+    implements ExpenseCategoryService {
+
+  private final ExpenseCategoryRepository expenseCategoryRepository;
+
+  private final ExpenseCategoryMapper expenseCategoryMapper;
+
+  private final UserService userService;
+
+  private final CacheManager cacheManager;
+
+  public ExpenseCategoryServiceImpl(
+      ExpenseCategoryRepository expenseCategoryRepository,
+      ExpenseRepository expenseRepository,
+      ExpenseCategoryMapper expenseCategoryMapper,
+      UserService userService,
+      CacheManager cacheManager) {
+    super(expenseRepository, expenseCategoryRepository, expenseCategoryMapper, userService);
+    this.expenseCategoryRepository = expenseCategoryRepository;
+    this.expenseCategoryMapper = expenseCategoryMapper;
+    this.userService = userService;
+    this.cacheManager = cacheManager;
+  }
+
+  @Cacheable(cacheNames = CacheNames.EXPENSE_CATEGORIES)
+  @Transactional(readOnly = true)
+  @Override
+  public List<OperationCategoryResponseDto> findAll() {
+    var currentUser = userService.getCurrentUser();
+    var currentAccountId = currentUser.getCurrentAccount().getId();
+    List<ExpenseCategory> result = findAll(currentAccountId);
+    return expenseCategoryMapper.toDtos(result);
+  }
+
+  private List<ExpenseCategory> findAll(Long accountId) {
+    return expenseCategoryRepository.findAll(
+        accountIdEq(accountId),
+        Sort.by(Sort.Order.asc(ExpenseCategory_.NAME).ignoreCase())
+    );
+  }
+
+  @Cacheable(cacheNames = CacheNames.EXPENSE_CATEGORIES)
+  @Transactional(readOnly = true)
+  @Override
+  public List<OperationCategoryResponseDto> findAllAndSetChecked(List<Long> ids) {
+    var result = findAll();
+    if (CollectionUtils.isNotEmpty(ids)) {
+      result.forEach(category -> category.setChecked(ids.contains(category.getId())));
+    }
+    return result;
+  }
+
+  @Override
+  protected ExpenseCategory buildNewOperationCategory(User currentUser, String name) {
+    return ExpenseCategory.builder()
+        .account(currentUser.getCurrentAccount())
+        .name(name)
+        .build();
+  }
+
+  @Override
+  protected void clearCachedCategories() {
+    Optional.ofNullable(cacheManager.getCache(CacheNames.EXPENSE_CATEGORIES)).ifPresent(
+        Cache::clear);
+  }
+}

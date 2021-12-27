@@ -2,11 +2,9 @@ import { Account, AddOrEditAccountRequest, User } from '../interfaces/user.inter
 import {
   AddOrEditOperationCategoryRequest,
   AddOrEditOperationRequest,
-  Operation,
-  OperationCategory
+  Operation
 } from '../interfaces/operation.interface';
 import { SavingResponse, SavingSearchRequestParams, SavingSearchResult } from '../interfaces/saving.interface';
-import { SearchResult } from '../interfaces/common.interface';
 import { downloadFile, getFileName, handleErrors } from '../helpers/api.helper';
 
 const apiUrl = '/api/';
@@ -75,23 +73,13 @@ export async function createDefaultCategories(): Promise<Response> {
   }));
 }
 
-export async function getExpenseCategories(): Promise<Array<OperationCategory>> {
-  const response = handleErrors(await fetch(apiUrl + 'expenses/categories'));
-  return await response.json();
-}
-
-export async function getIncomeCategories(): Promise<Array<OperationCategory>> {
-  const response = handleErrors(await fetch(apiUrl + 'incomes/categories'));
-  return await response.json();
-}
-
-export async function getSavings(request: SavingSearchRequestParams): Promise<SearchResult<SavingResponse>> {
+export async function getSavings(request: SavingSearchRequestParams): Promise<SavingSearchResult> {
   return fetch(apiUrl + 'savings?' + request.toUrlSearchParams().toString())
     .then(handleErrors)
     .then((response) => {
       return response.json();
     })
-    .then((body: SearchResult<SavingResponse>): SearchResult<SavingResponse> => {
+    .then((body: SavingSearchResult): SavingSearchResult => {
       const result: SavingResponse[] = body.result.map((saving) => {
         const expMap: Map<string, Operation[]> = new Map(Object.entries(saving.expensesByCategory));
         const incMap: Map<string, Operation[]> = new Map(Object.entries(saving.incomesByCategory));
@@ -108,7 +96,7 @@ export async function getSavings(request: SavingSearchRequestParams): Promise<Se
           expensesByCategory: expMap
         };
       });
-      return new SavingSearchResult(result, body.totalElements);
+      return new SavingSearchResult(result, body.totalElements, body.incomeCategories, body.expenseCategories);
     });
 }
 

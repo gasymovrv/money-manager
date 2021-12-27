@@ -3,9 +3,11 @@ import React from 'react';
 import { DeleteAccountProps, DialogProps } from '../../interfaces/common.interface';
 import { deleteAccount } from '../../services/api.service';
 import { showSuccess } from '../../actions/success.actions';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { showError } from '../../actions/error.actions';
 import { COMMON_ERROR_MSG } from '../../constants';
+import { SavingsFilterParamsMap } from '../../interfaces/saving.interface';
+import { changeFilter } from '../../actions/savings-filter.actions';
 
 const DeleteAccountDialog: React.FC<DialogProps & DeleteAccountProps> = ({
                                                                            open,
@@ -14,10 +16,14 @@ const DeleteAccountDialog: React.FC<DialogProps & DeleteAccountProps> = ({
                                                                            account
                                                                          }) => {
   const dispatch = useDispatch();
+  const savingsFilterMap: SavingsFilterParamsMap = useSelector(({savingsFilterMap}: any) => savingsFilterMap);
 
   const handleYes = async () => {
     try {
       await deleteAccount(account.id);
+      const newFilterMap = {...savingsFilterMap};
+      delete newFilterMap[account.id];
+      dispatch(changeFilter(newFilterMap))
       dispatch(showSuccess('Account has been successfully deleted'));
       await onDelete();
     } catch (err) {

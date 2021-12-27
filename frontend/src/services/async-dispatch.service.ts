@@ -1,7 +1,11 @@
-import { getExpenseCategories, getIncomeCategories, getSavings } from './api.service';
+import { getSavings } from './api.service';
 import { errorMainTableAction, loadingMainTableAction, successMainTableAction } from '../actions/main-table.actions';
-import { SearchResult } from '../interfaces/common.interface';
-import { SavingResponse, SavingSearchRequestParams, SavingsFilterParams } from '../interfaces/saving.interface';
+import {
+  SavingResponse,
+  SavingSearchRequestParams,
+  SavingSearchResult,
+  SavingsFilterParams
+} from '../interfaces/saving.interface';
 import { PaginationParams, Row } from '../interfaces/main-table.interface';
 import { Operation, OperationCategory } from '../interfaces/operation.interface';
 import { formatByPeriod } from '../helpers/date.helper';
@@ -11,11 +15,11 @@ export const fetchMainTable = (paginationParams: PaginationParams,
   try {
     const {page, pageSize} = paginationParams;
     dispatch(loadingMainTableAction());
-    const incomeCategories = await getIncomeCategories();
-    const expenseCategories = await getExpenseCategories();
-    const searchResult: SearchResult<SavingResponse> = await getSavings(
+    const searchResult: SavingSearchResult = await getSavings(
       new SavingSearchRequestParams(page, pageSize, savingsFilter)
     );
+    const incomeCategories = searchResult.incomeCategories;
+    const expenseCategories = searchResult.expenseCategories;
 
     const savings = searchResult.result;
     const rows: Row[] = savings.map(({
@@ -32,14 +36,18 @@ export const fetchMainTable = (paginationParams: PaginationParams,
       const expenseLists: Array<Operation[] | undefined> = [];
       const incomeLists: Array<Operation[] | undefined> = [];
 
-      expenseCategories.forEach(({name}: OperationCategory) => {
-        const expenses = expensesByCategory.get(name);
-        expenseLists.push(expenses);
-      })
-      incomeCategories.forEach(({name}: OperationCategory) => {
-        const incomes = incomesByCategory.get(name);
-        incomeLists.push(incomes);
-      });
+      expenseCategories
+        .filter(({isChecked}) => isChecked)
+        .forEach(({name}: OperationCategory) => {
+          const expenses = expensesByCategory.get(name);
+          expenseLists.push(expenses);
+        })
+      incomeCategories
+        .filter(({isChecked}) => isChecked)
+        .forEach(({name}: OperationCategory) => {
+          const incomes = incomesByCategory.get(name);
+          incomeLists.push(incomes);
+        });
 
       return {
         id,
