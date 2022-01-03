@@ -42,7 +42,10 @@ spring:
           google:
             clientId: ${GOOGLE_CLIENT_ID:client-id}
             clientSecret: ${GOOGLE_CLIENT_SECRET:client-secret}
-            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+            redirect-uri: "{baseUrl}/oauth2/callback/{registrationId}"
+            scope:
+              - email
+              - profile
   servlet:
     multipart:
       max-file-size: ${MAX_UPLOAD_FILE_SIZE:20MB}
@@ -85,3 +88,9 @@ use-postgres: ${USE_POSTGRES:false}
 xlsx:
   max-exported-rows: ${MAX_EXPORTED_ROWS:1000000}
   show-empty-rows: ${SHOW_EMPTY_ROWS:true} # Add empty savings in the exported xlsx to fill months
+
+security:
+  token-secret: ${GOOGLE_CLIENT_SECRET:client-secret}
+  token-expiration-period: ${TOKEN_EXPIRATION_PERIOD:60m}
+#  authorizedRedirectUris:
+#    - http://localhost:3000/oauth2/redirect

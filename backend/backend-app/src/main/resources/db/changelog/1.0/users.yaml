@@ -30,3 +30,12 @@ databaseChangeLog:
             tableName: users
             columnName: current_account_id
             columnDataType: bigint
+
+  - changeSet:
+      id: 000001-create-constraint-users
+      author: Gasymov Ruslan
+      changes:
+        - addUniqueConstraint:
+            tableName: users
+            columnNames: email
+            constraintName: users_email_unique

@@ -1,5 +1,6 @@
-package ru.rgasymov.moneymanager.controller.api;
+package ru.rgasymov.moneymanager.controller;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,6 +16,7 @@ import ru.rgasymov.moneymanager.service.UserService;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("${server.api-base-url}/savings")
+@SecurityRequirement(name = "bearerAuth")
 @Slf4j
 public class SavingController {
 

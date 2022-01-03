@@ -84,7 +84,6 @@ public class AccountServiceImpl implements AccountService {
       accountRepository.save(account);
       if (currentUser.getCurrentAccount().getId().equals(id)) {
         currentUser.setCurrentAccount(account);
-        userService.updateCurrentUser(currentUser);
       }
     }
     return accountMapper.toDto(account);
@@ -117,8 +116,7 @@ public class AccountServiceImpl implements AccountService {
     var account = getAccount(id);
 
     currentUser.setCurrentAccount(account);
-    var updatedUser = userRepository.save(currentUser);
-    userService.updateCurrentUser(updatedUser);
+    userRepository.save(currentUser);
     return accountMapper.toDto(account);
   }
 

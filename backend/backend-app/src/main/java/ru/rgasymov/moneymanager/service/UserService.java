@@ -1,13 +1,14 @@
 package ru.rgasymov.moneymanager.service;
 
+import org.springframework.security.core.userdetails.UserDetails;
 import ru.rgasymov.moneymanager.domain.dto.response.UserResponseDto;
 import ru.rgasymov.moneymanager.domain.entity.User;
 
 public interface UserService {
 
-  User getCurrentUser();
+  UserDetails loadUserByIdAsUserDetails(String id);
 
-  void updateCurrentUser(User user);
+  User getCurrentUser();
 
   UserResponseDto getCurrentUserAsDto();
 }
