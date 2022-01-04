@@ -57,8 +57,9 @@ public class ExpenseController {
 
   @GetMapping("/categories")
   public List<OperationCategoryResponseDto> findAllCategories() {
-    log.info("# Find all expense categories, current user: {}", userService.getCurrentUser());
-    return expenseCategoryService.findAll();
+    final var currentUser = userService.getCurrentUser();
+    log.info("# Find all expense categories, current user: {}", currentUser);
+    return expenseCategoryService.findAll(currentUser.getCurrentAccount().getId());
   }
 
   @PostMapping("/categories")

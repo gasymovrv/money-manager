@@ -3,11 +3,14 @@ import React from 'react';
 
 export interface IContext {
   user: User,
+  isAuthenticated: boolean,
 
   refreshUser(): void
 }
 
 export const AuthContext = React.createContext<IContext>({
   user: defaultUser,
-  refreshUser: () => {}
+  isAuthenticated: false,
+  refreshUser: () => {
+  }
 });

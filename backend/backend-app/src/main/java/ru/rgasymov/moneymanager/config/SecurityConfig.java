@@ -1,6 +1,7 @@
 package ru.rgasymov.moneymanager.config;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -8,6 +9,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import ru.rgasymov.moneymanager.security.RestAuthenticationEntryPoint;
 import ru.rgasymov.moneymanager.security.TokenAuthenticationFilter;
@@ -25,6 +27,11 @@ import ru.rgasymov.moneymanager.security.oauth2.Oauth2AuthenticationSuccessHandl
     prePostEnabled = true
 )
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
+
+  private static final String BASE_URL = "/";
+
+  @Value("${server.api-base-url}")
+  private String apiBaseUrl;
 
   private final CustomOauth2UserService customOauth2UserService;
 
@@ -61,16 +68,18 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         .disable()
         .httpBasic()
         .disable()
+        .addFilterBefore(new ErrorFilter(apiBaseUrl, BASE_URL), FilterSecurityInterceptor.class)
         .exceptionHandling()
-        .authenticationEntryPoint(new RestAuthenticationEntryPoint())
+        .authenticationEntryPoint(new RestAuthenticationEntryPoint(apiBaseUrl))
         .and()
         .authorizeRequests()
         .antMatchers(
-            "/",
+            BASE_URL,
+            "/login",
+            apiBaseUrl + "/version",
             "/swagger-ui/**",
             "/v3/api-docs/**",
-            "/error",
-            "/api/version",
+            "/favicon.ico",
             "/static/**")
         .permitAll()
         .antMatchers("/auth/**", "/oauth2/**")

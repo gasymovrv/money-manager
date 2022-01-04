@@ -22,7 +22,6 @@ import ru.rgasymov.moneymanager.repository.ExpenseRepository;
 import ru.rgasymov.moneymanager.repository.IncomeCategoryRepository;
 import ru.rgasymov.moneymanager.repository.IncomeRepository;
 import ru.rgasymov.moneymanager.repository.SavingRepository;
-import ru.rgasymov.moneymanager.repository.UserRepository;
 import ru.rgasymov.moneymanager.service.AccountService;
 import ru.rgasymov.moneymanager.service.UserService;
 import ru.rgasymov.moneymanager.service.expense.ExpenseCategoryService;
@@ -39,7 +38,6 @@ public class AccountServiceImpl implements AccountService {
   private final ExpenseRepository expenseRepository;
   private final ExpenseCategoryRepository expenseCategoryRepository;
   private final SavingRepository savingRepository;
-  private final UserRepository userRepository;
 
   private final AccountMapper accountMapper;
 
@@ -116,7 +114,7 @@ public class AccountServiceImpl implements AccountService {
     var account = getAccount(id);
 
     currentUser.setCurrentAccount(account);
-    userRepository.save(currentUser);
+    userService.save(currentUser);
     return accountMapper.toDto(account);
   }
 

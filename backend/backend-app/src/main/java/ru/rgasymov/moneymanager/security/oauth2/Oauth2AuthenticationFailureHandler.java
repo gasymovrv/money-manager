@@ -15,7 +15,8 @@ import ru.rgasymov.moneymanager.util.CookieUtils;
 public class Oauth2AuthenticationFailureHandler extends SimpleUrlAuthenticationFailureHandler {
 
   @Autowired
-  HttpCookieOauth2AuthorizationRequestRepository httpCookieOauth2AuthorizationRequestRepository;
+  private HttpCookieOauth2AuthorizationRequestRepository
+      httpCookieOauth2AuthorizationRequestRepository;
 
   @Override
   public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,

@@ -25,7 +25,7 @@ import FilterListIcon from '@material-ui/icons/FilterList';
 import { useHistory } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { showError } from '../../actions/error.actions';
-import { COMMON_ERROR_MSG } from '../../constants';
+import { ACCESS_TOKEN, COMMON_ERROR_MSG } from '../../constants';
 
 type HeaderProps = {
   hasActions?: boolean,
@@ -95,6 +95,11 @@ const Header: React.FC<HeaderProps> = ({hasActions, children}) => {
       console.log(error);
       dispatch(showError(COMMON_ERROR_MSG));
     }
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem(ACCESS_TOKEN);
+    window.location.assign('/login');
   };
 
   return (
@@ -197,7 +202,7 @@ const Header: React.FC<HeaderProps> = ({hasActions, children}) => {
                 secondary={user.currentAccount.currency}
               />
             </MenuItem>
-            <MenuItem onClick={() => window.location.assign('logout')}>Logout</MenuItem>
+            <MenuItem onClick={handleLogout}>Logout</MenuItem>
           </StyledMenu>
         </Box>
 

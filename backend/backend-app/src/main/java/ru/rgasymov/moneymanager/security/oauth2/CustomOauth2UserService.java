@@ -16,17 +16,17 @@ import ru.rgasymov.moneymanager.domain.entity.Account;
 import ru.rgasymov.moneymanager.domain.entity.User;
 import ru.rgasymov.moneymanager.domain.enums.AccountTheme;
 import ru.rgasymov.moneymanager.exception.Oauth2AuthenticationProcessingException;
-import ru.rgasymov.moneymanager.repository.UserRepository;
 import ru.rgasymov.moneymanager.security.UserPrincipal;
 import ru.rgasymov.moneymanager.security.oauth2.user.Oauth2UserInfo;
 import ru.rgasymov.moneymanager.security.oauth2.user.Oauth2UserInfoFactory;
+import ru.rgasymov.moneymanager.service.UserService;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class CustomOauth2UserService extends DefaultOAuth2UserService {
 
-  private final UserRepository userRepository;
+  private final UserService userService;
 
   @Override
   public OAuth2User loadUser(OAuth2UserRequest request)
@@ -52,7 +52,7 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
       throw new Oauth2AuthenticationProcessingException("Email not found from OAuth2 provider");
     }
 
-    var user = userRepository.findByEmail(userInfo.getEmail())
+    var user = userService.findByEmail(userInfo.getEmail())
         .map(existingUser -> updateExistingUser(existingUser, userInfo))
         .orElseGet(() -> registerNewUser(userInfo));
 
@@ -76,7 +76,7 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
         .currency(Currency.getInstance("USD").getCurrencyCode())
         .build();
     newUser.setCurrentAccount(account);
-    return userRepository.save(newUser);
+    return userService.save(newUser);
   }
 
   private User updateExistingUser(User existingUser, Oauth2UserInfo userInfo) {
@@ -84,7 +84,7 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
     existingUser.setPicture(userInfo.getImageUrl());
     existingUser.setLocale(userInfo.getLocale());
     existingUser.setLastVisit(LocalDateTime.now());
-    return userRepository.save(existingUser);
+    return userService.save(existingUser);
   }
 
 }

@@ -58,8 +58,9 @@ public class IncomeController {
 
   @GetMapping("/categories")
   public List<OperationCategoryResponseDto> findAllCategories() {
-    log.info("# Find all income categories, current user: {}", userService.getCurrentUser());
-    return incomeCategoryService.findAll();
+    final var currentUser = userService.getCurrentUser();
+    log.info("# Find all income categories, current user: {}", currentUser);
+    return incomeCategoryService.findAll(currentUser.getCurrentAccount().getId());
   }
 
   @PostMapping("/categories")

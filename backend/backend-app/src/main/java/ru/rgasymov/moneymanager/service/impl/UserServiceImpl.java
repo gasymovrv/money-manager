@@ -1,10 +1,15 @@
 package ru.rgasymov.moneymanager.service.impl;
 
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import ru.rgasymov.moneymanager.constant.CacheNames;
 import ru.rgasymov.moneymanager.domain.dto.response.UserResponseDto;
 import ru.rgasymov.moneymanager.domain.entity.User;
 import ru.rgasymov.moneymanager.exception.ResourceNotFoundException;
@@ -28,6 +33,8 @@ public class UserServiceImpl implements UserService {
 
   private final ExpenseCategoryRepository expenseCategoryRepository;
 
+  @Cacheable(cacheNames = CacheNames.USERS)
+  @Transactional(readOnly = true)
   @Override
   public UserDetails loadUserByIdAsUserDetails(String id) {
     var user = getUser(id);
@@ -52,6 +59,19 @@ public class UserServiceImpl implements UserService {
             && !expenseCategoryRepository.existsByAccountId(currentAccountId)
     );
     return resp;
+  }
+
+  @Transactional(readOnly = true)
+  @Override
+  public Optional<User> findByEmail(String email) {
+    return userRepository.findByEmail(email);
+  }
+
+  @CacheEvict(cacheNames = {CacheNames.USERS}, allEntries = true)
+  @Transactional
+  @Override
+  public User save(User user) {
+    return userRepository.save(user);
   }
 
   private User getUser(String id) {

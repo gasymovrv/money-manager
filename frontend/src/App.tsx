@@ -11,22 +11,23 @@ import moment from 'moment-timezone';
 import WelcomePage from './pages/welcome.page';
 import ProfilePage from './pages/profile.page';
 import { Theme } from '@material-ui/core/styles';
+import Oauth2RedirectHandler from './components/oauth2/oauth2-redirect-handler';
 
 moment.tz.setDefault('Etc/UTC')
 
 interface PrivateRouterProps {
-  isAuth: boolean,
+  isAuthenticated: boolean,
   component: React.ComponentType<any>
 }
 
 const PrivateRoute: React.FC<PrivateRouterProps & RouteProps> = (props) => {
-  const {isAuth, component: Component, children} = props;
+  const {isAuthenticated, component: Component, children} = props;
 
   return (
     <Route
       {...children}
       render={(props) =>
-        isAuth
+        isAuthenticated
           ? <Component {...props} />
           : <Redirect to={{pathname: '/login', state: {from: props.location}}}/>}
     />
@@ -34,6 +35,7 @@ const PrivateRoute: React.FC<PrivateRouterProps & RouteProps> = (props) => {
 }
 
 const App: React.FC = () => {
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [user, setUser] = useState<User>(defaultUser);
   const [theme, setTheme] = useState<Theme>(lightTheme);
   const [isLoading, setLoading] = useState<boolean>(true);
@@ -46,6 +48,7 @@ const App: React.FC = () => {
         try {
           const currentUser = await getCurrentUser();
           setUser(currentUser);
+          setIsAuthenticated(currentUser && !!currentUser.id);
           const accountTheme = currentUser.currentAccount.theme;
           if (accountTheme === AccountTheme.LIGHT) {
             setTheme(lightTheme);
@@ -54,6 +57,7 @@ const App: React.FC = () => {
           }
           setLoading(false);
         } catch (err) {
+          setIsAuthenticated(false);
           console.log(`Getting current user error: ${err.text}`)
           setLoading(false);
         }
@@ -70,7 +74,7 @@ const App: React.FC = () => {
   if (isLoading) {
     return (<LinearProgress/>);
   }
-  const context: IContext = {user, refreshUser: loadUser};
+  const context: IContext = {user, isAuthenticated, refreshUser: loadUser};
 
   return (
     <ThemeProvider theme={theme}>
@@ -78,7 +82,7 @@ const App: React.FC = () => {
       <AuthContext.Provider value={context}>
         <Router>
           <Switch>
-            <PrivateRoute path="/" exact isAuth={!!user.id} component={
+            <PrivateRoute path="/" exact isAuthenticated={isAuthenticated} component={
               (props: any) => {
                 if (user.currentAccount.isDraft) {
                   return <Redirect to="/welcome"/>;
@@ -86,7 +90,7 @@ const App: React.FC = () => {
                   return <HomePage {...props}/>;
                 }
               }}/>
-            <PrivateRoute path="/welcome" exact isAuth={!!user.id} component={
+            <PrivateRoute path="/welcome" exact isAuthenticated={isAuthenticated} component={
               (props: any) => {
                 if (user.currentAccount.isDraft) {
                   return <WelcomePage {...props}/>;
@@ -94,8 +98,10 @@ const App: React.FC = () => {
                   return <Redirect to="/"/>;
                 }
               }}/>
-            <PrivateRoute path="/profile" exact isAuth={!!user.id} component={ProfilePage}/>
+            <PrivateRoute path="/profile" exact isAuthenticated={isAuthenticated} component={ProfilePage}/>
             <Route path="/login" component={LoginPage}/>
+            <Route path="/oauth2/redirect" component={Oauth2RedirectHandler}/>
+            <Route component={LoginPage}/>
           </Switch>
         </Router>
       </AuthContext.Provider>
