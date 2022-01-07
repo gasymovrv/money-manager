@@ -4,7 +4,7 @@ The main purpose of the application is to manage income, expenses and savings.
 
 ### Backend
 + Java 17, Spring Boot 2.6.2
-+ Authentication with Google OAuth2 by JWT
++ OAuth2 authentication with Google or VKontakte by JWT
 + Application has made as a stateless RESTful API
 + Built frontend is in jar resources, single html page will be opened by Spring MVC (spring-boot-starter-web)
 + There are 2 mode:
