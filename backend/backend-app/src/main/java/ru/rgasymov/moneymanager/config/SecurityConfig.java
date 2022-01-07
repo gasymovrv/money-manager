@@ -19,6 +19,9 @@ import org.springframework.security.oauth2.core.http.converter.OAuth2AccessToken
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import ru.rgasymov.moneymanager.security.RestAuthenticationEntryPoint;
 import ru.rgasymov.moneymanager.security.TokenAuthenticationFilter;
 import ru.rgasymov.moneymanager.security.oauth2.CustomOauth2UserService;
@@ -41,6 +44,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
   @Value("${server.api-base-url}")
   private String apiBaseUrl;
+
+  @Value("${security.allowed-origins}")
+  private List<String> allowedOrigins;
 
   private final CustomOauth2UserService customOauth2UserService;
 
@@ -77,6 +83,19 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     var accessTokenResponseClient = new DefaultAuthorizationCodeTokenResponseClient();
     accessTokenResponseClient.setRestOperations(restTemplate);
     return accessTokenResponseClient;
+  }
+
+  @Bean
+  public CorsConfigurationSource corsConfigurationSource() {
+    final var configuration = new CorsConfiguration();
+    configuration.setAllowedOrigins(allowedOrigins);
+    configuration.setAllowedMethods(List.of("HEAD", "GET", "POST", "PUT", "DELETE", "PATCH"));
+    configuration.setAllowCredentials(true);
+    configuration.setAllowedHeaders(List.of("Authorization", "Cache-Control", "Content-Type"));
+
+    final var source = new UrlBasedCorsConfigurationSource();
+    source.registerCorsConfiguration("/**", configuration);
+    return source;
   }
 
   @Override
