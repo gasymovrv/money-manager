@@ -1,17 +1,16 @@
 package ru.rgasymov.moneymanager.security.oauth2.user;
 
 import java.util.Map;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import ru.rgasymov.moneymanager.domain.enums.AuthProviders;
 
+@RequiredArgsConstructor
+@Getter
 public abstract class Oauth2UserInfo {
-  protected Map<String, Object> attributes;
 
-  public Oauth2UserInfo(Map<String, Object> attributes) {
-    this.attributes = attributes;
-  }
-
-  public Map<String, Object> getAttributes() {
-    return attributes;
-  }
+  protected final Map<String, Object> attributes;
+  protected final AuthProviders provider;
 
   public abstract String getId();
 

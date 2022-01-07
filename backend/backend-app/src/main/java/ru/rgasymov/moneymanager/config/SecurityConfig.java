@@ -1,19 +1,28 @@
 package ru.rgasymov.moneymanager.config;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.converter.FormHttpMessageConverter;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.oauth2.client.endpoint.DefaultAuthorizationCodeTokenResponseClient;
+import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
+import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequest;
+import org.springframework.security.oauth2.client.http.OAuth2ErrorResponseErrorHandler;
+import org.springframework.security.oauth2.core.http.converter.OAuth2AccessTokenResponseHttpMessageConverter;
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.client.RestTemplate;
 import ru.rgasymov.moneymanager.security.RestAuthenticationEntryPoint;
 import ru.rgasymov.moneymanager.security.TokenAuthenticationFilter;
 import ru.rgasymov.moneymanager.security.oauth2.CustomOauth2UserService;
+import ru.rgasymov.moneymanager.security.oauth2.CustomTokenResponseConverter;
 import ru.rgasymov.moneymanager.security.oauth2.HttpCookieOauth2AuthorizationRequestRepository;
 import ru.rgasymov.moneymanager.security.oauth2.Oauth2AuthenticationFailureHandler;
 import ru.rgasymov.moneymanager.security.oauth2.Oauth2AuthenticationSuccessHandler;
@@ -52,6 +61,22 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
   @Bean
   public HttpCookieOauth2AuthorizationRequestRepository cookieAuthorizationRequestRepository() {
     return new HttpCookieOauth2AuthorizationRequestRepository();
+  }
+
+  @Bean
+  public OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest>
+      accessTokenResponseClient() {
+    var tokenResponseHttpMessageConverter = new OAuth2AccessTokenResponseHttpMessageConverter();
+    tokenResponseHttpMessageConverter
+        .setAccessTokenResponseConverter(new CustomTokenResponseConverter());
+
+    var restTemplate = new RestTemplate(
+        List.of(new FormHttpMessageConverter(), tokenResponseHttpMessageConverter));
+    restTemplate.setErrorHandler(new OAuth2ErrorResponseErrorHandler());
+
+    var accessTokenResponseClient = new DefaultAuthorizationCodeTokenResponseClient();
+    accessTokenResponseClient.setRestOperations(restTemplate);
+    return accessTokenResponseClient;
   }
 
   @Override
@@ -97,6 +122,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         .and()
         .userInfoEndpoint()
         .userService(customOauth2UserService)
+        .and()
+        .tokenEndpoint()
+        .accessTokenResponseClient(accessTokenResponseClient())
         .and()
         .successHandler(authenticationSuccessHandler)
         .failureHandler(authenticationFailureHandler);

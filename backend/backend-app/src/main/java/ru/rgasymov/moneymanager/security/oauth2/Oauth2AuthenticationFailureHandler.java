@@ -19,7 +19,8 @@ public class Oauth2AuthenticationFailureHandler extends SimpleUrlAuthenticationF
       httpCookieOauth2AuthorizationRequestRepository;
 
   @Override
-  public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
+  public void onAuthenticationFailure(HttpServletRequest request,
+                                      HttpServletResponse response,
                                       AuthenticationException exception) throws IOException {
     String targetUrl = CookieUtils.getCookie(request,
             HttpCookieOauth2AuthorizationRequestRepository.REDIRECT_URI_PARAM_COOKIE_NAME)

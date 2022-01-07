@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import ru.rgasymov.moneymanager.domain.entity.Account;
 import ru.rgasymov.moneymanager.domain.entity.User;
 import ru.rgasymov.moneymanager.domain.enums.AccountTheme;
+import ru.rgasymov.moneymanager.domain.enums.AuthProviders;
 import ru.rgasymov.moneymanager.exception.Oauth2AuthenticationProcessingException;
 import ru.rgasymov.moneymanager.security.UserPrincipal;
 import ru.rgasymov.moneymanager.security.oauth2.user.Oauth2UserInfo;
@@ -27,11 +28,17 @@ import ru.rgasymov.moneymanager.service.UserService;
 public class CustomOauth2UserService extends DefaultOAuth2UserService {
 
   private final UserService userService;
+  private final VkOauth2UserService vkOauth2UserService;
 
   @Override
   public OAuth2User loadUser(OAuth2UserRequest request)
       throws OAuth2AuthenticationException {
-    var oauth2User = super.loadUser(request);
+    OAuth2User oauth2User;
+    if (request.getClientRegistration().getRegistrationId().equals(AuthProviders.VK.getId())) {
+      oauth2User = vkOauth2UserService.loadUser(request);
+    } else {
+      oauth2User = super.loadUser(request);
+    }
 
     try {
       return processOauth2User(request, oauth2User);
@@ -45,14 +52,16 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
   }
 
   private OAuth2User processOauth2User(OAuth2UserRequest request, OAuth2User authUser) {
+    var provider = AuthProviders.of(request.getClientRegistration().getRegistrationId());
+
     var userInfo = Oauth2UserInfoFactory.getOauth2UserInfo(
-        request.getClientRegistration().getRegistrationId(),
+        provider,
         authUser.getAttributes());
-    if (StringUtils.isEmpty(userInfo.getEmail())) {
-      throw new Oauth2AuthenticationProcessingException("Email not found from OAuth2 provider");
+    if (StringUtils.isEmpty(userInfo.getId())) {
+      throw new Oauth2AuthenticationProcessingException("User id not found from OAuth2 provider");
     }
 
-    var user = userService.findByEmail(userInfo.getEmail())
+    var user = userService.findById(userInfo.getId())
         .map(existingUser -> updateExistingUser(existingUser, userInfo))
         .orElseGet(() -> registerNewUser(userInfo));
 
@@ -67,6 +76,7 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
     newUser.setEmail(userInfo.getEmail());
     newUser.setPicture(userInfo.getImageUrl());
     newUser.setLocale(userInfo.getLocale());
+    newUser.setProvider(userInfo.getProvider());
     newUser.setLastVisit(LocalDateTime.now());
 
     var account = Account.builder()
@@ -83,6 +93,7 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
     existingUser.setName(userInfo.getName());
     existingUser.setPicture(userInfo.getImageUrl());
     existingUser.setLocale(userInfo.getLocale());
+    existingUser.setProvider(userInfo.getProvider());
     existingUser.setLastVisit(LocalDateTime.now());
     return userService.save(existingUser);
   }

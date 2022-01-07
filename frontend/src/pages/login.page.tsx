@@ -2,6 +2,7 @@ import React, { useContext } from 'react';
 import { Avatar, Grid, Link, ListItem, ListItemAvatar, ListItemText, Typography } from '@material-ui/core';
 import PageContainer from '../components/page-container/page-container';
 import googleLogo from '../img/google-logo.png';
+import vkLogo from '../img/vk-logo.png';
 import { Redirect, useLocation } from 'react-router-dom';
 import { AuthContext } from '../interfaces/auth-context.interface';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
@@ -11,9 +12,13 @@ const useStyles = makeStyles((theme: Theme) =>
     listItemText: {
       fontSize: 20,
     },
-    avatar: {
+    googleAvatar: {
       width: theme.spacing(5),
       height: theme.spacing(5),
+    },
+    vkAvatar: {
+      width: theme.spacing(4),
+      height: theme.spacing(4),
     }
   }),
 );
@@ -34,7 +39,8 @@ const LoginPage: React.FC = () => {
     );
   }
   const apiHost = process.env.NODE_ENV === 'production' ? '' : 'http://localhost:8080';
-  const authUri = `${apiHost}/oauth2/authorize/google?redirect_uri=${window.location.origin}/oauth2/redirect`;
+  const googleAuthUri = `${apiHost}/oauth2/authorize/google?redirect_uri=${window.location.origin}/oauth2/redirect`;
+  const vkAuthUri = `${apiHost}/oauth2/authorize/vk?redirect_uri=${window.location.origin}/oauth2/redirect`;
 
   return (
     <PageContainer>
@@ -52,17 +58,32 @@ const LoginPage: React.FC = () => {
           </Typography>
         </Grid>
         <Grid item>
+
           <Link color="inherit"
-                href={authUri}>
+                href={googleAuthUri}>
             <ListItem>
               <ListItemAvatar>
                 <Avatar
-                  className={classes.avatar}
+                  className={classes.googleAvatar}
                   alt="Google"
                   src={googleLogo}
                 />
               </ListItemAvatar>
               <ListItemText classes={{primary: classes.listItemText}} primary="Google"/>
+            </ListItem>
+          </Link>
+
+          <Link color="inherit"
+                href={vkAuthUri}>
+            <ListItem>
+              <ListItemAvatar>
+                <Avatar
+                  className={classes.vkAvatar}
+                  alt="VKontakte"
+                  src={vkLogo}
+                />
+              </ListItemAvatar>
+              <ListItemText classes={{primary: classes.listItemText}} primary="VKontakte"/>
             </ListItem>
           </Link>
 

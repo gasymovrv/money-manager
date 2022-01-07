@@ -22,7 +22,7 @@ import ru.rgasymov.moneymanager.util.CookieUtils;
 @RequiredArgsConstructor
 public class Oauth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
-  @Value("${security.authorized-redirect-hosts}")
+  @Value("${security.allowed-origins}")
   private List<String> authorizedRedirectHosts;
 
   private final TokenProvider tokenProvider;

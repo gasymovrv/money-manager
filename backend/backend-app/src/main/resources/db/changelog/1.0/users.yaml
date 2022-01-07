@@ -32,10 +32,17 @@ databaseChangeLog:
             columnDataType: bigint
 
   - changeSet:
-      id: 000001-create-constraint-users
+      id: 000000-add-column-provider-users
       author: Gasymov Ruslan
       changes:
-        - addUniqueConstraint:
+        - addColumn:
             tableName: users
-            columnNames: email
-            constraintName: users_email_unique
+            columns:
+              - column:
+                  name: provider
+                  type: varchar(50)
+                  defaultValue: GOOGLE
+        - addNotNullConstraint:
+            tableName: users
+            columnName: provider
+            columnDataType: varchar(50)

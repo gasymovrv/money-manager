@@ -3,20 +3,22 @@ package ru.rgasymov.moneymanager.security.oauth2.user;
 import java.util.Map;
 import ru.rgasymov.moneymanager.domain.enums.AuthProviders;
 
-public class GoogleOauth2UserInfo extends Oauth2UserInfo {
+public class VkOauth2UserInfo extends Oauth2UserInfo {
 
-  public GoogleOauth2UserInfo(Map<String, Object> attributes, AuthProviders provider) {
+  public VkOauth2UserInfo(Map<String, Object> attributes, AuthProviders provider) {
     super(attributes, provider);
   }
 
   @Override
   public String getId() {
-    return (String) attributes.get("sub");
+    return String.valueOf(attributes.get("id"));
   }
 
   @Override
   public String getName() {
-    return (String) attributes.get("name");
+    var firstName = (String) attributes.get("first_name");
+    var lastName = (String) attributes.get("last_name");
+    return String.format("%s %s", firstName, lastName);
   }
 
   @Override
@@ -26,11 +28,11 @@ public class GoogleOauth2UserInfo extends Oauth2UserInfo {
 
   @Override
   public String getImageUrl() {
-    return (String) attributes.get("picture");
+    return (String) attributes.get("photo_max");
   }
 
   @Override
   public String getLocale() {
-    return (String) attributes.get("locale");
+    return null;
   }
 }

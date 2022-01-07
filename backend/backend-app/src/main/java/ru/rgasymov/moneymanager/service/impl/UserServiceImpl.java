@@ -63,8 +63,8 @@ public class UserServiceImpl implements UserService {
 
   @Transactional(readOnly = true)
   @Override
-  public Optional<User> findByEmail(String email) {
-    return userRepository.findByEmail(email);
+  public Optional<User> findById(String id) {
+    return userRepository.findById(id);
   }
 
   @CacheEvict(cacheNames = {CacheNames.USERS}, allEntries = true)
