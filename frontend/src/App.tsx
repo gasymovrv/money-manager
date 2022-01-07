@@ -12,6 +12,7 @@ import WelcomePage from './pages/welcome.page';
 import ProfilePage from './pages/profile.page';
 import { Theme } from '@material-ui/core/styles';
 import Oauth2RedirectHandler from './components/oauth2/oauth2-redirect-handler';
+import { useEffectCallback } from './helpers/common.helper';
 
 moment.tz.setDefault('Etc/UTC')
 
@@ -40,35 +41,27 @@ const App: React.FC = () => {
   const [theme, setTheme] = useState<Theme>(lightTheme);
   const [isLoading, setLoading] = useState<boolean>(true);
 
-  const loadUser = () => {
-    let mounted = true;
-
-    (async () => {
-      if (mounted) {
-        try {
-          const currentUser = await getCurrentUser();
-          setUser(currentUser);
-          setIsAuthenticated(currentUser && !!currentUser.id);
-          const accountTheme = currentUser.currentAccount.theme;
-          if (accountTheme === AccountTheme.LIGHT) {
-            setTheme(lightTheme);
-          } else if (accountTheme === AccountTheme.DARK) {
-            setTheme(darkTheme);
-          }
-          setLoading(false);
-        } catch (err) {
-          setIsAuthenticated(false);
-          console.log(`Getting current user error: ${err.text}`)
-          setLoading(false);
-        }
+  const loadUser = useEffectCallback({
+    asyncFunctions: [getCurrentUser],
+    successActions: [(currentUser: any) => {
+      setUser(currentUser);
+      setIsAuthenticated(currentUser && !!currentUser.id);
+      const accountTheme = currentUser.currentAccount.theme;
+      if (accountTheme === AccountTheme.LIGHT) {
+        setTheme(lightTheme);
+      } else if (accountTheme === AccountTheme.DARK) {
+        setTheme(darkTheme);
       }
-    })();
+      setLoading(false);
+    }],
+    errorActions: [(err: any) => {
+      setIsAuthenticated(false);
+      console.log(`Getting current user error: ${err.text}`)
+      setLoading(false);
+    }]
+  });
 
-    return () => {
-      mounted = false
-    };
-  }
-
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(loadUser, []);
 
   if (isLoading) {

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import { Box, Link, Typography } from '@material-ui/core';
 import { getVersion } from '../../services/api.service';
+import { useEffectCallback } from '../../helpers/common.helper';
 
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -28,24 +29,18 @@ const Footer: React.FC = () => {
   const [version, setVersion] = useState<string>();
   const [isLoadingVersion, setLoadingVersion] = useState<boolean>(true);
 
-  const loadVersion = () => {
-    let mounted = true;
-    (async () => {
-      if (mounted) {
-        try {
-          const ver = await getVersion();
-          setVersion(ver);
-          setLoadingVersion(false);
-        } catch (err) {
-          console.log(`Getting version error: ${err}`);
-        }
-      }
-    })();
-    return () => {
-      mounted = false
-    };
-  }
+  const loadVersion = useEffectCallback({
+    asyncFunctions: [getVersion],
+    successActions: [(version: any) => {
+      setVersion(version);
+      setLoadingVersion(false);
+    }],
+    errorActions: [(err: any) => {
+      console.log(`Getting version error: ${err}`)
+    }]
+  });
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(loadVersion, []);
 
   return (

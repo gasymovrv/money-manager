@@ -1,12 +1,11 @@
 import { Checkbox, DialogContent, FormControlLabel, MenuItem, TextField } from '@material-ui/core';
 import React from 'react';
-import MomentUtils from '@date-io/moment';
-import { DatePicker, MuiPickersUtilsProvider } from '@material-ui/pickers';
 import moment, { Moment } from 'moment';
 import { OperationCategory } from '../../interfaces/operation.interface';
 import { DATE_FORMAT } from '../../constants';
 import { isPastOrToday } from '../../helpers/date.helper';
 import EditableMoneyFormat from '../money-format/editable-money-format';
+import { CustomDatePicker } from '../date-picker/custom.date-picker';
 
 type CommonContentDialogProps = {
   value: number,
@@ -80,20 +79,18 @@ const CommonOperationDialog: React.FC<CommonContentDialogProps> = ({
         )}
       </TextField>
 
-      <MuiPickersUtilsProvider utils={MomentUtils}>
-        <DatePicker
-          error={isPlanned && isSelectedDatePastOrToday}
-          margin="normal"
-          required
-          fullWidth
-          format={DATE_FORMAT}
-          value={date}
-          onChange={handleChangeDate}
-          minDate={isPlanned ? moment().add(1, 'days') : undefined}
-          label="Date"
-          color="secondary"
-        />
-      </MuiPickersUtilsProvider>
+      <CustomDatePicker
+        error={isPlanned && isSelectedDatePastOrToday}
+        margin="normal"
+        required
+        fullWidth
+        format={DATE_FORMAT}
+        value={date}
+        onChange={handleChangeDate}
+        minDate={isPlanned ? moment().add(1, 'days') : undefined}
+        label="Date"
+        color="secondary"
+      />
 
       <FormControlLabel
         label="Planned"

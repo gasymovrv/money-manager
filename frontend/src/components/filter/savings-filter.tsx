@@ -12,8 +12,6 @@ import {
 } from '@material-ui/core';
 import SearchIcon from '@material-ui/icons/Search';
 import { createStyles, Theme } from '@material-ui/core/styles';
-import { DatePicker, MuiPickersUtilsProvider } from '@material-ui/pickers';
-import MomentUtils from '@date-io/moment';
 import { Period, SortDirection } from '../../interfaces/common.interface';
 import { SavingFieldToSort, SavingsFilterParams, SavingsFilterParamsMap } from '../../interfaces/saving.interface';
 import { DATE_FORMAT, SELECT_ALL_OPTION } from '../../constants';
@@ -24,6 +22,7 @@ import { MainTableState } from '../../interfaces/main-table.interface';
 import { OperationCategory } from '../../interfaces/operation.interface';
 import { arrayEquals, getSavingsFilter } from '../../helpers/common.helper';
 import { AuthContext } from '../../interfaces/auth-context.interface';
+import { CustomDatePicker } from '../date-picker/custom.date-picker';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -200,33 +199,29 @@ const SavingsFilter: React.FC = () => {
 
   return (
     <Toolbar className={classes.root}>
-      <MuiPickersUtilsProvider utils={MomentUtils}>
-        <DatePicker
-          className={classes.inputField}
-          margin="normal"
-          format={DATE_FORMAT}
-          value={savingsFilter.from ? savingsFilter.from : null}
-          onChange={handleChangeFrom}
-          label="From"
-          color="secondary"
-          maxDate={savingsFilter.to ? savingsFilter.to : undefined}
-          clearable
-        />
-      </MuiPickersUtilsProvider>
+      <CustomDatePicker
+        className={classes.inputField}
+        margin="normal"
+        format={DATE_FORMAT}
+        value={savingsFilter.from ? savingsFilter.from : null}
+        onChange={handleChangeFrom}
+        label="From"
+        color="secondary"
+        maxDate={savingsFilter.to ? savingsFilter.to : undefined}
+        clearable
+      />
 
-      <MuiPickersUtilsProvider utils={MomentUtils}>
-        <DatePicker
-          className={classes.inputField}
-          margin="normal"
-          format={DATE_FORMAT}
-          value={savingsFilter.to ? savingsFilter.to : null}
-          onChange={handleChangeTo}
-          label="To"
-          color="secondary"
-          minDate={savingsFilter.from ? savingsFilter.from : undefined}
-          clearable
-        />
-      </MuiPickersUtilsProvider>
+      <CustomDatePicker
+        className={classes.inputField}
+        margin="normal"
+        format={DATE_FORMAT}
+        value={savingsFilter.to ? savingsFilter.to : null}
+        onChange={handleChangeTo}
+        label="To"
+        color="secondary"
+        minDate={savingsFilter.from ? savingsFilter.from : undefined}
+        clearable
+      />
 
       <TextField
         className={classes.inputField}
