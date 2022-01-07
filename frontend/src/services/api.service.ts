@@ -5,7 +5,7 @@ import {
   Operation
 } from '../interfaces/operation.interface';
 import { SavingResponse, SavingSearchRequestParams, SavingSearchResult } from '../interfaces/saving.interface';
-import { buildHeaders, downloadFile, getFileName, handleErrors } from '../helpers/api.helper';
+import { buildHeaders, buildHeadersJson, downloadFile, getFileName, handleErrors } from '../helpers/api.helper';
 import { ACCESS_TOKEN } from '../constants';
 
 const apiUrl = '/api/';
@@ -19,28 +19,28 @@ export async function getCurrentUser(): Promise<User> {
   if (!localStorage.getItem(ACCESS_TOKEN)) {
     return defaultUser;
   }
-  const headers = buildHeaders();
+  const headers = buildHeadersJson();
 
   const response = handleErrors(await fetch(apiUrl + 'users/current', {headers}));
   return await response.json();
 }
 
 export async function getAllCurrencies(): Promise<string[]> {
-  const headers = buildHeaders();
+  const headers = buildHeadersJson();
 
   const response = handleErrors(await fetch(apiUrl + 'accounts/currencies', {headers}));
   return await response.json();
 }
 
 export async function findAllAccounts(): Promise<Array<Account>> {
-  const headers = buildHeaders();
+  const headers = buildHeadersJson();
 
   const response = handleErrors(await fetch(apiUrl + 'accounts', {headers}));
   return await response.json();
 }
 
 export async function editAccount(id: number, request: AddOrEditAccountRequest): Promise<Response> {
-  const headers = buildHeaders();
+  const headers = buildHeadersJson();
 
   return handleErrors(await fetch(`${apiUrl}accounts/${id}`, {
     method: 'PUT',
@@ -50,7 +50,7 @@ export async function editAccount(id: number, request: AddOrEditAccountRequest):
 }
 
 export async function addAccount(request: AddOrEditAccountRequest): Promise<Response> {
-  const headers = buildHeaders();
+  const headers = buildHeadersJson();
 
   return handleErrors(await fetch(`${apiUrl}accounts`, {
     method: 'POST',
@@ -60,7 +60,7 @@ export async function addAccount(request: AddOrEditAccountRequest): Promise<Resp
 }
 
 export async function deleteAccount(id: number): Promise<Response> {
-  const headers = buildHeaders();
+  const headers = buildHeadersJson();
 
   return handleErrors(await fetch(`${apiUrl}accounts/${id}`, {
     method: 'DELETE',
@@ -69,7 +69,7 @@ export async function deleteAccount(id: number): Promise<Response> {
 }
 
 export async function changeAccount(id: number): Promise<Response> {
-  const headers = buildHeaders();
+  const headers = buildHeadersJson();
 
   return handleErrors(await fetch(`${apiUrl}accounts/change?id=${id}`, {
     method: 'POST',
@@ -78,7 +78,7 @@ export async function changeAccount(id: number): Promise<Response> {
 }
 
 export async function createDefaultCategories(): Promise<Response> {
-  const headers = buildHeaders();
+  const headers = buildHeadersJson();
 
   return handleErrors(await fetch(`${apiUrl}accounts/default-categories`, {
     method: 'POST',
@@ -87,7 +87,7 @@ export async function createDefaultCategories(): Promise<Response> {
 }
 
 export async function getSavings(request: SavingSearchRequestParams): Promise<SavingSearchResult> {
-  const headers = buildHeaders();
+  const headers = buildHeadersJson();
 
   return fetch(apiUrl + 'savings?' + request.toUrlSearchParams().toString(), {headers})
     .then(handleErrors)
@@ -116,7 +116,7 @@ export async function getSavings(request: SavingSearchRequestParams): Promise<Sa
 }
 
 export async function addIncome(request: AddOrEditOperationRequest): Promise<Response> {
-  const headers = buildHeaders();
+  const headers = buildHeadersJson();
 
   return handleErrors(await fetch(apiUrl + 'incomes', {
     method: 'POST',
@@ -126,7 +126,7 @@ export async function addIncome(request: AddOrEditOperationRequest): Promise<Res
 }
 
 export async function addExpense(request: AddOrEditOperationRequest): Promise<Response> {
-  const headers = buildHeaders();
+  const headers = buildHeadersJson();
 
   return handleErrors(await fetch(apiUrl + 'expenses', {
     method: 'POST',
@@ -136,7 +136,7 @@ export async function addExpense(request: AddOrEditOperationRequest): Promise<Re
 }
 
 export async function addIncomeCategory(request: AddOrEditOperationCategoryRequest): Promise<Response> {
-  const headers = buildHeaders();
+  const headers = buildHeadersJson();
 
   return handleErrors(await fetch(apiUrl + 'incomes/categories', {
     method: 'POST',
@@ -146,7 +146,7 @@ export async function addIncomeCategory(request: AddOrEditOperationCategoryReque
 }
 
 export async function addExpenseCategory(request: AddOrEditOperationCategoryRequest): Promise<Response> {
-  const headers = buildHeaders();
+  const headers = buildHeadersJson();
 
   return handleErrors(await fetch(apiUrl + 'expenses/categories', {
     method: 'POST',
@@ -159,7 +159,7 @@ export async function editIncome(id: number, request: AddOrEditOperationRequest)
   if (request.description === '') {
     request.description = undefined;
   }
-  const headers = buildHeaders();
+  const headers = buildHeadersJson();
 
   return handleErrors(await fetch(`${apiUrl}incomes/${id}`, {
     method: 'PUT',
@@ -172,7 +172,7 @@ export async function editExpense(id: number, request: AddOrEditOperationRequest
   if (request.description === '') {
     request.description = undefined;
   }
-  const headers = buildHeaders();
+  const headers = buildHeadersJson();
 
   return handleErrors(await fetch(`${apiUrl}expenses/${id}`, {
     method: 'PUT',
@@ -182,7 +182,7 @@ export async function editExpense(id: number, request: AddOrEditOperationRequest
 }
 
 export async function editIncomeCategory(id: number, request: AddOrEditOperationCategoryRequest): Promise<Response> {
-  const headers = buildHeaders();
+  const headers = buildHeadersJson();
 
   return handleErrors(await fetch(`${apiUrl}incomes/categories/${id}`, {
     method: 'PUT',
@@ -192,7 +192,7 @@ export async function editIncomeCategory(id: number, request: AddOrEditOperation
 }
 
 export async function editExpenseCategory(id: number, request: AddOrEditOperationCategoryRequest): Promise<Response> {
-  const headers = buildHeaders();
+  const headers = buildHeadersJson();
 
   return handleErrors(await fetch(`${apiUrl}expenses/categories/${id}`, {
     method: 'PUT',
@@ -202,7 +202,7 @@ export async function editExpenseCategory(id: number, request: AddOrEditOperatio
 }
 
 export async function deleteIncome(id: number): Promise<Response> {
-  const headers = buildHeaders();
+  const headers = buildHeadersJson();
 
   return handleErrors(await fetch(`${apiUrl}incomes/${id}`, {
     method: 'DELETE',
@@ -211,7 +211,7 @@ export async function deleteIncome(id: number): Promise<Response> {
 }
 
 export async function deleteExpense(id: number): Promise<Response> {
-  const headers = buildHeaders();
+  const headers = buildHeadersJson();
 
   return handleErrors(await fetch(`${apiUrl}expenses/${id}`, {
     method: 'DELETE',
@@ -220,7 +220,7 @@ export async function deleteExpense(id: number): Promise<Response> {
 }
 
 export async function deleteIncomeCategory(id: number): Promise<Response> {
-  const headers = buildHeaders();
+  const headers = buildHeadersJson();
 
   return handleErrors(await fetch(`${apiUrl}incomes/categories/${id}`, {
     method: 'DELETE',
@@ -229,7 +229,7 @@ export async function deleteIncomeCategory(id: number): Promise<Response> {
 }
 
 export async function deleteExpenseCategory(id: number): Promise<Response> {
-  const headers = buildHeaders();
+  const headers = buildHeadersJson();
 
   return handleErrors(await fetch(`${apiUrl}expenses/categories/${id}`, {
     method: 'DELETE',

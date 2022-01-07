@@ -32,13 +32,22 @@ export function handleErrors(response: Response) {
   return response;
 }
 
-export function buildHeaders(): Headers {
+export function buildHeadersJson(): Headers {
   const headers = new Headers({
     'Content-Type': 'application/json;charset=UTF-8'
   });
+  setToken(headers);
+  return headers;
+}
 
+export function buildHeaders(): Headers {
+  const headers = new Headers();
+  setToken(headers);
+  return headers;
+}
+
+function setToken(headers: Headers) {
   if (localStorage.getItem(ACCESS_TOKEN)) {
     headers.append('Authorization', 'Bearer ' + localStorage.getItem(ACCESS_TOKEN));
   }
-  return headers;
 }

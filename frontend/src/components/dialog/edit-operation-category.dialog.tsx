@@ -35,18 +35,19 @@ const EditOperationCategoryDialog:
   const handleDelete = async () => {
     try {
       await deleteOperationCategory(operationCategory.id);
+      handleClose();
       dispatch(fetchMainTable(paginationParams, savingsFilter));
       dispatch(showSuccess('Category has been successfully deleted'));
     } catch (error) {
       console.log(error);
       const resp = error as Response;
+      handleClose();
       if (resp.status === 400) {
         dispatch(showError('You cannot delete this category while there are operations with this category.'));
       } else {
         dispatch(showError(COMMON_ERROR_MSG));
       }
     }
-    handleClose();
   }
 
   const handleSave = async () => {
@@ -54,13 +55,14 @@ const EditOperationCategoryDialog:
       await editOperationCategory(operationCategory.id, {
         name: name
       });
+      handleClose();
       dispatch(fetchMainTable(paginationParams, savingsFilter));
       dispatch(showSuccess('Category has been successfully edited'));
     } catch (error) {
+      handleClose();
       console.log(error);
       dispatch(showError(COMMON_ERROR_MSG));
     }
-    handleClose();
   }
 
   return (

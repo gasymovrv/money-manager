@@ -68,25 +68,27 @@ const EditOperationDialog: React.FC<EditOperationDialogProps & EditOperationProp
         categoryId: categoryId,
         isPlanned: isPlanned,
       });
+      handleClose();
       dispatch(fetchMainTable(paginationParams, savingsFilter));
       dispatch(showSuccess('The operation has been successfully edited'));
     } catch (error) {
+      handleClose();
       console.log(error);
       dispatch((showError(COMMON_ERROR_MSG)))
     }
-    handleClose();
   }
 
   const handleDelete = async () => {
     try {
       await deleteOperation(operation.id);
+      handleClose();
       dispatch(fetchMainTable(paginationParams, savingsFilter));
       dispatch(showSuccess('The operation has been successfully deleted'));
     } catch (error) {
+      handleClose();
       console.log(error);
       dispatch((showError(COMMON_ERROR_MSG)))
     }
-    handleClose();
   }
 
   const handleCancel = async () => {

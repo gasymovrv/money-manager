@@ -23,14 +23,15 @@ const DeleteAccountDialog: React.FC<DialogProps & DeleteAccountProps> = ({
       await deleteAccount(account.id);
       const newFilterMap = {...savingsFilterMap};
       delete newFilterMap[account.id];
+      await onDelete();
+      handleClose();
       dispatch(changeFilter(newFilterMap))
       dispatch(showSuccess('Account has been successfully deleted'));
-      await onDelete();
     } catch (err) {
+      handleClose();
       console.log(`Deleting account error: ${err}`)
       dispatch((showError(COMMON_ERROR_MSG)))
     }
-    handleClose();
   }
 
   return (

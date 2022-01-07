@@ -66,13 +66,14 @@ const AddOperationDialog: React.FC<DialogProps & AddOperationProps> = ({
         value: value,
         isPlanned: isPlanned
       });
+      handleClose();
       dispatch(fetchMainTable(paginationParams, savingsFilter));
       dispatch(showSuccess('New operation has been successfully added'));
     } catch (error) {
+      handleClose();
       console.log(error);
       dispatch(showError(COMMON_ERROR_MSG));
     }
-    handleClose();
   }
 
   if (!categories.length) {

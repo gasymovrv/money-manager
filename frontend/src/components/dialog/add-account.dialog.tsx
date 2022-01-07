@@ -42,13 +42,14 @@ const AddAccountDialog: React.FC<DialogProps & AddAccountProps> = ({
         currency: accountCurrency,
         theme: accountTheme
       });
-      dispatch(showSuccess('New account has been successfully added'));
       await onAdd();
+      handleClose();
+      dispatch(showSuccess('New account has been successfully added'));
     } catch (err) {
+      handleClose();
       console.log(`Adding account error: ${err}`);
       dispatch(showError(COMMON_ERROR_MSG));
     }
-    handleClose();
   }
 
   return (

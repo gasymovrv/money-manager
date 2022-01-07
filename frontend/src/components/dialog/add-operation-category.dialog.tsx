@@ -35,18 +35,19 @@ const AddOperationCategoryDialog: React.FC<DialogProps & AddOperationCategoryPro
       await addOperationCategory({
         name: name
       });
+      handleClose();
       dispatch(fetchMainTable(paginationParams, savingsFilter));
       dispatch(showSuccess('New category has been successfully added'));
     } catch (error) {
       console.log(error);
       const resp = error as Response;
+      handleClose();
       if (resp.status === 400) {
         dispatch(showError('You cannot create category with such name'));
       } else {
         dispatch(showError(COMMON_ERROR_MSG));
       }
     }
-    handleClose();
   }
 
   return (
