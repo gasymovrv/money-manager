@@ -16,20 +16,20 @@ import org.springframework.web.filter.GenericFilterBean;
 @Slf4j
 public class ErrorFilter extends GenericFilterBean {
 
-  private final String apiBaseUrl;
+  private static final String LOGIN_URL = "/login";
 
-  private final String baseUrl;
+  private final String apiBaseUrl;
 
   @Override
   public void doFilter(ServletRequest request,
                        ServletResponse response,
                        FilterChain chain) throws IOException, ServletException {
-    HttpServletRequest rq = (HttpServletRequest) request;
-    HttpServletResponse rs = (HttpServletResponse) response;
+    var rq = (HttpServletRequest) request;
+    var rs = (HttpServletResponse) response;
 
     if (!rq.getRequestURI().startsWith(apiBaseUrl + "/")
-        && HttpStatus.NOT_FOUND.value() == rs.getStatus()) {
-      rs.sendRedirect(baseUrl);
+        && HttpStatus.OK.value() != rs.getStatus()) {
+      rs.sendRedirect(LOGIN_URL);
     } else {
       chain.doFilter(request, response);
     }

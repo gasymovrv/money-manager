@@ -112,7 +112,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         .disable()
         .httpBasic()
         .disable()
-        .addFilterBefore(new ErrorFilter(apiBaseUrl, BASE_URL), FilterSecurityInterceptor.class)
+        .addFilterBefore(new ErrorFilter(apiBaseUrl), FilterSecurityInterceptor.class)
         .exceptionHandling()
         .authenticationEntryPoint(new RestAuthenticationEntryPoint(apiBaseUrl))
         .and()

@@ -1,4 +1,6 @@
 server:
+  tomcat:
+    relaxed-query-chars: '|,{,},[,]'
   api-base-url: /api
   error:
     whitelabel:

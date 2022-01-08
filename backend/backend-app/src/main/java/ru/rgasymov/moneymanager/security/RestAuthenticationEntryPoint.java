@@ -12,6 +12,8 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 @RequiredArgsConstructor
 public class RestAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
+  private static final String LOGIN_URL = "/login";
+
   private final String apiBaseUrl;
 
   @Override
@@ -23,7 +25,7 @@ public class RestAuthenticationEntryPoint implements AuthenticationEntryPoint {
       httpServletResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED,
           e.getLocalizedMessage());
     } else {
-      httpServletResponse.sendRedirect("/login");
+      httpServletResponse.sendRedirect(LOGIN_URL);
     }
   }
 }
