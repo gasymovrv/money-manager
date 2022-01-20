@@ -1,4 +1,4 @@
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField } from '@material-ui/core';
+import { Button, Dialog, DialogActions, DialogContent, TextField } from '@material-ui/core';
 import React, { useContext, useState } from 'react';
 import { AddOperationCategoryProps, DialogProps } from '../../interfaces/common.interface';
 import { WithAddIncomeCategoryActions } from '../../hocs/with-add-income-category-actions';
@@ -12,6 +12,7 @@ import { showError } from '../../actions/error.actions';
 import { COMMON_ERROR_MSG } from '../../constants';
 import { AuthContext } from '../../interfaces/auth-context.interface';
 import { getSavingsFilter } from '../../helpers/common.helper';
+import CommonTitleDialog from './common-title.dialog';
 
 const AddOperationCategoryDialog: React.FC<DialogProps & AddOperationCategoryProps> = ({
                                                                                          open,
@@ -53,7 +54,7 @@ const AddOperationCategoryDialog: React.FC<DialogProps & AddOperationCategoryPro
   return (
     <Dialog maxWidth="xs" open={open} onClose={handleClose}>
 
-      <DialogTitle>Add category</DialogTitle>
+      <CommonTitleDialog title="Add category" handleClose={handleClose}/>
 
       <DialogContent>
         <TextField
@@ -71,9 +72,6 @@ const AddOperationCategoryDialog: React.FC<DialogProps & AddOperationCategoryPro
       </DialogContent>
 
       <DialogActions>
-        <Button onClick={handleClose} color="inherit">
-          Cancel
-        </Button>
         <Button disabled={!name} onClick={handleSave} color="inherit">
           Save
         </Button>

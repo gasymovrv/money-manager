@@ -117,6 +117,9 @@ export async function getSavings(request: SavingSearchRequestParams): Promise<Sa
 
 export async function addIncome(request: AddOrEditOperationRequest): Promise<Response> {
   const headers = buildHeadersJson();
+  if (request.description === '') {
+    delete request.description;
+  }
 
   return handleErrors(await fetch(apiUrl + 'incomes', {
     method: 'POST',
@@ -127,6 +130,9 @@ export async function addIncome(request: AddOrEditOperationRequest): Promise<Res
 
 export async function addExpense(request: AddOrEditOperationRequest): Promise<Response> {
   const headers = buildHeadersJson();
+  if (request.description === '') {
+    delete request.description;
+  }
 
   return handleErrors(await fetch(apiUrl + 'expenses', {
     method: 'POST',

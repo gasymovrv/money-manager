@@ -1,4 +1,4 @@
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField } from '@material-ui/core';
+import { Button, Dialog, DialogActions, DialogContent, TextField } from '@material-ui/core';
 import React, { useContext, useState } from 'react';
 import { EditOperationCategoryDialogProps, EditOperationCategoryProps } from '../../interfaces/common.interface';
 import { WithEditIncomeCategoryActions } from '../../hocs/with-edit-income-category-actions';
@@ -12,6 +12,7 @@ import { showSuccess } from '../../actions/success.actions';
 import { COMMON_ERROR_MSG } from '../../constants';
 import { AuthContext } from '../../interfaces/auth-context.interface';
 import { getSavingsFilter } from '../../helpers/common.helper';
+import CommonTitleDialog from './common-title.dialog';
 
 const EditOperationCategoryDialog:
   React.FC<EditOperationCategoryDialogProps & EditOperationCategoryProps> = ({
@@ -65,10 +66,15 @@ const EditOperationCategoryDialog:
     }
   }
 
-  return (
-    <Dialog maxWidth="xs" open={open} onClose={handleClose}>
+  const handleCancel = async () => {
+    setName(operationCategory.name);
+    handleClose();
+  }
 
-      <DialogTitle>Edit category</DialogTitle>
+  return (
+    <Dialog maxWidth="xs" open={open} onClose={handleCancel}>
+
+      <CommonTitleDialog title="Edit category" handleClose={handleCancel}/>
 
       <DialogContent>
         <TextField
@@ -86,9 +92,6 @@ const EditOperationCategoryDialog:
       </DialogContent>
 
       <DialogActions>
-        <Button onClick={handleClose} color="inherit">
-          Cancel
-        </Button>
         <Button onClick={handleDelete} color="inherit">
           Delete
         </Button>

@@ -1,7 +1,7 @@
 import React from 'react';
 import { deleteIncome, editIncome } from '../services/api.service';
 import { EditOperationProps } from '../interfaces/common.interface';
-import { AddOrEditOperationRequest } from '../interfaces/operation.interface';
+import { AddOrEditOperationRequest, OperationType } from '../interfaces/operation.interface';
 import { getHocDisplayName } from '../helpers/hoc.helper';
 import { MainTableState } from '../interfaces/main-table.interface';
 import { useSelector } from 'react-redux';
@@ -24,6 +24,7 @@ export function WithEditIncomeActions<P>(
     return (
       <WrappedComponent
         {...props}
+        operationType={OperationType.INCOME}
         categories={incomeCategories}
         deleteOperation={handleDeleteOperation}
         editOperation={handleEditOperation}
