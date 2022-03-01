@@ -1,4 +1,4 @@
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField } from '@material-ui/core';
+import { Button, Dialog, DialogActions, DialogContent, TextField } from '@material-ui/core';
 import React, { useContext, useState } from 'react';
 import { EditOperationCategoryDialogProps, EditOperationCategoryProps } from '../../interfaces/common.interface';
 import { WithEditIncomeCategoryActions } from '../../hocs/with-edit-income-category-actions';
@@ -12,6 +12,7 @@ import { showSuccess } from '../../actions/success.actions';
 import { COMMON_ERROR_MSG } from '../../constants';
 import { AuthContext } from '../../interfaces/auth-context.interface';
 import { getSavingsFilter } from '../../helpers/common.helper';
+import CommonTitleDialog from './common-title.dialog';
 
 const EditOperationCategoryDialog:
   React.FC<EditOperationCategoryDialogProps & EditOperationCategoryProps> = ({
@@ -35,18 +36,19 @@ const EditOperationCategoryDialog:
   const handleDelete = async () => {
     try {
       await deleteOperationCategory(operationCategory.id);
+      handleClose();
       dispatch(fetchMainTable(paginationParams, savingsFilter));
       dispatch(showSuccess('Category has been successfully deleted'));
     } catch (error) {
       console.log(error);
       const resp = error as Response;
+      handleClose();
       if (resp.status === 400) {
         dispatch(showError('You cannot delete this category while there are operations with this category.'));
       } else {
         dispatch(showError(COMMON_ERROR_MSG));
       }
     }
-    handleClose();
   }
 
   const handleSave = async () => {
@@ -54,19 +56,25 @@ const EditOperationCategoryDialog:
       await editOperationCategory(operationCategory.id, {
         name: name
       });
+      handleClose();
       dispatch(fetchMainTable(paginationParams, savingsFilter));
       dispatch(showSuccess('Category has been successfully edited'));
     } catch (error) {
+      handleClose();
       console.log(error);
       dispatch(showError(COMMON_ERROR_MSG));
     }
+  }
+
+  const handleCancel = async () => {
+    setName(operationCategory.name);
     handleClose();
   }
 
   return (
-    <Dialog maxWidth="xs" open={open} onClose={handleClose}>
+    <Dialog maxWidth="xs" open={open} onClose={handleCancel}>
 
-      <DialogTitle>Edit category</DialogTitle>
+      <CommonTitleDialog title="Edit category" handleClose={handleCancel}/>
 
       <DialogContent>
         <TextField
@@ -84,9 +92,6 @@ const EditOperationCategoryDialog:
       </DialogContent>
 
       <DialogActions>
-        <Button onClick={handleClose} color="inherit">
-          Cancel
-        </Button>
         <Button onClick={handleDelete} color="inherit">
           Delete
         </Button>

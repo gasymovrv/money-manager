@@ -1,4 +1,4 @@
-import { Button, Dialog, DialogActions, DialogTitle } from '@material-ui/core';
+import { Button, Dialog, DialogActions } from '@material-ui/core';
 import React, { useContext, useState } from 'react';
 import moment from 'moment';
 import { AddOperationProps, DialogProps } from '../../interfaces/common.interface';
@@ -15,12 +15,14 @@ import { showError } from '../../actions/error.actions';
 import { showSuccess } from '../../actions/success.actions';
 import { AuthContext } from '../../interfaces/auth-context.interface';
 import { getSavingsFilter } from '../../helpers/common.helper';
+import CommonTitleDialog from './common-title.dialog';
 
 const AddOperationDialog: React.FC<DialogProps & AddOperationProps> = ({
                                                                          open,
                                                                          categories,
                                                                          handleClose,
-                                                                         addOperation
+                                                                         addOperation,
+                                                                         draft
                                                                        }) => {
   const dispatch = useDispatch();
   const paginationParams: PaginationParams = useSelector(({pagination}: any) => pagination);
@@ -28,11 +30,13 @@ const AddOperationDialog: React.FC<DialogProps & AddOperationProps> = ({
   const savingsFilterMap: SavingsFilterParamsMap = useSelector(({savingsFilterMap}: any) => savingsFilterMap);
   const savingsFilter = getSavingsFilter(accountId, savingsFilterMap);
 
-  const [value, setValue] = useState<number>(100);
-  const [description, setDescription] = useState<string>();
-  const [categoryId, setCategoryId] = useState<number>(categories && categories.length ? categories[0].id : 0);
-  const [date, setDate] = useState(moment());
-  const [isPlanned, setIsPlanned] = useState<boolean>(false);
+  const [value, setValue] = useState<number>(draft ? draft.value : 100);
+  const [description, setDescription] = useState<string>(draft && draft.description || '');
+  const [categoryId, setCategoryId] = useState<number>(
+    draft ? draft.category.id
+      : (categories && categories.length ? categories[0].id : 0));
+  const [date, setDate] = useState(draft ? moment(draft.date) : moment());
+  const [isPlanned, setIsPlanned] = useState<boolean>(draft ? draft.isPlanned : false);
 
   const handleChangeValue = (event: React.ChangeEvent<HTMLInputElement>) => {
     setValue(+event.target.value)
@@ -66,12 +70,23 @@ const AddOperationDialog: React.FC<DialogProps & AddOperationProps> = ({
         value: value,
         isPlanned: isPlanned
       });
+      handleClose();
       dispatch(fetchMainTable(paginationParams, savingsFilter));
       dispatch(showSuccess('New operation has been successfully added'));
     } catch (error) {
+      handleClose();
       console.log(error);
       dispatch(showError(COMMON_ERROR_MSG));
     }
+  }
+
+  const handleCancel = async () => {
+    setValue(draft ? draft.value : 100);
+    setDescription(draft && draft.description || '');
+    setCategoryId(draft ? draft.category.id
+      : (categories && categories.length ? categories[0].id : 0));
+    setDate(draft ? moment(draft.date) : moment());
+    setIsPlanned(draft ? draft.isPlanned : false);
     handleClose();
   }
 
@@ -79,7 +94,7 @@ const AddOperationDialog: React.FC<DialogProps & AddOperationProps> = ({
     return (
       <CommonModal
         open={open}
-        handleClose={handleClose}
+        handleClose={handleCancel}
         title="Warning"
         text="Before adding operation, you need to add at least one category"
       />
@@ -87,9 +102,9 @@ const AddOperationDialog: React.FC<DialogProps & AddOperationProps> = ({
   }
 
   return (
-    <Dialog maxWidth="xs" open={open} onClose={handleClose}>
+    <Dialog maxWidth="xs" open={open} onClose={handleCancel}>
 
-      <DialogTitle>Add operation</DialogTitle>
+      <CommonTitleDialog title="Add operation" handleClose={handleCancel}/>
 
       <CommonOperationDialog
         value={value}
@@ -106,9 +121,6 @@ const AddOperationDialog: React.FC<DialogProps & AddOperationProps> = ({
       />
 
       <DialogActions>
-        <Button onClick={handleClose} color="inherit">
-          Cancel
-        </Button>
         <Button
           disabled={!value || !categoryId || !date}
           onClick={handleSave}

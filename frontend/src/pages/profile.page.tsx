@@ -13,6 +13,7 @@ import { resetPagination } from '../actions/pagination.actions';
 import { resetShowingCategories } from '../actions/show-categories.actions';
 import { COMMON_ERROR_MSG } from '../constants';
 import { showError } from '../actions/error.actions';
+import { useEffectCallback } from '../helpers/common.helper';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -51,34 +52,34 @@ const ProfilePage: React.FC = () => {
   const [openAddAccount, setOpenAddAccount] = React.useState(false);
   const [openDeleteAccount, setOpenDeleteAccount] = React.useState(false);
 
-  const loadAccountsData = () => {
-    let mounted = true;
-    (async () => {
-      if (mounted) {
-        try {
-          const data = await getAllCurrencies();
-          setCurrencies(data);
-          setLoadingCurrencies(false);
-        } catch (err) {
-          console.log(`Getting currencies error: ${err}`);
-          dispatch(showError(COMMON_ERROR_MSG));
-        }
-        try {
-          const data = await findAllAccounts();
-          setAccounts(data);
-          setLoadingAccounts(false);
-        } catch (err) {
-          console.log(`Getting accounts error: ${err}`);
-          dispatch(showError(COMMON_ERROR_MSG));
-        }
-      }
-    })();
-    return () => {
-      mounted = false
-    };
+  const successGetAllCurrencies = (data: any) => {
+    setCurrencies(data);
+    setLoadingCurrencies(false);
   }
 
-  useEffect(loadAccountsData, [dispatch]);
+  const successFindAllAccounts = (data: any) => {
+    setAccounts(data);
+    setLoadingAccounts(false);
+  }
+
+  const errorGetAllCurrencies = (err: any) => {
+    console.log(`Getting currencies error: ${err}`);
+    dispatch(showError(COMMON_ERROR_MSG));
+  }
+
+  const errorFindAllAccounts = (err: any) => {
+    console.log(`Getting accounts error: ${err}`);
+    dispatch(showError(COMMON_ERROR_MSG));
+  }
+
+  const loadAccountsData = useEffectCallback({
+    asyncFunctions: [getAllCurrencies, findAllAccounts],
+    successActions: [successGetAllCurrencies, successFindAllAccounts],
+    errorActions: [errorGetAllCurrencies, errorFindAllAccounts]
+  });
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(loadAccountsData, []);
 
   const handleChangeAccountName = (event: React.ChangeEvent<HTMLInputElement>) => {
     setAccountName(event.target.value)

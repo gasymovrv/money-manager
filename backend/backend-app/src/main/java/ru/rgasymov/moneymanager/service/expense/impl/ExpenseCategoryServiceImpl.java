@@ -35,8 +35,6 @@ public class ExpenseCategoryServiceImpl
 
   private final ExpenseCategoryMapper expenseCategoryMapper;
 
-  private final UserService userService;
-
   private final CacheManager cacheManager;
 
   public ExpenseCategoryServiceImpl(
@@ -48,32 +46,25 @@ public class ExpenseCategoryServiceImpl
     super(expenseRepository, expenseCategoryRepository, expenseCategoryMapper, userService);
     this.expenseCategoryRepository = expenseCategoryRepository;
     this.expenseCategoryMapper = expenseCategoryMapper;
-    this.userService = userService;
     this.cacheManager = cacheManager;
   }
 
   @Cacheable(cacheNames = CacheNames.EXPENSE_CATEGORIES)
   @Transactional(readOnly = true)
   @Override
-  public List<OperationCategoryResponseDto> findAll() {
-    var currentUser = userService.getCurrentUser();
-    var currentAccountId = currentUser.getCurrentAccount().getId();
-    List<ExpenseCategory> result = findAll(currentAccountId);
-    return expenseCategoryMapper.toDtos(result);
-  }
-
-  private List<ExpenseCategory> findAll(Long accountId) {
-    return expenseCategoryRepository.findAll(
+  public List<OperationCategoryResponseDto> findAll(Long accountId) {
+    var result = expenseCategoryRepository.findAll(
         accountIdEq(accountId),
         Sort.by(Sort.Order.asc(ExpenseCategory_.NAME).ignoreCase())
     );
+    return expenseCategoryMapper.toDtos(result);
   }
 
   @Cacheable(cacheNames = CacheNames.EXPENSE_CATEGORIES)
   @Transactional(readOnly = true)
   @Override
-  public List<OperationCategoryResponseDto> findAllAndSetChecked(List<Long> ids) {
-    var result = findAll();
+  public List<OperationCategoryResponseDto> findAllAndSetChecked(Long accountId, List<Long> ids) {
+    var result = findAll(accountId);
     if (CollectionUtils.isNotEmpty(ids)) {
       result.forEach(category -> category.setChecked(ids.contains(category.getId())));
     }

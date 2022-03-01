@@ -59,10 +59,15 @@ public class SavingServiceImpl implements SavingService {
   @Transactional(readOnly = true)
   @Override
   public SavingSearchResultDto search(SavingCriteriaDto criteria) {
+    var currentUser = userService.getCurrentUser();
+    var currentAccountId = currentUser.getCurrentAccount().getId();
+
     var incCategories =
-        incomeCategoryService.findAllAndSetChecked(criteria.getIncomeCategoryIds());
+        incomeCategoryService.findAllAndSetChecked(
+            currentAccountId, criteria.getIncomeCategoryIds());
     var expCategories =
-        expenseCategoryService.findAllAndSetChecked(criteria.getExpenseCategoryIds());
+        expenseCategoryService.findAllAndSetChecked(
+            currentAccountId, criteria.getExpenseCategoryIds());
 
     Specification<Saving> criteriaAsSpec =
         applySavingCriteria(criteria, incCategories, expCategories);

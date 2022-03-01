@@ -1,5 +1,6 @@
-package ru.rgasymov.moneymanager.controller.api;
+package ru.rgasymov.moneymanager.controller;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import java.util.Currency;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -23,6 +24,7 @@ import ru.rgasymov.moneymanager.service.UserService;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("${server.api-base-url}/accounts")
+@SecurityRequirement(name = "bearerAuth")
 @Slf4j
 public class AccountController {
 

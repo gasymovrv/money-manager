@@ -1,3 +1,5 @@
+import { ACCESS_TOKEN } from '../constants';
+
 export function downloadFile(blob: Blob, fileName: string) {
   const href = window.URL.createObjectURL(blob);
   const link = document.createElement('a');
@@ -22,7 +24,30 @@ export function getFileName(response: Response, defaultName: string = 'unknown-f
 
 export function handleErrors(response: Response) {
   if (!response.ok) {
+    if (response.status === 401) {
+      localStorage.removeItem(ACCESS_TOKEN);
+    }
     throw response;
   }
   return response;
+}
+
+export function buildHeadersJson(): Headers {
+  const headers = new Headers({
+    'Content-Type': 'application/json;charset=UTF-8'
+  });
+  setToken(headers);
+  return headers;
+}
+
+export function buildHeaders(): Headers {
+  const headers = new Headers();
+  setToken(headers);
+  return headers;
+}
+
+function setToken(headers: Headers) {
+  if (localStorage.getItem(ACCESS_TOKEN)) {
+    headers.append('Authorization', 'Bearer ' + localStorage.getItem(ACCESS_TOKEN));
+  }
 }

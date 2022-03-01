@@ -1,4 +1,4 @@
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, MenuItem, TextField } from '@material-ui/core';
+import { Button, Dialog, DialogActions, DialogContent, MenuItem, TextField } from '@material-ui/core';
 import React, { useContext, useState } from 'react';
 import { AddAccountProps, DialogProps } from '../../interfaces/common.interface';
 import { AccountTheme } from '../../interfaces/user.interface';
@@ -8,6 +8,7 @@ import { useDispatch } from 'react-redux';
 import { showSuccess } from '../../actions/success.actions';
 import { showError } from '../../actions/error.actions';
 import { COMMON_ERROR_MSG } from '../../constants';
+import CommonTitleDialog from './common-title.dialog';
 
 const AddAccountDialog: React.FC<DialogProps & AddAccountProps> = ({
                                                                      open,
@@ -42,19 +43,20 @@ const AddAccountDialog: React.FC<DialogProps & AddAccountProps> = ({
         currency: accountCurrency,
         theme: accountTheme
       });
-      dispatch(showSuccess('New account has been successfully added'));
       await onAdd();
+      handleClose();
+      dispatch(showSuccess('New account has been successfully added'));
     } catch (err) {
+      handleClose();
       console.log(`Adding account error: ${err}`);
       dispatch(showError(COMMON_ERROR_MSG));
     }
-    handleClose();
   }
 
   return (
     <Dialog maxWidth="xs" open={open} onClose={handleClose}>
 
-      <DialogTitle>Add account</DialogTitle>
+      <CommonTitleDialog title="Add account" handleClose={handleClose}/>
 
       <DialogContent>
         <TextField
@@ -106,9 +108,6 @@ const AddAccountDialog: React.FC<DialogProps & AddAccountProps> = ({
       </DialogContent>
 
       <DialogActions>
-        <Button onClick={handleClose} color="inherit">
-          Cancel
-        </Button>
         <Button
           disabled={!accountName || !accountTheme || !accountCurrency}
           onClick={handleSave}

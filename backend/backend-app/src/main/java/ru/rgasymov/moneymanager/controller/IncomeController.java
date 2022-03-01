@@ -1,7 +1,9 @@
-package ru.rgasymov.moneymanager.controller.api;
+package ru.rgasymov.moneymanager.controller;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import java.util.List;
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -17,69 +19,71 @@ import ru.rgasymov.moneymanager.domain.dto.request.OperationRequestDto;
 import ru.rgasymov.moneymanager.domain.dto.response.OperationCategoryResponseDto;
 import ru.rgasymov.moneymanager.domain.dto.response.OperationResponseDto;
 import ru.rgasymov.moneymanager.service.UserService;
-import ru.rgasymov.moneymanager.service.expense.ExpenseCategoryService;
-import ru.rgasymov.moneymanager.service.expense.ExpenseService;
+import ru.rgasymov.moneymanager.service.income.IncomeCategoryService;
+import ru.rgasymov.moneymanager.service.income.IncomeService;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("${server.api-base-url}/expenses")
+@RequestMapping("${server.api-base-url}/incomes")
+@SecurityRequirement(name = "bearerAuth")
 @Slf4j
-public class ExpenseController {
+public class IncomeController {
 
   private final UserService userService;
 
-  private final ExpenseService expenseService;
+  private final IncomeService incomeService;
 
-  private final ExpenseCategoryService expenseCategoryService;
+  private final IncomeCategoryService incomeCategoryService;
 
   @PostMapping
   public OperationResponseDto create(@RequestBody @Valid OperationRequestDto dto) {
-    log.info("# Create a new expense by dto: {}, current user: {}", dto,
+    log.info("# Create a new income by dto: {}, current user: {}", dto,
         userService.getCurrentUser());
-    return expenseService.createFromDto(dto);
+    return incomeService.createFromDto(dto);
   }
 
   @PutMapping("/{id}")
   public OperationResponseDto update(@PathVariable Long id,
                                      @RequestBody @Valid OperationRequestDto dto) {
-    log.info("# Update the expense by id: {}, dto: {}, current user: {}", id, dto,
+    log.info("# Update the income by id: {}, dto: {}, current user: {}", id, dto,
         userService.getCurrentUser());
-    return expenseService.update(id, dto);
+    return incomeService.update(id, dto);
   }
 
   @DeleteMapping("/{id}")
   public void delete(@PathVariable Long id) {
-    log.info("# Delete an expense by id: {}, current user: {}", id, userService.getCurrentUser());
-    expenseService.delete(id);
+    log.info("# Delete an income by id: {}, current user: {}", id, userService.getCurrentUser());
+    incomeService.delete(id);
   }
 
   @GetMapping("/categories")
   public List<OperationCategoryResponseDto> findAllCategories() {
-    log.info("# Find all expense categories, current user: {}", userService.getCurrentUser());
-    return expenseCategoryService.findAll();
+    final var currentUser = userService.getCurrentUser();
+    log.info("# Find all income categories, current user: {}", currentUser);
+    return incomeCategoryService.findAll(currentUser.getCurrentAccount().getId());
   }
 
   @PostMapping("/categories")
   public OperationCategoryResponseDto createCategory(
       @RequestBody @Valid OperationCategoryRequestDto dto) {
-    log.info("# Create a new expense category by dto: {}, current user: {}", dto,
+    log.info("# Create a new income category by dto: {}, current user: {}", dto,
         userService.getCurrentUser());
-    return expenseCategoryService.create(dto);
+    return incomeCategoryService.create(dto);
   }
 
   @PutMapping("/categories/{id}")
   public OperationCategoryResponseDto updateCategory(@PathVariable Long id,
                                                      @RequestBody
                                                      @Valid OperationCategoryRequestDto dto) {
-    log.info("# Update the expense category by id: {}, dto: {}, current user: {}", id, dto,
+    log.info("# Update the income category by id: {}, dto: {}, current user: {}", id, dto,
         userService.getCurrentUser());
-    return expenseCategoryService.update(id, dto);
+    return incomeCategoryService.update(id, dto);
   }
 
-  @DeleteMapping(value = "/categories/{id}")
-  public void deleteCategory(@PathVariable Long id) {
-    log.info("# Delete an expense category by id: {}, current user: {}", id,
+  @DeleteMapping("/categories/{id}")
+  public void deleteCategory(@PathVariable @NotNull Long id) {
+    log.info("# Delete an income category by id: {}, current user: {}", id,
         userService.getCurrentUser());
-    expenseCategoryService.delete(id);
+    incomeCategoryService.delete(id);
   }
 }

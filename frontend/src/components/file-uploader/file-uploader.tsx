@@ -34,8 +34,8 @@ const FileUploader: React.FC<FileUploaderProps> = ({onSuccess}) => {
       setImportStarted(true);
       await importFromXlsxFile(selectedFile);
       setImportStarted(false);
-      dispatch(showSuccess('Excel file has been successfully imported'));
       onSuccess();
+      dispatch(showSuccess('Excel file has been successfully imported'));
     } catch (error) {
       setImportStarted(false);
       console.log(error);

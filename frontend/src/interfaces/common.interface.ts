@@ -2,7 +2,8 @@ import {
   AddOrEditOperationCategoryRequest,
   AddOrEditOperationRequest,
   Operation,
-  OperationCategory
+  OperationCategory,
+  OperationType
 } from './operation.interface';
 import { Account } from './user.interface';
 
@@ -24,6 +25,7 @@ export enum Period {
 
 export interface DialogProps {
   open: boolean,
+  draft?: Operation,
 
   handleClose(): void
 }
@@ -38,6 +40,7 @@ export interface EditOperationCategoryDialogProps extends DialogProps {
 
 export interface EditOperationProps {
   categories: OperationCategory[],
+  operationType: OperationType,
 
   editOperation(id: number, request: AddOrEditOperationRequest): void,
 

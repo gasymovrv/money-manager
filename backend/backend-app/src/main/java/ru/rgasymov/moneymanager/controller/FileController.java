@@ -1,5 +1,6 @@
-package ru.rgasymov.moneymanager.controller.api;
+package ru.rgasymov.moneymanager.controller;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
@@ -15,6 +16,7 @@ import ru.rgasymov.moneymanager.service.FileService;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("${server.api-base-url}/files")
+@SecurityRequirement(name = "bearerAuth")
 @Slf4j
 public class FileController {
 
