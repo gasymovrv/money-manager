@@ -30,7 +30,7 @@ import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
-import ru.rgasymov.moneymanager.domain.XlsxParsingResult;
+import ru.rgasymov.moneymanager.domain.FileImportResult;
 import ru.rgasymov.moneymanager.domain.entity.Expense;
 import ru.rgasymov.moneymanager.domain.entity.ExpenseCategory;
 import ru.rgasymov.moneymanager.domain.entity.Income;
@@ -86,11 +86,11 @@ public class XlsxParsingServiceImpl implements XlsxParsingService {
   private final UserService userService;
 
   @Override
-  public XlsxParsingResult parse(File file) throws IOException, InvalidFormatException {
+  public FileImportResult parse(File file) throws IOException, InvalidFormatException {
     var workBook = new XSSFWorkbook(file);
     var sheetIterator = workBook.sheetIterator();
 
-    XlsxParsingResult result = null;
+    FileImportResult result = null;
     SortedSet<XSSFSheet> sortedSheets =
         new TreeSet<>(Comparator.comparing(XSSFSheet::getSheetName));
 
@@ -101,7 +101,7 @@ public class XlsxParsingServiceImpl implements XlsxParsingService {
       var incCategoriesRow = sheet.getRow(CATEGORIES_ROW);
       var expCategoriesRow = sheet.getRow(CATEGORIES_ROW);
 
-      XlsxParsingResult tempResult = extractData(sheet, incCategoriesRow, expCategoriesRow);
+      FileImportResult tempResult = extractData(sheet, incCategoriesRow, expCategoriesRow);
       if (result != null) {
         result.add(tempResult);
       } else {
@@ -113,9 +113,9 @@ public class XlsxParsingServiceImpl implements XlsxParsingService {
     return result;
   }
 
-  private XlsxParsingResult extractData(XSSFSheet sheet,
-                                        XSSFRow incCategoriesRow,
-                                        XSSFRow expCategoriesRow) {
+  private FileImportResult extractData(XSSFSheet sheet,
+                                       XSSFRow incCategoriesRow,
+                                       XSSFRow expCategoriesRow) {
     var currentAccount = userService.getCurrentUser().getCurrentAccount();
     var incomes = new ArrayList<Income>();
     var expenses = new ArrayList<Expense>();
@@ -195,7 +195,7 @@ public class XlsxParsingServiceImpl implements XlsxParsingService {
       }
     }
 
-    return new XlsxParsingResult(
+    return new FileImportResult(
         incomes,
         expenses,
         new HashSet<>(incomeCategories.values()),
@@ -250,7 +250,7 @@ public class XlsxParsingServiceImpl implements XlsxParsingService {
     return null;
   }
 
-  private void addPrevSavings(XlsxParsingResult result,
+  private void addPrevSavings(FileImportResult result,
                               SortedSet<XSSFSheet> sortedSheets) {
     XSSFSheet oldest = sortedSheets.first();
     XSSFRow headRow = oldest.getRow(0);

@@ -80,7 +80,7 @@ public class IncomeCategoryServiceImpl
   }
 
   @Override
-  protected void clearCachedCategories() {
+  public void clearCachedCategories() {
     Optional.ofNullable(cacheManager.getCache(CacheNames.INCOME_CATEGORIES))
         .ifPresent(Cache::clear);
   }

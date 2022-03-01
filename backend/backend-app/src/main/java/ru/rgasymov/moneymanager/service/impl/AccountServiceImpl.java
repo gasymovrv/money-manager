@@ -131,6 +131,17 @@ public class AccountServiceImpl implements AccountService {
     expenseCategoryService.create(new OperationCategoryRequestDto("Other"));
   }
 
+  @Transactional(readOnly = true)
+  @Override
+  public boolean isCurrentAccountEmpty() {
+    var currentAccount = userService.getCurrentUser().getCurrentAccount();
+    var currentAccountId = currentAccount.getId();
+
+    return !savingRepository.existsByAccountId(currentAccountId)
+        && !incomeCategoryRepository.existsByAccountId(currentAccountId)
+        && !expenseCategoryRepository.existsByAccountId(currentAccountId);
+  }
+
   private Account getAccount(Long id) {
     var currentUser = userService.getCurrentUser();
     return accountRepository.findByIdAndUserId(id, currentUser.getId())

@@ -15,4 +15,6 @@ public interface BaseOperationCategoryService {
   OperationCategoryResponseDto update(Long id, OperationCategoryRequestDto dto);
 
   void delete(Long id);
+
+  void clearCachedCategories();
 }

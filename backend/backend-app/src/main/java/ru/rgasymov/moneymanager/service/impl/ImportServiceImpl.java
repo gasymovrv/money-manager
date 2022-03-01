@@ -2,19 +2,25 @@ package ru.rgasymov.moneymanager.service.impl;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.rgasymov.moneymanager.domain.XlsxParsingResult;
+import ru.rgasymov.moneymanager.domain.FileImportResult;
 import ru.rgasymov.moneymanager.domain.entity.Account;
 import ru.rgasymov.moneymanager.domain.entity.BaseOperation;
+import ru.rgasymov.moneymanager.domain.entity.BaseOperationCategory;
+import ru.rgasymov.moneymanager.domain.entity.Expense;
 import ru.rgasymov.moneymanager.domain.entity.ExpenseCategory;
+import ru.rgasymov.moneymanager.domain.entity.Income;
 import ru.rgasymov.moneymanager.domain.entity.IncomeCategory;
 import ru.rgasymov.moneymanager.domain.entity.Saving;
 import ru.rgasymov.moneymanager.repository.ExpenseCategoryRepository;
@@ -22,13 +28,18 @@ import ru.rgasymov.moneymanager.repository.ExpenseRepository;
 import ru.rgasymov.moneymanager.repository.IncomeCategoryRepository;
 import ru.rgasymov.moneymanager.repository.IncomeRepository;
 import ru.rgasymov.moneymanager.repository.SavingRepository;
+import ru.rgasymov.moneymanager.service.AccountService;
 import ru.rgasymov.moneymanager.service.ImportService;
 import ru.rgasymov.moneymanager.service.UserService;
+import ru.rgasymov.moneymanager.spec.ExpenseCategorySpec;
+import ru.rgasymov.moneymanager.spec.IncomeCategorySpec;
+import ru.rgasymov.moneymanager.spec.SavingSpec;
 
 @Service
 @RequiredArgsConstructor
 public class ImportServiceImpl implements ImportService {
 
+  private final AccountService accountService;
   private final SavingRepository savingRepository;
   private final IncomeRepository incomeRepository;
   private final ExpenseRepository expenseRepository;
@@ -37,32 +48,24 @@ public class ImportServiceImpl implements ImportService {
 
   private final UserService userService;
 
-  @Transactional(readOnly = true)
-  @Override
-  public boolean isNonReadyForImport() {
-    var currentAccount = userService.getCurrentUser().getCurrentAccount();
-    var currentAccountId = currentAccount.getId();
-
-    return savingRepository.existsByAccountId(currentAccountId)
-        || incomeCategoryRepository.existsByAccountId(currentAccountId)
-        || expenseCategoryRepository.existsByAccountId(currentAccountId);
-  }
-
   @Transactional
   @Override
-  public void importFromXlsx(XlsxParsingResult parsingResult) {
-    if (isNonReadyForImport()) {
+  public void importFromFile(FileImportResult parsingResult) {
+    if (accountService.isCurrentAccountEmpty()) {
+      importToNewAccount(parsingResult);
       return;
     }
-    var currentAccount = userService.getCurrentUser().getCurrentAccount();
+    importToExistentAccount(parsingResult);
+  }
 
-    Map<LocalDate, Saving> savings = new HashMap<>();
-
-    BigDecimal previousSavings = parsingResult.getPreviousSavings();
-    LocalDate previousSavingsDate = parsingResult.getPreviousSavingsDate();
+  private void importToNewAccount(FileImportResult parsingResult) {
+    final var currentAccount = userService.getCurrentUser().getCurrentAccount();
+    final var savingsMap = new HashMap<LocalDate, Saving>();
+    final var previousSavings = parsingResult.getPreviousSavings();
+    final var previousSavingsDate = parsingResult.getPreviousSavingsDate();
 
     if (previousSavings != null && previousSavingsDate != null) {
-      savings.put(
+      savingsMap.put(
           previousSavingsDate,
           Saving.builder()
               .date(previousSavingsDate)
@@ -71,49 +74,118 @@ public class ImportServiceImpl implements ImportService {
               .build());
     }
 
-    var sortedIncomes = parsingResult.getIncomes();
-    var sortedExpenses = parsingResult.getExpenses();
-    sortedIncomes.sort(Comparator.comparing(BaseOperation::getDate));
-    sortedExpenses.sort(Comparator.comparing(BaseOperation::getDate));
+    final var incomes =
+        handleOperationsAndSavings(currentAccount, savingsMap, parsingResult.getIncomes(),
+            BigDecimal::add);
+    final var expenses =
+        handleOperationsAndSavings(currentAccount, savingsMap, parsingResult.getExpenses(),
+            BigDecimal::subtract);
 
-    //Prepare savings
-    sortedIncomes.forEach(income -> {
-      final var date = income.getDate();
-      final var value = income.getValue();
-      recalculateMap(savings, date, value, BigDecimal::add, currentAccount);
-    });
-    sortedExpenses.forEach(expense -> {
-      final var date = expense.getDate();
-      final var value = expense.getValue();
-      recalculateMap(savings, date, value, BigDecimal::subtract, currentAccount);
-    });
+    final var savedSavings = savingRepository.saveAll(savingsMap.values());
+    final var savedIncCategories =
+        incomeCategoryRepository.saveAll(parsingResult.getIncomeCategories());
+    final var savedExpCategories =
+        expenseCategoryRepository.saveAll(parsingResult.getExpenseCategories());
 
-    var savedIncCategories = incomeCategoryRepository
-        .saveAll(parsingResult.getIncomeCategories())
-        .stream()
-        .collect(Collectors.toMap(IncomeCategory::getName, Function.identity()));
-    var savedExpCategories = expenseCategoryRepository
-        .saveAll(parsingResult.getExpenseCategories())
-        .stream()
-        .collect(Collectors.toMap(ExpenseCategory::getName, Function.identity()));
-    var savedSavings = savingRepository.saveAll(savings.values())
+    saveOperations(
+        incomes, expenses, savedSavings, savedIncCategories, savedExpCategories);
+  }
+
+  private void importToExistentAccount(FileImportResult parsingResult) {
+    final var currentAccount = userService.getCurrentUser().getCurrentAccount();
+    final var currentAccountId = currentAccount.getId();
+
+    final var savingsMap = savingRepository.findAll(SavingSpec.accountIdEq(currentAccountId))
         .stream()
         .collect(Collectors.toMap(Saving::getDate, Function.identity()));
 
-    sortedIncomes.forEach(income -> {
+    final var incomes =
+        handleOperationsAndSavings(currentAccount, savingsMap, parsingResult.getIncomes(),
+            BigDecimal::add);
+    final var expenses =
+        handleOperationsAndSavings(currentAccount, savingsMap, parsingResult.getExpenses(),
+            BigDecimal::subtract);
+
+    final var savedSavings = savingRepository.saveAll(savingsMap.values());
+    final var foundIncCategories =
+        incomeCategoryRepository.findAll(IncomeCategorySpec.accountIdEq(currentAccountId));
+    final var foundExpCategories =
+        expenseCategoryRepository.findAll(ExpenseCategorySpec.accountIdEq(currentAccountId));
+
+    //Save new categories and then merge them with existing ones
+    final var savedIncCategories = incomeCategoryRepository.saveAll(
+        getNewCategories(parsingResult.getIncomeCategories(), foundIncCategories));
+    savedIncCategories.addAll(foundIncCategories);
+    final var savedExpCategories = expenseCategoryRepository.saveAll(
+        getNewCategories(parsingResult.getExpenseCategories(), foundExpCategories));
+    savedExpCategories.addAll(foundExpCategories);
+
+    saveOperations(
+        incomes, expenses, savedSavings, savedIncCategories, savedExpCategories);
+  }
+
+  private void saveOperations(List<Income> incomes,
+                              List<Expense> expenses,
+                              List<Saving> savedSavings,
+                              List<IncomeCategory> savedIncCategories,
+                              List<ExpenseCategory> savedExpCategories) {
+
+    final var incCategoriesMap = convertCategoriesToMap(savedIncCategories);
+    final var expCategoriesMap = convertCategoriesToMap(savedExpCategories);
+    final var savingsMap = savedSavings
+        .stream()
+        .collect(Collectors.toMap(Saving::getDate, Function.identity()));
+
+    incomes.forEach(income -> {
       var categoryName = income.getCategory().getName();
       var date = income.getDate();
-      income.setCategory(savedIncCategories.get(categoryName));
-      income.setSaving(savedSavings.get(date));
+      income.setCategory(incCategoriesMap.get(categoryName));
+      income.setSaving(savingsMap.get(date));
     });
-    sortedExpenses.forEach(expense -> {
+    expenses.forEach(expense -> {
       var categoryName = expense.getCategory().getName();
       var date = expense.getDate();
-      expense.setCategory(savedExpCategories.get(categoryName));
-      expense.setSaving(savedSavings.get(date));
+      expense.setCategory(expCategoriesMap.get(categoryName));
+      expense.setSaving(savingsMap.get(date));
     });
-    incomeRepository.saveAll(sortedIncomes);
-    expenseRepository.saveAll(sortedExpenses);
+    incomeRepository.saveAll(incomes);
+    expenseRepository.saveAll(expenses);
+  }
+
+  private <T extends BaseOperation> List<T> handleOperationsAndSavings(
+      final Account currentAccount,
+      final Map<LocalDate, Saving> savingsMap,
+      final List<T> operations,
+      final BiFunction<BigDecimal, BigDecimal, BigDecimal> setValueFunc) {
+
+    final var operationsCopy = new ArrayList<>(operations);
+    operationsCopy.sort(Comparator.comparing(BaseOperation::getDate));
+    operationsCopy.forEach(income -> {
+      final var date = income.getDate();
+      final var value = income.getValue();
+      recalculateMap(savingsMap, date, value, setValueFunc, currentAccount);
+    });
+    return operationsCopy;
+  }
+
+  private <T extends BaseOperationCategory> List<T> getNewCategories(Set<T> categoriesFromFile,
+                                                                     List<T> foundCategories) {
+    final var foundCategoryNames =
+        foundCategories
+            .stream()
+            .map(BaseOperationCategory::getName)
+            .collect(Collectors.toSet());
+    return categoriesFromFile
+        .stream()
+        .filter(category -> !foundCategoryNames.contains(category.getName()))
+        .toList();
+  }
+
+  private <T extends BaseOperationCategory> Map<String, T> convertCategoriesToMap(
+      List<T> categories) {
+    return categories
+        .stream()
+        .collect(Collectors.toMap(BaseOperationCategory::getName, Function.identity()));
   }
 
   private void recalculateMap(Map<LocalDate, Saving> savings,

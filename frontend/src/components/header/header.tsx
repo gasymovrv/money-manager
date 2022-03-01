@@ -26,6 +26,7 @@ import { useHistory } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { showError } from '../../actions/error.actions';
 import { ACCESS_TOKEN, COMMON_ERROR_MSG } from '../../constants';
+import ImportFromFileDialog from '../dialog/import-from-file.dialog';
 
 type HeaderProps = {
   hasActions?: boolean,
@@ -75,6 +76,7 @@ const Header: React.FC<HeaderProps> = ({hasActions, children}) => {
   const [openChildren, setOpenChildren] = useState(false);
   const [openAddIncome, setOpenAddIncome] = useState(false);
   const [openAddExpense, setOpenAddExpense] = useState(false);
+  const [openImportFromFile, setOpenImportFromFile] = useState(false);
   const [mainMenuAnchorEl, setMainMenuAnchorEl] = useState<null | HTMLElement>(null);
   const [accountMenuAnchorEl, setAccountMenuAnchorEl] = useState<null | HTMLElement>(null);
 
@@ -122,6 +124,11 @@ const Header: React.FC<HeaderProps> = ({hasActions, children}) => {
             onClose={() => setMainMenuAnchorEl(null)}
           >
             <MenuItem onClick={handleExportToExcel}>Export to Excel</MenuItem>
+            <MenuItem onClick={() => setOpenImportFromFile(true)}>Import from Excel</MenuItem>
+            <ImportFromFileDialog
+              open={openImportFromFile}
+              handleClose={() => setOpenImportFromFile(false)}
+            />
           </StyledMenu>
 
           <Typography

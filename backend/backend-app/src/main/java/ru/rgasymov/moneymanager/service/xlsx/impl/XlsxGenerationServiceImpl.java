@@ -33,7 +33,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
-import ru.rgasymov.moneymanager.domain.XlsxInputData;
+import ru.rgasymov.moneymanager.domain.FileExportData;
 import ru.rgasymov.moneymanager.domain.dto.response.OperationCategoryResponseDto;
 import ru.rgasymov.moneymanager.domain.dto.response.OperationResponseDto;
 import ru.rgasymov.moneymanager.domain.dto.response.SavingResponseDto;
@@ -87,7 +87,7 @@ public class XlsxGenerationServiceImpl implements XlsxGenerationService {
 
   @Override
   public Resource generate(Resource xlsxTemplateFile,
-                           XlsxInputData data) throws IOException {
+                           FileExportData data) throws IOException {
     final var wb = new XSSFWorkbook(xlsxTemplateFile.getInputStream());
 
     //------- Create sheets -------

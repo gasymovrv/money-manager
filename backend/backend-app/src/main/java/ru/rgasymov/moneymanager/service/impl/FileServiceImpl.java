@@ -7,10 +7,9 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import ru.rgasymov.moneymanager.domain.XlsxInputData;
+import ru.rgasymov.moneymanager.domain.FileExportData;
 import ru.rgasymov.moneymanager.domain.dto.request.SavingCriteriaDto;
 import ru.rgasymov.moneymanager.exception.EmptyDataGenerationException;
-import ru.rgasymov.moneymanager.exception.ImportFileException;
 import ru.rgasymov.moneymanager.service.FileService;
 import ru.rgasymov.moneymanager.service.ImportService;
 import ru.rgasymov.moneymanager.service.SavingService;
@@ -29,12 +28,8 @@ public class FileServiceImpl implements FileService {
 
   @Override
   public void importFromXlsx(MultipartFile file) {
-    if (importService.isNonReadyForImport()) {
-      throw new ImportFileException(
-          "# Failed to import .xlsx file because current account is not empty");
-    }
     var parsingResult = xlsxFileService.parse(file);
-    importService.importFromXlsx(parsingResult);
+    importService.importFromFile(parsingResult);
   }
 
   @Override
@@ -48,7 +43,7 @@ public class FileServiceImpl implements FileService {
     }
 
     return xlsxFileService.generate(
-        new XlsxInputData(
+        new FileExportData(
             savings,
             result.getIncomeCategories(),
             result.getExpenseCategories()));
