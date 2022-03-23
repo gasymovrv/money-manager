@@ -1,7 +1,7 @@
 import React from 'react';
 import { deleteExpense, editExpense } from '../services/api.service';
 import { EditOperationProps } from '../interfaces/common.interface';
-import { AddOrEditOperationRequest } from '../interfaces/operation.interface';
+import { AddOrEditOperationRequest, OperationType } from '../interfaces/operation.interface';
 import { getHocDisplayName } from '../helpers/hoc.helper';
 import { MainTableState } from '../interfaces/main-table.interface';
 import { useSelector } from 'react-redux';
@@ -25,6 +25,7 @@ export function WithEditExpenseActions<P>(
       <WrappedComponent
         {...props}
         categories={expenseCategories}
+        operationType={OperationType.EXPENSE}
         deleteOperation={handleDeleteOperation}
         editOperation={handleEditOperation}
       />

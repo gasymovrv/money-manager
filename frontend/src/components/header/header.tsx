@@ -25,7 +25,8 @@ import FilterListIcon from '@material-ui/icons/FilterList';
 import { useHistory } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { showError } from '../../actions/error.actions';
-import { COMMON_ERROR_MSG } from '../../constants';
+import { ACCESS_TOKEN, COMMON_ERROR_MSG } from '../../constants';
+import ImportFromFileDialog from '../dialog/import-from-file.dialog';
 
 type HeaderProps = {
   hasActions?: boolean,
@@ -75,6 +76,7 @@ const Header: React.FC<HeaderProps> = ({hasActions, children}) => {
   const [openChildren, setOpenChildren] = useState(false);
   const [openAddIncome, setOpenAddIncome] = useState(false);
   const [openAddExpense, setOpenAddExpense] = useState(false);
+  const [openImportFromFile, setOpenImportFromFile] = useState(false);
   const [mainMenuAnchorEl, setMainMenuAnchorEl] = useState<null | HTMLElement>(null);
   const [accountMenuAnchorEl, setAccountMenuAnchorEl] = useState<null | HTMLElement>(null);
 
@@ -97,6 +99,11 @@ const Header: React.FC<HeaderProps> = ({hasActions, children}) => {
     }
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem(ACCESS_TOKEN);
+    window.location.assign('/login');
+  };
+
   return (
     <AppBar position="static" className={classes.appBar}>
       <Toolbar className={classes.root}>
@@ -117,6 +124,11 @@ const Header: React.FC<HeaderProps> = ({hasActions, children}) => {
             onClose={() => setMainMenuAnchorEl(null)}
           >
             <MenuItem onClick={handleExportToExcel}>Export to Excel</MenuItem>
+            <MenuItem onClick={() => setOpenImportFromFile(true)}>Import from Excel</MenuItem>
+            <ImportFromFileDialog
+              open={openImportFromFile}
+              handleClose={() => setOpenImportFromFile(false)}
+            />
           </StyledMenu>
 
           <Typography
@@ -197,7 +209,7 @@ const Header: React.FC<HeaderProps> = ({hasActions, children}) => {
                 secondary={user.currentAccount.currency}
               />
             </MenuItem>
-            <MenuItem onClick={() => window.location.assign('logout')}>Logout</MenuItem>
+            <MenuItem onClick={handleLogout}>Logout</MenuItem>
           </StyledMenu>
         </Box>
 

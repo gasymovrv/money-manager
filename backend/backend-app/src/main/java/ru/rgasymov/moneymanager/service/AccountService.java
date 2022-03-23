@@ -17,4 +17,6 @@ public interface AccountService {
   AccountResponseDto changeCurrent(Long id);
 
   void createDefaultCategories();
+
+  boolean isCurrentAccountEmpty();
 }

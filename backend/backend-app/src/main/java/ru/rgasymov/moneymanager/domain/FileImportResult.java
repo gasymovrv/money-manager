@@ -13,7 +13,7 @@ import ru.rgasymov.moneymanager.domain.entity.IncomeCategory;
 
 @Data
 @RequiredArgsConstructor
-public class XlsxParsingResult {
+public class FileImportResult {
   private BigDecimal previousSavings;
   private LocalDate previousSavingsDate;
   private final List<Income> incomes;
@@ -21,7 +21,7 @@ public class XlsxParsingResult {
   private final Set<IncomeCategory> incomeCategories;
   private final Set<ExpenseCategory> expenseCategories;
 
-  public void add(XlsxParsingResult result) {
+  public void add(FileImportResult result) {
     incomes.addAll(result.incomes);
     expenses.addAll(result.expenses);
     incomeCategories.addAll(result.incomeCategories);

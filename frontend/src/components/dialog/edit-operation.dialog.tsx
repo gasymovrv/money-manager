@@ -1,4 +1,4 @@
-import { Button, Dialog, DialogActions, DialogTitle } from '@material-ui/core';
+import { Button, Dialog, DialogActions } from '@material-ui/core';
 import React, { useContext, useState } from 'react';
 import { EditOperationDialogProps, EditOperationProps } from '../../interfaces/common.interface';
 import moment from 'moment';
@@ -15,9 +15,13 @@ import { showError } from '../../actions/error.actions';
 import { isPastOrToday } from '../../helpers/date.helper';
 import { AuthContext } from '../../interfaces/auth-context.interface';
 import { getSavingsFilter } from '../../helpers/common.helper';
+import CommonTitleDialog from './common-title.dialog';
+import { AddExpenseDialog, AddIncomeDialog } from './add-operation.dialog';
+import { OperationType } from '../../interfaces/operation.interface';
 
 const EditOperationDialog: React.FC<EditOperationDialogProps & EditOperationProps> = ({
                                                                                         operation,
+                                                                                        operationType,
                                                                                         categories,
                                                                                         open,
                                                                                         handleClose,
@@ -35,6 +39,13 @@ const EditOperationDialog: React.FC<EditOperationDialogProps & EditOperationProp
   const [categoryId, setCategoryId] = useState<number>(operation.category.id);
   const [date, setDate] = useState(moment(operation.date));
   const [isPlanned, setIsPlanned] = useState<boolean>(operation.isPlanned);
+  const [openAddIncome, setOpenAddIncome] = useState(false);
+  const [openAddExpense, setOpenAddExpense] = useState(false);
+
+  const isNotValidForSave = !value || !categoryId || (isPlanned && isPastOrToday(date));
+  const isNotValidForClone = !operation.value
+    || !operation.category.id
+    || (operation.isPlanned && isPastOrToday(operation.date));
 
   const handleChangeValue = (event: React.ChangeEvent<HTMLInputElement>) => {
     setValue(+event.target.value)
@@ -68,25 +79,37 @@ const EditOperationDialog: React.FC<EditOperationDialogProps & EditOperationProp
         categoryId: categoryId,
         isPlanned: isPlanned,
       });
+      handleClose();
       dispatch(fetchMainTable(paginationParams, savingsFilter));
       dispatch(showSuccess('The operation has been successfully edited'));
     } catch (error) {
+      handleClose();
       console.log(error);
       dispatch((showError(COMMON_ERROR_MSG)))
     }
-    handleClose();
   }
 
   const handleDelete = async () => {
     try {
       await deleteOperation(operation.id);
+      handleClose();
       dispatch(fetchMainTable(paginationParams, savingsFilter));
       dispatch(showSuccess('The operation has been successfully deleted'));
     } catch (error) {
+      handleClose();
       console.log(error);
       dispatch((showError(COMMON_ERROR_MSG)))
     }
-    handleClose();
+  }
+
+  const handleClone = () => {
+    if (operationType === OperationType.INCOME) {
+      handleCancel();
+      setOpenAddIncome(true);
+    } else if (operationType === OperationType.EXPENSE) {
+      handleCancel();
+      setOpenAddExpense(true);
+    }
   }
 
   const handleCancel = async () => {
@@ -99,44 +122,49 @@ const EditOperationDialog: React.FC<EditOperationDialogProps & EditOperationProp
   }
 
   return (
-    <Dialog maxWidth="xs" open={open} onClose={handleClose}>
+    <>
+      <Dialog maxWidth="xs" open={open} onClose={handleCancel}>
 
-      <DialogTitle>Edit operation</DialogTitle>
+        <CommonTitleDialog title="Edit operation" handleClose={handleCancel}/>
 
-      <CommonOperationDialog
-        value={value}
-        isPlanned={isPlanned}
-        categoryId={categoryId}
-        description={description}
-        date={date}
-        categories={categories}
-        handleChangeValue={handleChangeValue}
-        handleChangeIsPlanned={handleChangeIsPlanned}
-        handleChangeDate={handleChangeDate}
-        handleChangeDescription={handleChangeDescription}
-        handleChangeCategoryId={handleChangeTypeId}
+        <CommonOperationDialog
+          value={value}
+          isPlanned={isPlanned}
+          categoryId={categoryId}
+          description={description}
+          date={date}
+          categories={categories}
+          handleChangeValue={handleChangeValue}
+          handleChangeIsPlanned={handleChangeIsPlanned}
+          handleChangeDate={handleChangeDate}
+          handleChangeDescription={handleChangeDescription}
+          handleChangeCategoryId={handleChangeTypeId}
+        />
+
+        <DialogActions>
+          <Button disabled={isNotValidForClone} onClick={handleClone} color="inherit">
+            Clone
+          </Button>
+          <Button onClick={handleDelete} color="inherit">
+            Delete
+          </Button>
+          <Button disabled={isNotValidForSave} onClick={handleSave} color="inherit">
+            Save
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <AddIncomeDialog
+        open={openAddIncome}
+        draft={operation}
+        handleClose={() => setOpenAddIncome(false)}
       />
-
-      <DialogActions>
-        <Button onClick={handleCancel} color="inherit">
-          Cancel
-        </Button>
-        <Button onClick={handleDelete} color="inherit">
-          Delete
-        </Button>
-        <Button
-          disabled={
-            !value
-            || !categoryId
-            || (isPlanned && isPastOrToday(date))
-          }
-          onClick={handleSave}
-          color="inherit"
-        >
-          Save
-        </Button>
-      </DialogActions>
-    </Dialog>
+      <AddExpenseDialog
+        open={openAddExpense}
+        draft={operation}
+        handleClose={() => setOpenAddExpense(false)}
+      />
+    </>
   );
 }
 export const EditIncomeDialog = WithEditIncomeActions<EditOperationDialogProps>(EditOperationDialog);

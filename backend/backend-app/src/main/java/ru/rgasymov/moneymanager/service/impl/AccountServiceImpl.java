@@ -22,7 +22,6 @@ import ru.rgasymov.moneymanager.repository.ExpenseRepository;
 import ru.rgasymov.moneymanager.repository.IncomeCategoryRepository;
 import ru.rgasymov.moneymanager.repository.IncomeRepository;
 import ru.rgasymov.moneymanager.repository.SavingRepository;
-import ru.rgasymov.moneymanager.repository.UserRepository;
 import ru.rgasymov.moneymanager.service.AccountService;
 import ru.rgasymov.moneymanager.service.UserService;
 import ru.rgasymov.moneymanager.service.expense.ExpenseCategoryService;
@@ -39,7 +38,6 @@ public class AccountServiceImpl implements AccountService {
   private final ExpenseRepository expenseRepository;
   private final ExpenseCategoryRepository expenseCategoryRepository;
   private final SavingRepository savingRepository;
-  private final UserRepository userRepository;
 
   private final AccountMapper accountMapper;
 
@@ -84,7 +82,6 @@ public class AccountServiceImpl implements AccountService {
       accountRepository.save(account);
       if (currentUser.getCurrentAccount().getId().equals(id)) {
         currentUser.setCurrentAccount(account);
-        userService.updateCurrentUser(currentUser);
       }
     }
     return accountMapper.toDto(account);
@@ -117,8 +114,7 @@ public class AccountServiceImpl implements AccountService {
     var account = getAccount(id);
 
     currentUser.setCurrentAccount(account);
-    var updatedUser = userRepository.save(currentUser);
-    userService.updateCurrentUser(updatedUser);
+    userService.save(currentUser);
     return accountMapper.toDto(account);
   }
 
@@ -133,6 +129,17 @@ public class AccountServiceImpl implements AccountService {
     expenseCategoryService.create(new OperationCategoryRequestDto("Debts"));
     expenseCategoryService.create(new OperationCategoryRequestDto("Mortgage"));
     expenseCategoryService.create(new OperationCategoryRequestDto("Other"));
+  }
+
+  @Transactional(readOnly = true)
+  @Override
+  public boolean isCurrentAccountEmpty() {
+    var currentAccount = userService.getCurrentUser().getCurrentAccount();
+    var currentAccountId = currentAccount.getId();
+
+    return !savingRepository.existsByAccountId(currentAccountId)
+        && !incomeCategoryRepository.existsByAccountId(currentAccountId)
+        && !expenseCategoryRepository.existsByAccountId(currentAccountId);
   }
 
   private Account getAccount(Long id) {

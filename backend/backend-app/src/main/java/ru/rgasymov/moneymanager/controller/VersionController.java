@@ -1,4 +1,4 @@
-package ru.rgasymov.moneymanager.controller.api;
+package ru.rgasymov.moneymanager.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;

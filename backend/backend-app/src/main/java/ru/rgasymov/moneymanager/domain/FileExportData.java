@@ -4,7 +4,7 @@ import java.util.List;
 import ru.rgasymov.moneymanager.domain.dto.response.OperationCategoryResponseDto;
 import ru.rgasymov.moneymanager.domain.dto.response.SavingResponseDto;
 
-public record XlsxInputData(
+public record FileExportData(
     List<SavingResponseDto> savings,
     List<OperationCategoryResponseDto> incomeCategories,
     List<OperationCategoryResponseDto> expenseCategories) {

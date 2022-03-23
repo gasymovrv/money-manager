@@ -1,19 +1,43 @@
 package ru.rgasymov.moneymanager.config;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
+import org.springframework.http.converter.FormHttpMessageConverter;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.core.session.SessionRegistry;
-import org.springframework.security.core.session.SessionRegistryImpl;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.oauth2.client.endpoint.DefaultAuthorizationCodeTokenResponseClient;
+import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
+import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequest;
+import org.springframework.security.oauth2.client.http.OAuth2ErrorResponseErrorHandler;
+import org.springframework.security.oauth2.core.http.converter.OAuth2AccessTokenResponseHttpMessageConverter;
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
-import ru.rgasymov.moneymanager.service.impl.CustomOidcUserService;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import ru.rgasymov.moneymanager.security.RestAuthenticationEntryPoint;
+import ru.rgasymov.moneymanager.security.TokenAuthenticationFilter;
+import ru.rgasymov.moneymanager.security.oauth2.CustomOauth2UserService;
+import ru.rgasymov.moneymanager.security.oauth2.CustomTokenResponseConverter;
+import ru.rgasymov.moneymanager.security.oauth2.HttpCookieOauth2AuthorizationRequestRepository;
+import ru.rgasymov.moneymanager.security.oauth2.Oauth2AuthenticationFailureHandler;
+import ru.rgasymov.moneymanager.security.oauth2.Oauth2AuthenticationSuccessHandler;
 
 @Configuration
+@EnableWebSecurity
 @RequiredArgsConstructor
+@EnableGlobalMethodSecurity(
+    securedEnabled = true,
+    jsr250Enabled = true,
+    prePostEnabled = true
+)
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
   private static final String BASE_URL = "/";
@@ -21,41 +45,110 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
   @Value("${server.api-base-url}")
   private String apiBaseUrl;
 
-  @Value("${server.servlet.session.limit}")
-  private int maximumSessions;
+  @Value("${security.allowed-origins}")
+  private List<String> allowedOrigins;
 
-  private final CustomOidcUserService customOidcUserService;
+  private final CustomOauth2UserService customOauth2UserService;
+
+  private final Oauth2AuthenticationSuccessHandler authenticationSuccessHandler;
+
+  private final Oauth2AuthenticationFailureHandler authenticationFailureHandler;
+
+  @Bean
+  public TokenAuthenticationFilter tokenAuthenticationFilter() {
+    return new TokenAuthenticationFilter();
+  }
+
+  /*
+    By default, Spring OAuth2 uses HttpSessionOAuth2AuthorizationRequestRepository to save
+    the authorization request. But, since our service is stateless, we can't save it in
+    the session. We'll save the request in a Base64 encoded cookie instead.
+  */
+  @Bean
+  public HttpCookieOauth2AuthorizationRequestRepository cookieAuthorizationRequestRepository() {
+    return new HttpCookieOauth2AuthorizationRequestRepository();
+  }
+
+  @Bean
+  public OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest>
+      accessTokenResponseClient() {
+    var tokenResponseHttpMessageConverter = new OAuth2AccessTokenResponseHttpMessageConverter();
+    tokenResponseHttpMessageConverter
+        .setAccessTokenResponseConverter(new CustomTokenResponseConverter());
+
+    var restTemplate = new RestTemplate(
+        List.of(new FormHttpMessageConverter(), tokenResponseHttpMessageConverter));
+    restTemplate.setErrorHandler(new OAuth2ErrorResponseErrorHandler());
+
+    var accessTokenResponseClient = new DefaultAuthorizationCodeTokenResponseClient();
+    accessTokenResponseClient.setRestOperations(restTemplate);
+    return accessTokenResponseClient;
+  }
+
+  @Bean
+  public CorsConfigurationSource corsConfigurationSource() {
+    final var configuration = new CorsConfiguration();
+    configuration.setAllowedOrigins(allowedOrigins);
+    configuration.setAllowedMethods(List.of("HEAD", "GET", "POST", "PUT", "DELETE", "PATCH"));
+    configuration.setAllowCredentials(true);
+    configuration.setAllowedHeaders(List.of("Authorization", "Cache-Control", "Content-Type"));
+
+    final var source = new UrlBasedCorsConfigurationSource();
+    source.registerCorsConfiguration("/**", configuration);
+    return source;
+  }
 
   @Override
   protected void configure(HttpSecurity http) throws Exception {
     http
-        .sessionManagement()
-        .maximumSessions(maximumSessions)
-        .expiredUrl("/login")
-        .sessionRegistry(sessionRegistry())
+        .cors()
         .and()
-        .invalidSessionUrl("/login")
+        .sessionManagement()
+        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+        .and()
+        .csrf()
+        .disable()
+        .formLogin()
+        .disable()
+        .httpBasic()
+        .disable()
+        .addFilterBefore(new ErrorFilter(apiBaseUrl), FilterSecurityInterceptor.class)
+        .exceptionHandling()
+        .authenticationEntryPoint(new RestAuthenticationEntryPoint(apiBaseUrl))
         .and()
         .authorizeRequests()
-        .antMatchers(HttpMethod.GET,
-            "/",
+        .antMatchers(
+            BASE_URL,
             "/login",
             apiBaseUrl + "/version",
-            "/static/**").permitAll()
-        .anyRequest().authenticated()
+            "/swagger-ui/**",
+            "/v3/api-docs/**",
+            "/favicon.ico",
+            "/static/**")
+        .permitAll()
+        .antMatchers("/auth/**", "/oauth2/**")
+        .permitAll()
+        .anyRequest()
+        .hasRole("USER")
         .and()
-        .addFilterBefore(new ErrorFilter(apiBaseUrl, BASE_URL), FilterSecurityInterceptor.class)
-        .exceptionHandling().accessDeniedPage(BASE_URL)
-        .and()
-        .csrf().disable()
         .oauth2Login()
-        .loginPage("/login")
+        .authorizationEndpoint()
+        .baseUri("/oauth2/authorize")
+        .authorizationRequestRepository(cookieAuthorizationRequestRepository())
+        .and()
+        .redirectionEndpoint()
+        .baseUri("/oauth2/callback/*")
+        .and()
         .userInfoEndpoint()
-        .oidcUserService(customOidcUserService);
-  }
+        .userService(customOauth2UserService)
+        .and()
+        .tokenEndpoint()
+        .accessTokenResponseClient(accessTokenResponseClient())
+        .and()
+        .successHandler(authenticationSuccessHandler)
+        .failureHandler(authenticationFailureHandler);
 
-  @Bean
-  public SessionRegistry sessionRegistry() {
-    return new SessionRegistryImpl();
+    // Add our custom Token based authentication filter
+    http.addFilterBefore(tokenAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
   }
 }

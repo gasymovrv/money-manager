@@ -1,9 +1,7 @@
 server:
+  tomcat:
+    relaxed-query-chars: '|,{,},[,]'
   api-base-url: /api
-  servlet:
-    session:
-      limit: ${MAXIMUM_SESSIONS:5}
-      timeout: ${SESSION_TIMEOUT:3h}
   error:
     whitelabel:
       enabled: false
@@ -42,7 +40,25 @@ spring:
           google:
             clientId: ${GOOGLE_CLIENT_ID:client-id}
             clientSecret: ${GOOGLE_CLIENT_SECRET:client-secret}
-            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+            redirect-uri: "{baseUrl}/oauth2/callback/{registrationId}"
+            scope:
+              - email
+              - profile
+          vk:
+            client-id: ${VK_CLIENT_ID:client-id}
+            client-secret: ${VK_CLIENT_SECRET:client-id}
+            redirect-uri: "{baseUrl}/oauth2/callback/{registrationId}"
+            #use post, as vk needs clientId and clientSecret as request params and does not accepts Basic auth
+            client-authentication-method: post
+            authorization-grant-type: authorization_code
+            scope: email
+        provider:
+          vk:
+            #query param 'revoke=1' needs to always show vk dialog
+            authorization-uri: https://oauth.vk.com/authorize
+            token-uri: https://oauth.vk.com/access_token
+            user-info-uri: https://api.vk.com/method/users.get?v=5.131&fields=photo_max
+            user-name-attribute: id
   servlet:
     multipart:
       max-file-size: ${MAX_UPLOAD_FILE_SIZE:20MB}
@@ -53,7 +69,7 @@ spring:
         cachecontrol:
           max-age: 365d
   cache:
-    cache-names: incomeCategories, expenseCategories
+    cache-names: incomeCategories, expenseCategories, users
     type: caffeine
 
 springdoc:
@@ -85,3 +101,8 @@ use-postgres: ${USE_POSTGRES:false}
 xlsx:
   max-exported-rows: ${MAX_EXPORTED_ROWS:1000000}
   show-empty-rows: ${SHOW_EMPTY_ROWS:true} # Add empty savings in the exported xlsx to fill months
+
+security:
+  token-secret: ${GOOGLE_CLIENT_SECRET:client-secret}
+  token-expiration-period: ${TOKEN_EXPIRATION_PERIOD:60m}
+  allowed-origins: ${ALLOWED_ORIGINS:http://localhost:3000, http://localhost:8080}

@@ -30,3 +30,19 @@ databaseChangeLog:
             tableName: users
             columnName: current_account_id
             columnDataType: bigint
+
+  - changeSet:
+      id: 000000-add-column-provider-users
+      author: Gasymov Ruslan
+      changes:
+        - addColumn:
+            tableName: users
+            columns:
+              - column:
+                  name: provider
+                  type: varchar(50)
+                  defaultValue: GOOGLE
+        - addNotNullConstraint:
+            tableName: users
+            columnName: provider
+            columnDataType: varchar(50)

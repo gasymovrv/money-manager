@@ -24,3 +24,5 @@ export const HIDE_SUCCESS = 'HIDE_SUCCESS';
 export const COMMON_ERROR_MSG = 'Something went wrong';
 
 export const SELECT_ALL_OPTION = 'SELECT_ALL_OPTION';
+
+export const ACCESS_TOKEN = "accessToken";

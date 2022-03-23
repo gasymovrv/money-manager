@@ -12,5 +12,6 @@ public class MvcConfig implements WebMvcConfigurer {
     registry.addViewController("/login").setViewName("forward:/");
     registry.addViewController("/profile").setViewName("forward:/");
     registry.addViewController("/welcome").setViewName("forward:/");
+    registry.addViewController("/oauth2/redirect").setViewName("forward:/");
   }
 }

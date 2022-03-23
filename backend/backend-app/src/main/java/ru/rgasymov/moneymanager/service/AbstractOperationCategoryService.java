@@ -84,6 +84,4 @@ public abstract class AbstractOperationCategoryService<
   }
 
   protected abstract C buildNewOperationCategory(User currentUser, String name);
-
-  protected abstract void clearCachedCategories();
 }
