@@ -25,6 +25,7 @@ import ru.rgasymov.moneymanager.domain.enums.AccountTheme;
 @Setter
 @NoArgsConstructor
 @SuperBuilder
+@ToString
 public class Account implements Serializable {
   @Serial
   private static final long serialVersionUID = 1234567L;

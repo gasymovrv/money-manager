@@ -20,6 +20,7 @@ import ru.rgasymov.moneymanager.domain.dto.request.AccountRequestDto;
 import ru.rgasymov.moneymanager.domain.dto.response.AccountResponseDto;
 import ru.rgasymov.moneymanager.service.AccountService;
 import ru.rgasymov.moneymanager.service.UserService;
+import ru.rgasymov.moneymanager.service.impl.AccountTestService;
 
 @RestController
 @RequiredArgsConstructor
@@ -31,6 +32,8 @@ public class AccountController {
   private final UserService userService;
 
   private final AccountService accountService;
+
+  private final AccountTestService testService;
 
   @GetMapping()
   public List<AccountResponseDto> findAll() {
@@ -80,5 +83,21 @@ public class AccountController {
   public void createDefaultCategories() {
     log.info("# Create default categories, current user: {}", userService.getCurrentUser());
     accountService.createDefaultCategories();
+  }
+
+  //------------------------------------ Transaction Test ------------------------------------------
+
+  //Call it first
+  @PostMapping("/t1")
+  public void t1() {
+    log.info("# Transaction test1, user: {}", userService.getCurrentUser());
+    testService.test1();
+  }
+
+  //Then call it within 5 seconds
+  @PostMapping("/t2")
+  public void t2() {
+    log.info("# Transaction test2, user: {}", userService.getCurrentUser());
+    testService.test2();
   }
 }

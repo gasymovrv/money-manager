@@ -12,6 +12,7 @@ import javax.persistence.MappedSuperclass;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
 @Getter
@@ -19,16 +20,19 @@ import lombok.experimental.SuperBuilder;
 @MappedSuperclass
 @NoArgsConstructor
 @SuperBuilder
+@ToString
 public abstract class BaseOperation {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
+  @ToString.Exclude
   @ManyToOne
   @JoinColumn(name = "account_id")
   private Account account;
 
+  @ToString.Exclude
   @ManyToOne
   @JoinColumn(name = "saving_id")
   private Saving saving;
@@ -39,6 +43,7 @@ public abstract class BaseOperation {
 
   private BigDecimal value;
 
+  @ToString.Exclude
   @Column(name = "is_planned")
   private Boolean isPlanned;
 }
