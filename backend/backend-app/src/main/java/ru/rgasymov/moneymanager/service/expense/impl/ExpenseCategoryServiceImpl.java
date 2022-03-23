@@ -80,7 +80,7 @@ public class ExpenseCategoryServiceImpl
   }
 
   @Override
-  protected void clearCachedCategories() {
+  public void clearCachedCategories() {
     Optional.ofNullable(cacheManager.getCache(CacheNames.EXPENSE_CATEGORIES)).ifPresent(
         Cache::clear);
   }

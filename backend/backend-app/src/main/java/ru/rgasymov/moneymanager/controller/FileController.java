@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import ru.rgasymov.moneymanager.service.FileService;
+import ru.rgasymov.moneymanager.service.expense.ExpenseCategoryService;
+import ru.rgasymov.moneymanager.service.income.IncomeCategoryService;
 
 @RestController
 @RequiredArgsConstructor
@@ -22,12 +24,17 @@ public class FileController {
 
   private final FileService fileService;
 
+  private final ExpenseCategoryService expenseCategoryService;
+  private final IncomeCategoryService incomeCategoryService;
+
   @RequestMapping(value = "/xlsx/import",
       method = RequestMethod.POST,
       consumes = "multipart/form-data")
   public void importFromXlsx(@RequestPart("file") MultipartFile file) {
     log.info("# Import from xlsx file");
     fileService.importFromXlsx(file);
+    expenseCategoryService.clearCachedCategories();
+    incomeCategoryService.clearCachedCategories();
     log.info("# Import from the file has successfully completed");
   }
 

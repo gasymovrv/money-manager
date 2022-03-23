@@ -20,8 +20,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import ru.rgasymov.moneymanager.constant.DateTimeFormats;
-import ru.rgasymov.moneymanager.domain.XlsxInputData;
-import ru.rgasymov.moneymanager.domain.XlsxParsingResult;
+import ru.rgasymov.moneymanager.domain.FileExportData;
+import ru.rgasymov.moneymanager.domain.FileImportResult;
 import ru.rgasymov.moneymanager.exception.DataExtractionException;
 import ru.rgasymov.moneymanager.exception.DataGenerationException;
 import ru.rgasymov.moneymanager.exception.FileReadingException;
@@ -52,7 +52,7 @@ public class XlsxFileServiceImpl implements XlsxFileService {
   private Boolean deleteImportFiles;
 
   @Override
-  public XlsxParsingResult parse(MultipartFile multipartFile) {
+  public FileImportResult parse(MultipartFile multipartFile) {
     log.info("# XlsxFileService: file parsing has started");
     var rootPath = Paths.get(root);
     createRootIfNotExists(rootPath);
@@ -69,7 +69,7 @@ public class XlsxFileServiceImpl implements XlsxFileService {
     }
 
     try {
-      XlsxParsingResult result = xlsxParsingService.parse(destination);
+      FileImportResult result = xlsxParsingService.parse(destination);
       if (deleteImportFiles) {
         destination.delete();
       }
@@ -84,7 +84,7 @@ public class XlsxFileServiceImpl implements XlsxFileService {
   }
 
   @Override
-  public ResponseEntity<Resource> generate(XlsxInputData data) {
+  public ResponseEntity<Resource> generate(FileExportData data) {
     log.info("# XlsxFileService: file generation has started");
 
     try {
