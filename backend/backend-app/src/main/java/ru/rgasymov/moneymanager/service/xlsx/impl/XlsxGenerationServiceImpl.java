@@ -178,10 +178,17 @@ public class XlsxGenerationServiceImpl implements XlsxGenerationService {
     headCell.setCellStyle(headerStyle);
 
     //------- Merge head columns -------
-    sheet.addMergedRegion(
-        new CellRangeAddress(FIRST_ROW, FIRST_ROW, START_DATA_COLUMN, incCategoryLastCol));
-    sheet.addMergedRegion(
-        new CellRangeAddress(FIRST_ROW, FIRST_ROW, incCategoryLastCol + 1, expCategoryLastCol));
+    if (START_DATA_COLUMN != incCategoryLastCol) {
+      sheet.addMergedRegion(
+          new CellRangeAddress(FIRST_ROW, FIRST_ROW, START_DATA_COLUMN, incCategoryLastCol));
+    }
+
+    final var expCategoryFirstCol = incCategoryLastCol + 1;
+    if (expCategoryFirstCol != expCategoryLastCol) {
+      sheet.addMergedRegion(
+          new CellRangeAddress(FIRST_ROW, FIRST_ROW, expCategoryFirstCol, expCategoryLastCol));
+    }
+
     sheet.addMergedRegion(
         new CellRangeAddress(FIRST_ROW, CATEGORIES_ROW, savingsCol, savingsCol));
 
@@ -357,7 +364,7 @@ public class XlsxGenerationServiceImpl implements XlsxGenerationService {
                                      XSSFRow firstRow,
                                      XSSFRow categoriesRow,
                                      CellStyle headerStyle,
-                                     HashMap<String, Integer> expColumnMap,
+                                     HashMap<String, Integer> columnMap,
                                      String headerColName,
                                      String headerSumColName) {
     var headCell = firstRow.createCell(startCol, CellType.STRING);
@@ -367,7 +374,7 @@ public class XlsxGenerationServiceImpl implements XlsxGenerationService {
       headCell = categoriesRow.createCell(startCol, CellType.STRING);
       headCell.setCellValue(categoryName);
       headCell.setCellStyle(headerStyle);
-      expColumnMap.put(categoryName, startCol);
+      columnMap.put(categoryName, startCol);
       startCol++;
     }
     headCell = categoriesRow.createCell(startCol, CellType.STRING);
