@@ -19,7 +19,7 @@ import {
 import MenuIcon from '@material-ui/icons/Menu';
 import { AccountCircle } from '@material-ui/icons';
 import { AddExpenseDialog, AddIncomeDialog } from '../dialog/add-operation.dialog';
-import { exportToXlsxFile } from '../../services/api.service';
+import { downloadTemplateXlsxFile, exportToXlsxFile } from '../../services/api.service';
 import StyledMenu from '../menu/styled-menu';
 import FilterListIcon from '@material-ui/icons/FilterList';
 import { useHistory } from 'react-router-dom';
@@ -99,6 +99,15 @@ const Header: React.FC<HeaderProps> = ({hasActions, children}) => {
     }
   };
 
+  const handleDownloadTemplate = async () => {
+    try {
+      await downloadTemplateXlsxFile();
+    } catch (error) {
+      console.log(error);
+      dispatch(showError(COMMON_ERROR_MSG));
+    }
+  };
+
   const handleLogout = () => {
     localStorage.removeItem(ACCESS_TOKEN);
     window.location.assign('/login');
@@ -129,6 +138,7 @@ const Header: React.FC<HeaderProps> = ({hasActions, children}) => {
               open={openImportFromFile}
               handleClose={() => setOpenImportFromFile(false)}
             />
+            <MenuItem onClick={handleDownloadTemplate}>Download Excel template</MenuItem>
           </StyledMenu>
 
           <Typography
@@ -141,43 +151,43 @@ const Header: React.FC<HeaderProps> = ({hasActions, children}) => {
         </Box>
 
         {hasActions &&
-        <Box className={classes.buttonsBox}>
-            <Box>
-                <Button
-                    variant="outlined"
-                    className={classes.greenText}
-                    onClick={() => setOpenAddIncome(true)}
-                >
-                    Income
-                </Button>
-                <AddIncomeDialog
-                    open={openAddIncome}
-                    handleClose={() => setOpenAddIncome(false)}
-                />
-            </Box>
+            <Box className={classes.buttonsBox}>
+                <Box>
+                    <Button
+                        variant="outlined"
+                        className={classes.greenText}
+                        onClick={() => setOpenAddIncome(true)}
+                    >
+                        Income
+                    </Button>
+                    <AddIncomeDialog
+                        open={openAddIncome}
+                        handleClose={() => setOpenAddIncome(false)}
+                    />
+                </Box>
 
-            <Box>
-                <Button
-                    variant="outlined"
-                    className={classes.redText}
-                    onClick={() => setOpenAddExpense(true)}
-                >
-                    Expense
-                </Button>
-                <AddExpenseDialog
-                    open={openAddExpense}
-                    handleClose={() => setOpenAddExpense(false)}
-                />
-            </Box>
+                <Box>
+                    <Button
+                        variant="outlined"
+                        className={classes.redText}
+                        onClick={() => setOpenAddExpense(true)}
+                    >
+                        Expense
+                    </Button>
+                    <AddExpenseDialog
+                        open={openAddExpense}
+                        handleClose={() => setOpenAddExpense(false)}
+                    />
+                </Box>
 
-            <Box>
-                <Tooltip title="Show filters">
-                    <IconButton size="small" onClick={() => setOpenChildren(true)}>
-                        <FilterListIcon/>
-                    </IconButton>
-                </Tooltip>
+                <Box>
+                    <Tooltip title="Show filters">
+                        <IconButton size="small" onClick={() => setOpenChildren(true)}>
+                            <FilterListIcon/>
+                        </IconButton>
+                    </Tooltip>
+                </Box>
             </Box>
-        </Box>
         }
 
         <Box>
