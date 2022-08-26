@@ -14,6 +14,7 @@ import { resetShowingCategories } from '../actions/show-categories.actions';
 import { COMMON_ERROR_MSG } from '../constants';
 import { showError } from '../actions/error.actions';
 import { useEffectCallback } from '../helpers/common.helper';
+import { showSuccess } from '../actions/success.actions';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -113,13 +114,17 @@ const ProfilePage: React.FC = () => {
         currency: accountCurrency,
         theme: accountTheme
       });
+
       if (currentAccount.id !== account.id) {
         await changeAccount(account.id);
         dispatch(resetPagination());
         dispatch(resetShowingCategories())
+        dispatch(showSuccess('Account has been successfully switched'));
+      } else {
+        dispatch(showSuccess('Account has been successfully saved'));
       }
-      await loadAccountsData();
-      refreshUser();
+
+      window.location.assign('/')
     } catch (error) {
       console.log(error);
       dispatch(showError(COMMON_ERROR_MSG));
@@ -186,24 +191,24 @@ const ProfilePage: React.FC = () => {
                     </Grid>
 
                     {!isLoadingCurrencies &&
-                    <Grid item>
-                        <TextField
-                            className={classes.inputField}
-                            error={!accountCurrency}
-                            required
-                            autoFocus
-                            color="secondary"
-                            margin="normal"
-                            label="Account currency"
-                            select
-                            value={accountCurrency}
-                            onChange={handleChangeAccountCurrency}
-                        >
-                          {currencies.map((value) =>
-                            <MenuItem key={value} value={value}>{value}</MenuItem>
-                          )}
-                        </TextField>
-                    </Grid>
+                        <Grid item>
+                            <TextField
+                                className={classes.inputField}
+                                error={!accountCurrency}
+                                required
+                                autoFocus
+                                color="secondary"
+                                margin="normal"
+                                label="Account currency"
+                                select
+                                value={accountCurrency}
+                                onChange={handleChangeAccountCurrency}
+                            >
+                              {currencies.map((value) =>
+                                <MenuItem key={value} value={value}>{value}</MenuItem>
+                              )}
+                            </TextField>
+                        </Grid>
                     }
 
                   </Grid>
@@ -213,23 +218,24 @@ const ProfilePage: React.FC = () => {
                   <Grid container direction="column" spacing={2}>
 
                     {!isLoadingAccounts &&
-                    <Grid item>
-                        <TextField
-                            className={classes.inputField}
-                            required
-                            autoFocus
-                            color="secondary"
-                            margin="normal"
-                            label="List of accounts"
-                            select
-                            value={account.id}
-                            onChange={handleChangeAccount}
-                        >
-                          {accounts.map((value) =>
-                            <MenuItem key={value.id} value={value.id}>{value.name}</MenuItem>
-                          )}
-                        </TextField>
-                    </Grid>
+                        <Grid item>
+                            <TextField
+                                className={classes.inputField}
+                                required
+                                autoFocus
+                                color="secondary"
+                                margin="normal"
+                                label="List of accounts"
+                                select
+                                value={account.id}
+                                onChange={handleChangeAccount}
+                            >
+                              {accounts.map((value) =>
+                                <MenuItem key={value.id}
+                                          value={value.id}>{value.name}</MenuItem>
+                              )}
+                            </TextField>
+                        </Grid>
                     }
 
                     <Grid item>
@@ -245,12 +251,12 @@ const ProfilePage: React.FC = () => {
                             Add new
                           </Button>
                           {!isLoadingCurrencies &&
-                          <AddAccountDialog
-                              open={openAddAccount}
-                              handleClose={() => setOpenAddAccount(false)}
-                              onAdd={loadAccountsData}
-                              currencies={currencies}
-                          />
+                              <AddAccountDialog
+                                  open={openAddAccount}
+                                  handleClose={() => setOpenAddAccount(false)}
+                                  onAdd={loadAccountsData}
+                                  currencies={currencies}
+                              />
                           }
                         </Grid>
 
