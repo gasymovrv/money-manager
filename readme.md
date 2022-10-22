@@ -20,7 +20,7 @@ The main purpose of the application is to manage income, expenses and savings.
 ### Instructions
 #### Build and run
 + Change GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET in .env (or as environment variables) to actual
-+ For local build you need Java 16, Maven 3+. NodeJS v14.16.0 and NPM 6.14.11 are only needed for frontend developing
++ For local build you need Java 17, Maven 3+. NodeJS v14.16.0 and NPM 6.14.11 are only needed for frontend developing
 + Call `mvn clean install` at root of the project to build the application. `-Drevision=1.0.0` can be added to change the version of the project
 + Built result (jar file) will be in 'target' directory at root of the project
 + Call `java -Duser.timezone=UTC -jar money-manager-<version>.jar` to start the application
