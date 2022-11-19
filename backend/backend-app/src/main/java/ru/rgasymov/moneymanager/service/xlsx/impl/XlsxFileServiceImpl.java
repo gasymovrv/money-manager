@@ -1,6 +1,7 @@
 package ru.rgasymov.moneymanager.service.xlsx.impl;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -14,6 +15,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
+import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -36,7 +38,7 @@ import ru.rgasymov.moneymanager.service.xlsx.XlsxParsingService;
 public class XlsxFileServiceImpl implements XlsxFileService {
 
   private static final String UPLOADED_FILE_NAME_PATTERN = "%s/%s_%s.%s";
-  private static final String DOWNLOADED_FILE_NAME_PATTERN = "money-manager_%s.xlsx";
+  private static final String DOWNLOADED_FILE_NAME_PATTERN = "%s_%s_%s.xlsx";
   private static final String DOWNLOADED_TEMPLATE_FILE_NAME = "money-manager-template.xlsx";
   private static final String PATH_TO_GENERATION_TEMPLATE = "xlsx/generation-template.xlsx";
   private static final String PATH_TO_USER_TEMPLATE = "xlsx/user-template.xlsx";
@@ -93,12 +95,17 @@ public class XlsxFileServiceImpl implements XlsxFileService {
       log.info("# XlsxFileService: file generation has successfully completed");
 
       var fileName = String.format(DOWNLOADED_FILE_NAME_PATTERN,
+          data.account().getName().replaceAll("\\s", "_"),
+          data.account().getCurrency(),
           LocalDateTime.now()
               .format(DateTimeFormatter
                   .ofPattern(DateTimeFormats.FILE_NAME_DATE_TIME_FORMAT)));
+
+      var contentDisposition = ContentDisposition.builder("attachment")
+          .filename(fileName, StandardCharsets.UTF_8)
+          .build();
       return ResponseEntity.ok()
-          .header(HttpHeaders.CONTENT_DISPOSITION,
-              String.format("attachment; filename=\"%s\"", fileName))
+          .header(HttpHeaders.CONTENT_DISPOSITION, contentDisposition.toString())
           .contentType(MediaType.APPLICATION_OCTET_STREAM)
           .body(result);
 

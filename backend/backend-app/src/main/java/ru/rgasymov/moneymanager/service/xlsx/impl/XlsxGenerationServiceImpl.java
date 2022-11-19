@@ -88,40 +88,39 @@ public class XlsxGenerationServiceImpl implements XlsxGenerationService {
   @Override
   public Resource generate(Resource xlsxTemplateFile,
                            FileExportData data) throws IOException {
-    final var wb = new XSSFWorkbook(xlsxTemplateFile.getInputStream());
+    try (var wb = new XSSFWorkbook(xlsxTemplateFile.getInputStream());
+         var os = new ByteArrayOutputStream()) {
+      //------- Create sheets -------
+      var savingsMap = data.savings()
+          .stream()
+          .collect(Collectors.groupingBy(item -> item.getDate().get(ChronoField.YEAR)));
 
-    //------- Create sheets -------
-    var savingsMap = data.savings()
-        .stream()
-        .collect(Collectors.groupingBy(item -> item.getDate().get(ChronoField.YEAR)));
+      var lastYearSaving = BigDecimal.ZERO;
+      for (var entry : savingsMap.entrySet()) {
+        final var year = entry.getKey();
+        final var savingsOfYear = entry.getValue();
+        final var sheet = wb.cloneSheet(TEMPLATE_SHEET_INDEX, year.toString());
 
-    var lastYearSaving = BigDecimal.ZERO;
-    for (var entry : savingsMap.entrySet()) {
-      final var year = entry.getKey();
-      final var savingsOfYear = entry.getValue();
-      final var sheet = wb.cloneSheet(TEMPLATE_SHEET_INDEX, year.toString());
+        fillSheet(
+            sheet,
+            data.incomeCategories(),
+            data.expenseCategories(),
+            savingsOfYear,
+            lastYearSaving);
 
-      fillSheet(
-          sheet,
-          data.incomeCategories(),
-          data.expenseCategories(),
-          savingsOfYear,
-          lastYearSaving);
+        //Remove sample row if it's visible
+        if (savingsOfYear.size() < 2 && !showEmptyRows) {
+          sheet.removeRow(sheet.getRow(START_DATA_ROW_BORDER_SAMPLE));
+        }
 
-      //Remove sample row if it's visible
-      if (savingsOfYear.size() < 2 && !showEmptyRows) {
-        sheet.removeRow(sheet.getRow(START_DATA_ROW_BORDER_SAMPLE));
+        lastYearSaving =
+            savingsOfYear.stream()
+                .max(Comparator.comparing(SavingResponseDto::getDate))
+                .map(SavingResponseDto::getValue)
+                .orElse(BigDecimal.ZERO);
       }
+      wb.removeSheetAt(TEMPLATE_SHEET_INDEX);
 
-      lastYearSaving =
-          savingsOfYear.stream()
-              .max(Comparator.comparing(SavingResponseDto::getDate))
-              .map(SavingResponseDto::getValue)
-              .orElse(BigDecimal.ZERO);
-    }
-    wb.removeSheetAt(TEMPLATE_SHEET_INDEX);
-
-    try (wb; ByteArrayOutputStream os = new ByteArrayOutputStream()) {
       wb.write(os);
       return new ByteArrayResource(os.toByteArray());
     }
@@ -569,7 +568,7 @@ public class XlsxGenerationServiceImpl implements XlsxGenerationService {
     return currentIndex == savingRows.size() - 1;
   }
 
-  private static record Styles(
+  private record Styles(
       CellStyle dateStyle,
       CellStyle incStyle,
       CellStyle incSumStyle,
