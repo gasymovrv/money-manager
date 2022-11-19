@@ -13,6 +13,7 @@ import ru.rgasymov.moneymanager.exception.EmptyDataGenerationException;
 import ru.rgasymov.moneymanager.service.FileService;
 import ru.rgasymov.moneymanager.service.ImportService;
 import ru.rgasymov.moneymanager.service.SavingService;
+import ru.rgasymov.moneymanager.service.UserService;
 import ru.rgasymov.moneymanager.service.xlsx.XlsxFileService;
 
 @Service
@@ -22,6 +23,7 @@ public class FileServiceImpl implements FileService {
   private final XlsxFileService xlsxFileService;
   private final ImportService importService;
   private final SavingService savingService;
+  private final UserService userService;
 
   @Value("${xlsx.max-exported-rows}")
   private int maxExportedRows;
@@ -36,6 +38,7 @@ public class FileServiceImpl implements FileService {
   public ResponseEntity<Resource> exportToXlsx() {
     var criteria = new SavingCriteriaDto();
     criteria.setPageSize(maxExportedRows);
+    var account = userService.getCurrentUserAsDto().getCurrentAccount();
     var result = savingService.search(criteria);
     var savings = result.getResult();
     if (CollectionUtils.isEmpty(savings)) {
@@ -44,6 +47,7 @@ public class FileServiceImpl implements FileService {
 
     return xlsxFileService.generate(
         new FileExportData(
+            account,
             savings,
             result.getIncomeCategories(),
             result.getExpenseCategories()));

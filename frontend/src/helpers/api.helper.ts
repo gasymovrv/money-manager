@@ -14,12 +14,30 @@ export function getFileName(response: Response, defaultName: string = 'unknown-f
   if (!contentDisposition) {
     return defaultName;
   }
-  const rawFileName = contentDisposition.split('filename=')[1];
-  if (!rawFileName || rawFileName === '') {
-    return defaultName;
-  }
 
-  return rawFileName.replaceAll('"', '');
+  const utf8FilenameRegex: RegExp = /filename\*=UTF-8''([\w%\-\.]+)(?:; ?|$)/i;
+  const asciiFilenameRegex = /^filename=(["']?)(.*?[^\\])\1(?:; ?|$)/i;
+
+  let fileName: string = defaultName;
+  if (utf8FilenameRegex.test(contentDisposition)) {
+    const found = utf8FilenameRegex.exec(contentDisposition)
+    if (!found) {
+      return fileName
+    }
+    fileName = decodeURIComponent(found[1]);
+  } else {
+    // prevent ReDos attacks by anchoring the ascii regex to string start and
+    //  slicing off everything before 'filename='
+    const filenameStart = contentDisposition.toLowerCase().indexOf('filename=');
+    if (filenameStart >= 0) {
+      const partialDisposition = contentDisposition.slice(filenameStart);
+      const matches = asciiFilenameRegex.exec(partialDisposition);
+      if (matches != null && matches[2]) {
+        fileName = matches[2];
+      }
+    }
+  }
+  return fileName;
 }
 
 export function handleErrors(response: Response) {

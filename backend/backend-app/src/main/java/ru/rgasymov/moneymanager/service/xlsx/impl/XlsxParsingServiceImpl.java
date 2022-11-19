@@ -87,30 +87,31 @@ public class XlsxParsingServiceImpl implements XlsxParsingService {
 
   @Override
   public FileImportResult parse(File file) throws IOException, InvalidFormatException {
-    var workBook = new XSSFWorkbook(file);
-    var sheetIterator = workBook.sheetIterator();
+    try (var workBook = new XSSFWorkbook(file)) {
+      var sheetIterator = workBook.sheetIterator();
 
-    FileImportResult result = null;
-    SortedSet<XSSFSheet> sortedSheets =
-        new TreeSet<>(Comparator.comparing(XSSFSheet::getSheetName));
+      FileImportResult result = null;
+      SortedSet<XSSFSheet> sortedSheets =
+          new TreeSet<>(Comparator.comparing(XSSFSheet::getSheetName));
 
-    while (sheetIterator.hasNext()) {
-      var sheet = (XSSFSheet) sheetIterator.next();
-      sortedSheets.add(sheet);
+      while (sheetIterator.hasNext()) {
+        var sheet = (XSSFSheet) sheetIterator.next();
+        sortedSheets.add(sheet);
 
-      var incCategoriesRow = sheet.getRow(CATEGORIES_ROW);
-      var expCategoriesRow = sheet.getRow(CATEGORIES_ROW);
+        var incCategoriesRow = sheet.getRow(CATEGORIES_ROW);
+        var expCategoriesRow = sheet.getRow(CATEGORIES_ROW);
 
-      FileImportResult tempResult = extractData(sheet, incCategoriesRow, expCategoriesRow);
-      if (result != null) {
-        result.add(tempResult);
-      } else {
-        result = tempResult;
+        FileImportResult tempResult = extractData(sheet, incCategoriesRow, expCategoriesRow);
+        if (result != null) {
+          result.add(tempResult);
+        } else {
+          result = tempResult;
+        }
       }
-    }
 
-    addPrevSavings(result, sortedSheets);
-    return result;
+      addPrevSavings(result, sortedSheets);
+      return result;
+    }
   }
 
   private FileImportResult extractData(XSSFSheet sheet,
@@ -280,7 +281,7 @@ public class XlsxParsingServiceImpl implements XlsxParsingService {
               result.getExpenses()
                   .stream()
                   .map(Expense::getDate)
-                  .collect(Collectors.toList())
+                  .toList()
           );
           Optional<LocalDate> minDate = dates.stream().min(LocalDate::compareTo);
           if (minDate.isPresent()) {
@@ -341,6 +342,6 @@ public class XlsxParsingServiceImpl implements XlsxParsingService {
     }
   }
 
-  private static record OperationDraft(String comment, BigDecimal value) {
+  private record OperationDraft(String comment, BigDecimal value) {
   }
 }
