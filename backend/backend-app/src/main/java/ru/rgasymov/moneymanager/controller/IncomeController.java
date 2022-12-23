@@ -18,9 +18,10 @@ import ru.rgasymov.moneymanager.domain.dto.request.OperationCategoryRequestDto;
 import ru.rgasymov.moneymanager.domain.dto.request.OperationRequestDto;
 import ru.rgasymov.moneymanager.domain.dto.response.OperationCategoryResponseDto;
 import ru.rgasymov.moneymanager.domain.dto.response.OperationResponseDto;
+import ru.rgasymov.moneymanager.domain.entity.Income;
+import ru.rgasymov.moneymanager.service.OperationService;
 import ru.rgasymov.moneymanager.service.UserService;
 import ru.rgasymov.moneymanager.service.income.IncomeCategoryService;
-import ru.rgasymov.moneymanager.service.income.IncomeService;
 
 @RestController
 @RequiredArgsConstructor
@@ -31,7 +32,7 @@ public class IncomeController {
 
   private final UserService userService;
 
-  private final IncomeService incomeService;
+  private final OperationService<Income> incomeService;
 
   private final IncomeCategoryService incomeCategoryService;
 
