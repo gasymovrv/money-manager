@@ -39,7 +39,7 @@ public class ExpenseController {
   public OperationResponseDto create(@RequestBody @Valid OperationRequestDto dto) {
     log.info("# Create a new expense by dto: {}, current user: {}", dto,
         userService.getCurrentUser());
-    return expenseService.createFromDto(dto);
+    return expenseService.create(dto);
   }
 
   @PutMapping("/{id}")

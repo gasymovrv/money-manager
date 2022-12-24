@@ -11,7 +11,6 @@ import ru.rgasymov.moneymanager.domain.dto.request.OperationRequestDto;
 import ru.rgasymov.moneymanager.domain.dto.response.OperationResponseDto;
 import ru.rgasymov.moneymanager.domain.entity.BaseOperation;
 import ru.rgasymov.moneymanager.domain.entity.BaseOperationCategory;
-import ru.rgasymov.moneymanager.domain.entity.User;
 import ru.rgasymov.moneymanager.mapper.BaseOperationMapper;
 import ru.rgasymov.moneymanager.repository.BaseOperationCategoryRepository;
 import ru.rgasymov.moneymanager.repository.BaseOperationRepository;
@@ -32,25 +31,24 @@ public abstract class BaseOperationService<
 
   @Transactional
   @Override
-  public OperationResponseDto createFromDto(OperationRequestDto dto) {
+  public OperationResponseDto create(OperationRequestDto dto) {
     var currentUser = userService.getCurrentUser();
     var currentAccountId = currentUser.getCurrentAccount().getId();
     var categoryId = dto.getCategoryId();
 
-    C category = operationCategoryRepository.findByIdAndAccountId(categoryId, currentAccountId)
-        .orElseThrow(() ->
-            new EntityNotFoundException(
-                String.format("Could not find operation category with id = '%s' in the database",
-                    categoryId)));
-    O operation = buildNewOperation(currentUser, dto, category);
+    C category = findCategory(categoryId, currentAccountId);
+    O operation = buildNewOperation(dto, category);
 
-    return saveNewOperation(operation);
+    var saved = saveNewOperation(operation);
+    logCreate(saved);
+    return saved;
   }
 
   @Transactional
   @Override
   public void create(O operation) {
-    saveNewOperation(operation);
+    var saved = saveNewOperation(operation);
+    logCreate(saved);
   }
 
   @Transactional
@@ -59,40 +57,38 @@ public abstract class BaseOperationService<
     var currentUser = userService.getCurrentUser();
     var currentAccountId = currentUser.getCurrentAccount().getId();
     var categoryId = dto.getCategoryId();
-    var date = dto.getDate();
-    var value = dto.getValue();
 
-    O operation = operationRepository.findByIdAndAccountId(id, currentAccountId)
+    O oldOperation = operationRepository.findByIdAndAccountId(id, currentAccountId)
         .orElseThrow(() ->
             new EntityNotFoundException(
                 String.format("Could not find operation with id = '%s' in the database",
                     id)));
-    var oldCategoryId = getOperationCategory(operation).getId();
-    var oldDate = operation.getDate();
-    var oldValue = operation.getValue();
+    C category = findCategory(categoryId, currentAccountId);
+    // It's needed for avoid changing after save by Hibernate
+    oldOperation = cloneOperation(oldOperation);
+    O updatedOperation = buildNewOperation(dto, category);
+    updatedOperation.setId(id);
 
+    var oldDate = oldOperation.getDate();
+    var date = updatedOperation.getDate();
     if (isChanged(oldDate, date)) {
-      deleteOperation(operation, currentAccountId);
-      return createFromDto(dto);
+      deleteOperation(oldOperation, currentAccountId);
+      var savedDto = saveNewOperation(updatedOperation);
+      logUpdate(oldOperation, savedDto);
+      return savedDto;
     }
 
-    if (isChanged(oldCategoryId, categoryId)) {
-      C category = operationCategoryRepository.findByIdAndAccountId(categoryId, currentAccountId)
-          .orElseThrow(() ->
-              new EntityNotFoundException(
-                  String.format("Could not find operation category with id = '%s' in the database",
-                      categoryId)));
-      setOperationCategory(operation, category);
-    }
-
+    var oldValue = oldOperation.getValue();
+    var value = updatedOperation.getValue();
     if (isChanged(oldValue, value)) {
-      updateSavings(value, oldValue, date, operation);
+      updateSavings(value, oldValue, date, updatedOperation);
     }
 
-    operation.setDescription(dto.getDescription());
-    operation.setIsPlanned(dto.getIsPlanned());
-    O saved = operationRepository.save(operation);
-    return operationMapper.toDto(saved);
+    O saved = operationRepository.save(updatedOperation);
+
+    var savedDto = operationMapper.toDto(saved);
+    logUpdate(oldOperation, savedDto);
+    return savedDto;
   }
 
   @Transactional
@@ -108,13 +104,23 @@ public abstract class BaseOperationService<
                     id)));
 
     deleteOperation(operation, currentAccountId);
+    logDelete(operation);
+  }
+
+  private C findCategory(Long categoryId, Long currentAccountId) {
+    return operationCategoryRepository.findByIdAndAccountId(categoryId, currentAccountId)
+        .orElseThrow(() ->
+            new EntityNotFoundException(
+                String.format("Could not find operation category with id = '%s' in the database",
+                    categoryId)));
   }
 
   protected abstract OperationResponseDto saveNewOperation(O operation);
 
-  protected abstract O buildNewOperation(User currentUser,
-                                         OperationRequestDto dto,
+  protected abstract O buildNewOperation(OperationRequestDto dto,
                                          C category);
+
+  protected abstract O cloneOperation(O operation);
 
   protected abstract void updateSavings(BigDecimal value,
                                         BigDecimal oldValue,
@@ -123,7 +129,10 @@ public abstract class BaseOperationService<
 
   protected abstract void deleteOperation(O operation, Long currentAccountId);
 
-  protected abstract C getOperationCategory(O operation);
+  protected abstract void logCreate(OperationResponseDto operation);
 
-  protected abstract void setOperationCategory(O operation, C operationCategory);
+  protected abstract void logUpdate(O oldOperation,
+                                    OperationResponseDto newOperation);
+
+  protected abstract void logDelete(O operation);
 }

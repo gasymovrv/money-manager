@@ -10,7 +10,7 @@ databaseChangeLog:
               - column: { name: id, type: bigint }
               - column: { name: account_id, type: bigint }
               - column: { name: date, type: date }
-              - column: { name: value, type: numeric }
+              - column: { name: value_, type: "numeric(102, 2)" }
 
   - changeSet:
       id: 000000-create-constraint-saving
@@ -37,12 +37,3 @@ databaseChangeLog:
             tableName: saving
             columnNames: date, account_id
             constraintName: saving_date_unique
-
-  - changeSet:
-      id: 000000-edit-column-value-saving
-      author: Gasymov Ruslan
-      changes:
-        - modifyDataType:
-            columnName: value
-            newDataType: numeric(102, 2)
-            tableName: saving

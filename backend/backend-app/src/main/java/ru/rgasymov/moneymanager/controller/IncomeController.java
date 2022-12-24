@@ -40,7 +40,7 @@ public class IncomeController {
   public OperationResponseDto create(@RequestBody @Valid OperationRequestDto dto) {
     log.info("# Create a new income by dto: {}, current user: {}", dto,
         userService.getCurrentUser());
-    return incomeService.createFromDto(dto);
+    return incomeService.create(dto);
   }
 
   @PutMapping("/{id}")

@@ -11,8 +11,8 @@ databaseChangeLog:
               - column: { name: action_type, type: varchar(255) }
               - column: { name: operation_type, type: varchar(255) }
               - column: { name: account_id, type: bigint }
-              - column: { name: old_operation, type: json }
-              - column: { name: new_operation, type: json }
+              - column: { name: old_operation, type: text }
+              - column: { name: new_operation, type: text }
               - column: { name: modified_at, type: timestamp, defaultValueComputed: now() }
 
   - changeSet:

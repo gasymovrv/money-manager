@@ -15,7 +15,7 @@
         <npm.version>6.14.11</npm.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <spring-boot.version>2.6.2</spring-boot.version>
+        <spring-boot.version>2.7.6</spring-boot.version>
         <springdoc-openapi-ui.version>1.6.3</springdoc-openapi-ui.version>
 
         <maven.compiler.source>${java.version}</maven.compiler.source>

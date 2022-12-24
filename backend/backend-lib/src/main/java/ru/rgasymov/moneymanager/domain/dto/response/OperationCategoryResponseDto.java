@@ -21,7 +21,6 @@ public class OperationCategoryResponseDto {
 
   private String name;
 
-
   @JsonProperty("isChecked")
   @Builder.Default
   private boolean isChecked = true;

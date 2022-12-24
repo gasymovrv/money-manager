@@ -17,9 +17,18 @@ import lombok.experimental.SuperBuilder;
 @ToString(callSuper = true)
 @NoArgsConstructor
 @SuperBuilder
-public class Expense extends BaseOperation {
+public class Expense extends BaseOperation implements Cloneable {
 
   @ManyToOne
   @JoinColumn(name = "category_id")
   private ExpenseCategory category;
+
+  @Override
+  public Expense clone() {
+    try {
+      return (Expense) super.clone();
+    } catch (CloneNotSupportedException e) {
+      throw new RuntimeException(e);
+    }
+  }
 }

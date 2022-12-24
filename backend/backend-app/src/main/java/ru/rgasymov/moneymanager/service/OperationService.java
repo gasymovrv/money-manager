@@ -6,7 +6,7 @@ import ru.rgasymov.moneymanager.domain.entity.BaseOperation;
 
 public interface OperationService<T extends BaseOperation> {
 
-  OperationResponseDto createFromDto(OperationRequestDto dto);
+  OperationResponseDto create(OperationRequestDto dto);
 
   void create(T entity);
 

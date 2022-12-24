@@ -13,7 +13,7 @@ databaseChangeLog:
               - column: { name: saving_id, type: bigint }
               - column: { name: date, type: date }
               - column: { name: description, type: varchar(255) }
-              - column: { name: value, type: numeric }
+              - column: { name: value_, type: "numeric(102, 2)" }
               - column: { name: is_planned, type: boolean }
 
   - changeSet:
@@ -30,8 +30,8 @@ databaseChangeLog:
             columnDataType: date
         - addNotNullConstraint:
             tableName: expense
-            columnName: value
-            columnDataType: numeric
+            columnName: value_
+            columnDataType: "numeric(102, 2)"
         - addPrimaryKey:
             columnNames: id
             tableName: expense
@@ -57,12 +57,3 @@ databaseChangeLog:
             constraintName: fk_expense_account
             referencedColumnNames: id
             referencedTableName: account
-
-  - changeSet:
-      id: 000000-edit-column-value-expense
-      author: Gasymov Ruslan
-      changes:
-        - modifyDataType:
-            columnName: value
-            newDataType: numeric(102, 2)
-            tableName: expense

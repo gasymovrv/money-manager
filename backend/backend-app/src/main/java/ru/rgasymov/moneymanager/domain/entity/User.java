@@ -37,7 +37,7 @@ public class User implements Serializable {
   @ToString.Include
   private String name;
 
-  @Column(columnDefinition = "clob")
+  @Column(columnDefinition = "character")
   private String picture;
 
   private String email;

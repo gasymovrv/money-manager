@@ -37,6 +37,7 @@ public abstract class BaseOperation {
 
   private String description;
 
+  @Column(name = "value_")
   private BigDecimal value;
 
   @Column(name = "is_planned")

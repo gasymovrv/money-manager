@@ -42,6 +42,7 @@ out/
 .vscode/
 
 installer/
+portable/
 database/
 uploaded-files/
 *.log
