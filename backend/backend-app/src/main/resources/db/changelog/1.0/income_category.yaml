@@ -46,3 +46,12 @@ databaseChangeLog:
             tableName: income_category
             columnName: name
             columnDataType: varchar(255)
+
+  - changeSet:
+      id: 000002-create-constraint-income_category
+      author: Gasymov Ruslan
+      changes:
+        - addNotNullConstraint:
+            tableName: income_category
+            columnName: account_id
+            columnDataType: bigint

@@ -1,5 +1,6 @@
 package ru.rgasymov.moneymanager.service;
 
+import java.time.LocalDate;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,6 +35,9 @@ public class HistoryService {
   public void logCreate(OperationResponseDto newOperation, OperationType operationType) {
     var currentUser = userService.getCurrentUser();
     var currentAccount = currentUser.getCurrentAccount();
+    var now = LocalDate.now();
+    newOperation.calculateOverdue(now);
+
     historyRepository.save(
         HistoryAction
             .builder()
@@ -51,6 +55,10 @@ public class HistoryService {
                         OperationType operationType) {
     var currentUser = userService.getCurrentUser();
     var currentAccount = currentUser.getCurrentAccount();
+    var now = LocalDate.now();
+    oldOperation.calculateOverdue(now);
+    newOperation.calculateOverdue(now);
+
     historyRepository.save(
         HistoryAction
             .builder()
@@ -68,6 +76,9 @@ public class HistoryService {
                         OperationType operationType) {
     var currentUser = userService.getCurrentUser();
     var currentAccount = currentUser.getCurrentAccount();
+    var now = LocalDate.now();
+    oldOperation.calculateOverdue(now);
+
     historyRepository.save(
         HistoryAction
             .builder()

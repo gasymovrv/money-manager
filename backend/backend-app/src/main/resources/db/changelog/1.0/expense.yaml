@@ -57,3 +57,20 @@ databaseChangeLog:
             constraintName: fk_expense_account
             referencedColumnNames: id
             referencedTableName: account
+
+  - changeSet:
+      id: 000001-create-constraint-expense
+      author: Gasymov Ruslan
+      changes:
+        - addNotNullConstraint:
+            tableName: expense
+            columnName: account_id
+            columnDataType: bigint
+        - addNotNullConstraint:
+            tableName: expense
+            columnName: category_id
+            columnDataType: bigint
+        - addNotNullConstraint:
+            tableName: expense
+            columnName: saving_id
+            columnDataType: bigint

@@ -46,3 +46,12 @@ databaseChangeLog:
             tableName: expense_category
             columnName: name
             columnDataType: varchar(255)
+
+  - changeSet:
+      id: 000002-create-constraint-expense_category
+      author: Gasymov Ruslan
+      changes:
+        - addNotNullConstraint:
+            tableName: expense_category
+            columnName: account_id
+            columnDataType: bigint

@@ -37,3 +37,20 @@ databaseChangeLog:
             tableName: saving
             columnNames: date, account_id
             constraintName: saving_date_unique
+
+  - changeSet:
+      id: 000001-create-constraint-saving
+      author: Gasymov Ruslan
+      changes:
+        - addNotNullConstraint:
+            tableName: saving
+            columnName: account_id
+            columnDataType: bigint
+        - addNotNullConstraint:
+            tableName: saving
+            columnName: date
+            columnDataType: date
+        - addNotNullConstraint:
+            tableName: saving
+            columnName: value_
+            columnDataType: "numeric(102, 2)"

@@ -44,3 +44,12 @@ databaseChangeLog:
             constraintName: fk_history_account
             referencedColumnNames: id
             referencedTableName: account
+
+  - changeSet:
+      id: 000001-create-constraint-history
+      author: Gasymov Ruslan
+      changes:
+        - addNotNullConstraint:
+            tableName: history
+            columnName: account_id
+            columnDataType: bigint

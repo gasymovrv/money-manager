@@ -44,4 +44,15 @@ public class OperationResponseDto {
   @JsonIgnore
   @Builder.Default
   private boolean isDescriptionCollapsed = false;
+
+  public boolean calculateOverdue(LocalDate referenceDate) {
+    if (referenceDate == null || date == null) {
+      return isOverdue;
+    }
+    var isBeforeOrEqualRefDate = (date.isBefore(referenceDate) || date.isEqual(referenceDate));
+    if (isBeforeOrEqualRefDate && Boolean.TRUE.equals(isPlanned)) {
+      setOverdue(true);
+    }
+    return isOverdue;
+  }
 }

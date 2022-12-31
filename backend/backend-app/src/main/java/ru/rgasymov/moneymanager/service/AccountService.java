@@ -19,6 +19,7 @@ import ru.rgasymov.moneymanager.mapper.AccountMapper;
 import ru.rgasymov.moneymanager.repository.AccountRepository;
 import ru.rgasymov.moneymanager.repository.ExpenseCategoryRepository;
 import ru.rgasymov.moneymanager.repository.ExpenseRepository;
+import ru.rgasymov.moneymanager.repository.HistoryRepository;
 import ru.rgasymov.moneymanager.repository.IncomeCategoryRepository;
 import ru.rgasymov.moneymanager.repository.IncomeRepository;
 import ru.rgasymov.moneymanager.repository.SavingRepository;
@@ -36,6 +37,7 @@ public class AccountService {
   private final ExpenseRepository expenseRepository;
   private final ExpenseCategoryRepository expenseCategoryRepository;
   private final SavingRepository savingRepository;
+  private final HistoryRepository historyRepository;
 
   private final AccountMapper accountMapper;
 
@@ -95,6 +97,7 @@ public class AccountService {
     incomeCategoryRepository.deleteAllByAccountId(id);
     expenseCategoryRepository.deleteAllByAccountId(id);
     savingRepository.deleteAllByAccountId(id);
+    historyRepository.deleteAllByAccountId(id);
     accountRepository.deleteById(id);
   }
 

@@ -27,17 +27,14 @@ public class SavingMapperDecorator implements SavingMapper {
   public SavingResponseDto toDto(Saving entity) {
     SavingResponseDto dto = delegate.toDto(entity);
     var isOverdue = new AtomicBoolean(false);
-    LocalDate now = LocalDate.now();
-    var isBeforeOrEqualToday = (entity.getDate().isBefore(now)
-        || entity.getDate().isEqual(now));
+    var now = LocalDate.now();
 
     var expenseMap = new HashMap<String, List<OperationResponseDto>>();
 
     entity.getExpenses().forEach((exp) -> {
       OperationResponseDto operationDto = expenseMapper.toDto(exp);
-      if (isBeforeOrEqualToday && Boolean.TRUE.equals(exp.getIsPlanned())) {
+      if (operationDto.calculateOverdue(now)) {
         isOverdue.set(true);
-        operationDto.setOverdue(true);
       }
       dto.setExpensesSum(dto.getExpensesSum().add(exp.getValue()));
 
@@ -54,9 +51,8 @@ public class SavingMapperDecorator implements SavingMapper {
 
     entity.getIncomes().forEach((inc) -> {
       OperationResponseDto operationDto = incomeMapper.toDto(inc);
-      if (isBeforeOrEqualToday && Boolean.TRUE.equals(inc.getIsPlanned())) {
+      if (operationDto.calculateOverdue(now)) {
         isOverdue.set(true);
-        operationDto.setOverdue(true);
       }
       dto.setIncomesSum(dto.getIncomesSum().add(inc.getValue()));
 

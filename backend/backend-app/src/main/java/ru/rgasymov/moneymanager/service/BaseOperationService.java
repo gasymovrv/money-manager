@@ -58,14 +58,15 @@ public abstract class BaseOperationService<
     var currentAccountId = currentUser.getCurrentAccount().getId();
     var categoryId = dto.getCategoryId();
 
-    O oldOperation = operationRepository.findByIdAndAccountId(id, currentAccountId)
-        .orElseThrow(() ->
-            new EntityNotFoundException(
-                String.format("Could not find operation with id = '%s' in the database",
-                    id)));
+    // Clone is needed to avoid changing after save by Hibernate
+    final O oldOperation = cloneOperation(
+        operationRepository.findByIdAndAccountId(id, currentAccountId)
+            .orElseThrow(() ->
+                new EntityNotFoundException(
+                    String.format("Could not find operation with id = '%s' in the database",
+                        id)))
+    );
     C category = findCategory(categoryId, currentAccountId);
-    // It's needed for avoid changing after save by Hibernate
-    oldOperation = cloneOperation(oldOperation);
     O updatedOperation = buildNewOperation(dto, category);
     updatedOperation.setId(id);
 
@@ -82,6 +83,8 @@ public abstract class BaseOperationService<
     var value = updatedOperation.getValue();
     if (isChanged(oldValue, value)) {
       updateSavings(value, oldValue, date, updatedOperation);
+    } else {
+      updatedOperation.setSaving(oldOperation.getSaving());
     }
 
     O saved = operationRepository.save(updatedOperation);
