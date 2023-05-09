@@ -44,6 +44,8 @@ const MainTableEditableItem: React.FC<MainTableEditableItemProps> = ({
                                                                      }) => {
   const {id, value, isPlanned, description} = operation;
   const [openEditOperation, setOpenEditOperation] = React.useState(false);
+  const [openDescriptionTooltip, setOpenDescriptionTooltip] = React.useState(false);
+  const [openOverdueTooltip, setOpenOverdueTooltip] = React.useState(false);
   const classes = useStyles();
 
   const handleOpenEditOperation = () => {
@@ -61,7 +63,14 @@ const MainTableEditableItem: React.FC<MainTableEditableItemProps> = ({
     itemColor = classes.secondaryColor;
   }
   const clickableMenu = (
-    <Tooltip title={(!operation.isOverdue && description) || ''}>
+    <Tooltip open={openDescriptionTooltip && !openOverdueTooltip}
+             onOpen={() => {
+               setOpenDescriptionTooltip(true)
+             }}
+             onClose={() => {
+               setOpenDescriptionTooltip(false)
+             }}
+             title={description || ''}>
       <MenuItem
         key={id}
         className={`${classes.menuItem} ${itemColor}`}
@@ -69,9 +78,16 @@ const MainTableEditableItem: React.FC<MainTableEditableItemProps> = ({
       >
         <MoneyFormat value={value}/>
         {operation.isOverdue &&
-        <Tooltip title="This operation is overdue">
-            <ErrorOutlineIcon fontSize="small" className={classes.errorIcon}/>
-        </Tooltip>
+            <Tooltip title="This operation is overdue"
+                     open={openOverdueTooltip}
+                     onOpen={() => {
+                       setOpenOverdueTooltip(true)
+                     }}
+                     onClose={() => {
+                       setOpenOverdueTooltip(false)
+                     }}>
+                <ErrorOutlineIcon fontSize="small" className={classes.errorIcon}/>
+            </Tooltip>
         }
       </MenuItem>
     </Tooltip>
