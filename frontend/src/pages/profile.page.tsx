@@ -9,8 +9,6 @@ import { Account, AccountTheme } from '../interfaces/user.interface';
 import AddAccountDialog from '../components/dialog/add-account.dialog';
 import DeleteAccountDialog from '../components/dialog/delete-account.dialog';
 import { useDispatch } from 'react-redux';
-import { resetPagination } from '../actions/pagination.actions';
-import { resetShowingCategories } from '../actions/show-categories.actions';
 import { COMMON_ERROR_MSG } from '../constants';
 import { showError } from '../actions/error.actions';
 import { useEffectCallback } from '../helpers/common.helper';
@@ -117,8 +115,6 @@ const ProfilePage: React.FC = () => {
 
       if (currentAccount.id !== account.id) {
         await changeAccount(account.id);
-        dispatch(resetPagination());
-        dispatch(resetShowingCategories())
         dispatch(showSuccess('Account has been successfully switched'));
       } else {
         dispatch(showSuccess('Account has been successfully saved'));
