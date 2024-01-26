@@ -66,7 +66,7 @@ public class ImportService {
           Saving.builder()
               .date(previousSavingsDate)
               .value(previousSavings)
-              .account(currentAccount)
+              .accountId(currentAccount.getId())
               .build());
     }
 
@@ -136,13 +136,13 @@ public class ImportService {
       var categoryName = income.getCategory().getName();
       var date = income.getDate();
       income.setCategory(incCategoriesMap.get(categoryName));
-      income.setSaving(savingsMap.get(date));
+      income.setSavingId(savingsMap.get(date).getId());
     });
     expenses.forEach(expense -> {
       var categoryName = expense.getCategory().getName();
       var date = expense.getDate();
       expense.setCategory(expCategoriesMap.get(categoryName));
-      expense.setSaving(savingsMap.get(date));
+      expense.setSavingId(savingsMap.get(date).getId());
     });
     incomeRepository.saveAll(incomes);
     expenseRepository.saveAll(expenses);
@@ -204,7 +204,7 @@ public class ImportService {
       var newSaving = Saving.builder()
           .date(date)
           .value(setValueFunc.apply(lastSavingValue, value))
-          .account(currentAccount)
+          .accountId(currentAccount.getId())
           .build();
       savings.put(date, newSaving);
     }

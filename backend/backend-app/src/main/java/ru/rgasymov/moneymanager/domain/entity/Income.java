@@ -1,6 +1,7 @@
 package ru.rgasymov.moneymanager.domain.entity;
 
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
@@ -9,6 +10,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 @Entity
 @Table(name = "income")
@@ -19,7 +22,8 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 public class Income extends BaseOperation implements Cloneable {
 
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.LAZY)
+  @Fetch(FetchMode.JOIN)
   @JoinColumn(name = "category_id")
   private IncomeCategory category;
 

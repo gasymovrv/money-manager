@@ -1,11 +1,10 @@
 package ru.rgasymov.moneymanager.domain.entity;
 
 import java.util.Objects;
+import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -23,9 +22,8 @@ public abstract class BaseOperationCategory {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  @ManyToOne
-  @JoinColumn(name = "account_id")
-  private Account account;
+  @Column(name = "account_id")
+  private Long accountId;
 
   private String name;
 

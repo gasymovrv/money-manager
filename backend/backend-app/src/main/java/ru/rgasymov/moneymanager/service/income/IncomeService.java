@@ -52,7 +52,7 @@ public class IncomeService
     var date = operation.getDate();
     savingService.increase(value, date);
     var saving = savingService.findByDate(date);
-    operation.setSaving(saving);
+    operation.setSavingId(saving.getId());
 
     var saved = incomeRepository.save(operation);
     return incomeMapper.toDto(saved);
@@ -67,7 +67,7 @@ public class IncomeService
         .value(dto.getValue())
         .description(dto.getDescription())
         .isPlanned(dto.getIsPlanned())
-        .account(currentUser.getCurrentAccount())
+        .accountId(currentUser.getCurrentAccount().getId())
         .category(category)
         .build();
   }
@@ -89,7 +89,7 @@ public class IncomeService
       savingService.decrease(subtract.abs(), date);
     }
     var saving = savingService.findByDate(date);
-    operation.setSaving(saving);
+    operation.setSavingId(saving.getId());
     operation.setValue(value);
   }
 

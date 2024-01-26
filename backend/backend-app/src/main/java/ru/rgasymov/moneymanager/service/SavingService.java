@@ -149,7 +149,7 @@ public class SavingService {
 
       var newSaving = Saving.builder()
           .date(date)
-          .account(currentUser.getCurrentAccount())
+          .accountId(currentUser.getCurrentAccount().getId())
           .build();
 
       if (savingOpt.isPresent()) {
@@ -190,7 +190,7 @@ public class SavingService {
         .forEach(inc -> {
           ArrayList<Income> value = new ArrayList<>();
           value.add(inc);
-          incomeMap.merge(inc.getSaving().getId(), value,
+          incomeMap.merge(inc.getSavingId(), value,
               (oldValue, newValue) -> {
                 oldValue.addAll(newValue);
                 return oldValue;
@@ -201,7 +201,7 @@ public class SavingService {
         .forEach(exp -> {
           ArrayList<Expense> value = new ArrayList<>();
           value.add(exp);
-          expenseMap.merge(exp.getSaving().getId(), value,
+          expenseMap.merge(exp.getSavingId(), value,
               (oldValue, newValue) -> {
                 oldValue.addAll(newValue);
                 return oldValue;

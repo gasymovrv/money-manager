@@ -1,10 +1,10 @@
-version: '2.4'
+version: '3.1'
 services:
 
   money-manager-postgres:
-    image: postgres:15.1
+    image: postgres:16.1
     ports:
-      - 5432:5432
+      - "5432:5432"
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password

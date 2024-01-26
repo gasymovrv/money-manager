@@ -10,8 +10,6 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import lombok.Builder;
@@ -35,9 +33,8 @@ public class Saving {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  @ManyToOne
-  @JoinColumn(name = "account_id")
-  private Account account;
+  @Column(name = "account_id")
+  private Long accountId;
 
   private LocalDate date;
 
@@ -48,13 +45,13 @@ public class Saving {
   @EqualsAndHashCode.Exclude
   @ToString.Exclude
   @Fetch(FetchMode.SUBSELECT)
-  @OneToMany(mappedBy = "saving", fetch = FetchType.LAZY)
+  @OneToMany(mappedBy = "savingId", fetch = FetchType.LAZY)
   private List<Income> incomes = new ArrayList<>();
 
   @Builder.Default
   @EqualsAndHashCode.Exclude
   @ToString.Exclude
   @Fetch(FetchMode.SUBSELECT)
-  @OneToMany(mappedBy = "saving", fetch = FetchType.LAZY)
+  @OneToMany(mappedBy = "savingId", fetch = FetchType.LAZY)
   private List<Expense> expenses = new ArrayList<>();
 }

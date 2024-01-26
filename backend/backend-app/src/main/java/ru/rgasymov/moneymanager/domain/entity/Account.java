@@ -5,6 +5,7 @@ import java.io.Serializable;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -17,6 +18,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 import ru.rgasymov.moneymanager.domain.enums.AccountTheme;
 
 @Entity
@@ -40,7 +43,8 @@ public class Account implements Serializable {
 
   private String currency;
 
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.LAZY)
+  @Fetch(FetchMode.JOIN)
   @ToString.Exclude
   @EqualsAndHashCode.Exclude
   @JoinColumn(name = "user_id")
