@@ -53,7 +53,7 @@ public class ExpenseService
     var date = operation.getDate();
     savingService.decrease(value, date);
     var saving = savingService.findByDate(date);
-    operation.setSaving(saving);
+    operation.setSavingId(saving.getId());
 
     var saved = expenseRepository.save(operation);
     return expenseMapper.toDto(saved);
@@ -69,7 +69,7 @@ public class ExpenseService
         .description(dto.getDescription())
         .isPlanned(dto.getIsPlanned())
         .category(category)
-        .account(currentUser.getCurrentAccount())
+        .accountId(currentUser.getCurrentAccount().getId())
         .build();
   }
 
@@ -90,7 +90,7 @@ public class ExpenseService
       savingService.increase(subtract.abs(), date);
     }
     var saving = savingService.findByDate(date);
-    operation.setSaving(saving);
+    operation.setSavingId(saving.getId());
     operation.setValue(value);
   }
 

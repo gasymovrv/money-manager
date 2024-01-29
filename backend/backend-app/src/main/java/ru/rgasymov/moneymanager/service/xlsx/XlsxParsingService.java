@@ -173,7 +173,7 @@ public class XlsxParsingService {
                   .isPlanned(date.isAfter(today))
                   .category(incomeCategory)
                   .description(od.comment())
-                  .account(currentAccount)
+                  .accountId(currentAccount.getId())
                   .build())
               .toList();
           incomes.addAll(incomesPerDay);
@@ -186,7 +186,7 @@ public class XlsxParsingService {
                   .isPlanned(date.isAfter(today))
                   .category(expenseCategory)
                   .description(od.comment())
-                  .account(currentAccount)
+                  .accountId(currentAccount.getId())
                   .build())
               .toList();
           expenses.addAll(expensesPerDay);
@@ -221,7 +221,7 @@ public class XlsxParsingService {
       } else {
         var expenseCategory = ExpenseCategory.builder()
             .name(cellValue)
-            .account(currentAccount)
+            .accountId(currentAccount.getId())
             .build();
         expenseCategories.put(cell.getColumnIndex(), expenseCategory);
       }
@@ -241,7 +241,7 @@ public class XlsxParsingService {
       } else {
         var incomeCategory = IncomeCategory.builder()
             .name(cellValue)
-            .account(currentAccount)
+            .accountId(currentAccount.getId())
             .build();
         incomeCategories.put(cell.getColumnIndex(), incomeCategory);
       }

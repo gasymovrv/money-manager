@@ -7,3 +7,4 @@ databaseChangeLog:
   - include: { relativeToChangelogFile: true, file: income.yaml }
   - include: { relativeToChangelogFile: true, file: expense.yaml }
   - include: { relativeToChangelogFile: true, file: history.yaml }
+  - include: { relativeToChangelogFile: true, file: indexes.yaml }

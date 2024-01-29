@@ -84,7 +84,7 @@ public abstract class BaseOperationService<
     if (isChanged(oldValue, value)) {
       updateSavings(value, oldValue, date, updatedOperation);
     } else {
-      updatedOperation.setSaving(oldOperation.getSaving());
+      updatedOperation.setSavingId(oldOperation.getSavingId());
     }
 
     O saved = operationRepository.save(updatedOperation);

@@ -22,7 +22,7 @@ public interface SavingRepository
   @Query("""
       update Saving a
       set a.value = a.value + :increment
-      where a.date > :date and a.account.id = :accountId
+      where a.date > :date and a.accountId = :accountId
       """)
   void increaseValueByDateGreaterThan(@Param("increment") BigDecimal increment,
                                       @Param("date") LocalDate date,
@@ -32,7 +32,7 @@ public interface SavingRepository
   @Query("""
       update Saving a
       set a.value = a.value - :decrement
-      where a.date > :date and a.account.id = :accountId
+      where a.date > :date and a.accountId = :accountId
       """)
   void decreaseValueByDateGreaterThan(@Param("decrement") BigDecimal decrement,
                                       @Param("date") LocalDate date,

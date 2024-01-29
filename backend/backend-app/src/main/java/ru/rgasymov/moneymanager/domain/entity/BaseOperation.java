@@ -6,8 +6,6 @@ import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -25,13 +23,11 @@ public abstract class BaseOperation {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  @ManyToOne
-  @JoinColumn(name = "account_id")
-  private Account account;
+  @Column(name = "account_id")
+  private Long accountId;
 
-  @ManyToOne
-  @JoinColumn(name = "saving_id")
-  private Saving saving;
+  @Column(name = "saving_id")
+  private Long savingId;
 
   private LocalDate date;
 

@@ -9,7 +9,6 @@ import javax.persistence.criteria.Root;
 import javax.validation.constraints.NotNull;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.jpa.domain.Specification;
-import ru.rgasymov.moneymanager.domain.entity.Account_;
 import ru.rgasymov.moneymanager.domain.entity.Expense;
 import ru.rgasymov.moneymanager.domain.entity.ExpenseCategory;
 import ru.rgasymov.moneymanager.domain.entity.ExpenseCategory_;
@@ -54,7 +53,7 @@ public final class SavingSpec {
 
   public static Specification<Saving> accountIdEq(Long id) {
     return (saving, cq, cb) ->
-        cb.equal(saving.get(Saving_.account).get(Account_.id), id);
+        cb.equal(saving.get(Saving_.accountId), id);
   }
 
   public static Specification<Saving> filterBySearchTextAndCategoryIds(
